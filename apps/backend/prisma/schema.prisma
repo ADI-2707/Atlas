@@ -1,0 +1,126 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["atlas_core"]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  status    String   @default("ACTIVE") // ACTIVE, INACTIVE
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users     User[]
+  roles     Role[]
+  auditLogs AuditLog[]
+
+  @@map("organizations")
+  @@schema("atlas_core")
+}
+
+model User {
+  id             String       @id @default(uuid())
+  email          String       @unique
+  passwordHash   String       @map("password_hash")
+  firstName      String       @map("first_name")
+  lastName       String       @map("last_name")
+  status         String       @default("ACTIVE") // ACTIVE, INACTIVE
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  roles     Role[]     @relation("UserRoles")
+  sessions  Session[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+  @@schema("atlas_core")
+}
+
+model Role {
+  id             String        @id @default(uuid())
+  name           String
+  description    String?
+  isSystem       Boolean       @default(false) @map("is_system")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  organizationId String?       @map("organization_id")
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  users       User[]       @relation("UserRoles")
+  permissions Permission[] @relation("RolePermissions")
+
+  @@unique([name, organizationId])
+  @@map("roles")
+  @@schema("atlas_core")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  module      String   @default("core") // core, inventory, crm, etc.
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  roles Role[] @relation("RolePermissions")
+
+  @@map("permissions")
+  @@schema("atlas_core")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String   @map("refresh_token")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  expiresAt    DateTime @map("expires_at")
+  lastActivity DateTime @default(now()) @map("last_activity")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("sessions")
+  @@schema("atlas_core")
+}
+
+model Plugin {
+  id          String   @id
+  name        String
+  version     String
+  description String?
+  status      String   @default("INSTALLED") // INSTALLED, ENABLED, DISABLED
+  config      Json?    @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("plugins")
+  @@schema("atlas_core")
+}
+
+model AuditLog {
+  id             String        @id @default(uuid())
+  timestamp      DateTime      @default(now())
+  userId         String?       @map("user_id")
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  organizationId String?       @map("organization_id")
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  pluginId       String?       @map("plugin_id")
+  action         String
+  result         String
+  ipAddress      String?       @map("ip_address")
+  sessionId      String?       @map("session_id")
+  details        Json?         @default("{}")
+
+  @@map("audit_logs")
+  @@schema("atlas_core")
+}
