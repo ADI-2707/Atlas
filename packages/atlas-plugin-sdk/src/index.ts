@@ -64,6 +64,8 @@ export interface PluginLifecycle {
 
 export interface AtlasPluginConfig {
   manifest: PluginManifest;
+  controllers?: any[];
+  providers?: any[];
   routes?: PluginRoute[];
   navigation?: PluginNavigationItem[];
   widgets?: PluginWidget[];
