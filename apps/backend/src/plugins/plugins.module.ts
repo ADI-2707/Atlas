@@ -33,17 +33,23 @@ export class PluginsModule {
                   where: { id: manifest.id },
                 });
                 if (dbPlugin && dbPlugin.status === 'ENABLED') {
-                  const backendPath = join(dir, entry.name, 'backend', 'src', 'index.ts');
-                  if (existsSync(backendPath)) {
-                    const pluginExport = await import(backendPath);
-                    const config = pluginExport.default || pluginExport;
-                    if (config) {
-                      if (config.controllers) {
-                        controllers.push(...config.controllers);
-                      }
-                      if (config.providers) {
-                        providers.push(...config.providers);
-                      }
+                  let config: any;
+                  try {
+                    const pluginExport = await import(`@atlas/plugin-${manifest.id}`);
+                    config = pluginExport.default || pluginExport;
+                  } catch (pkgErr) {
+                    const backendPath = join(dir, entry.name, 'backend', 'src', 'index.ts');
+                    if (existsSync(backendPath)) {
+                      const pluginExport = await import(backendPath);
+                      config = pluginExport.default || pluginExport;
+                    }
+                  }
+                  if (config) {
+                    if (config.controllers) {
+                      controllers.push(...config.controllers);
+                    }
+                    if (config.providers) {
+                      providers.push(...config.providers);
                     }
                   }
                 }

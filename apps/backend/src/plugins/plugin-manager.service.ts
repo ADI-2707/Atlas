@@ -61,11 +61,17 @@ export class PluginManagerService implements OnModuleInit {
               });
             }
 
-            const backendPath = join(this.pluginsDir, entry.name, 'backend', 'src', 'index.ts');
-            if (existsSync(backendPath)) {
-              const pluginExport = await import(backendPath);
+            try {
+              const pluginExport = await import(`@atlas/plugin-${manifest.id}`);
               const config = pluginExport.default || pluginExport;
               this.loadedPlugins.set(manifest.id, config);
+            } catch (pkgErr) {
+              const backendPath = join(this.pluginsDir, entry.name, 'backend', 'src', 'index.ts');
+              if (existsSync(backendPath)) {
+                const pluginExport = await import(backendPath);
+                const config = pluginExport.default || pluginExport;
+                this.loadedPlugins.set(manifest.id, config);
+              }
             }
           } catch (err) {
             console.error(`Failed to load plugin ${entry.name}:`, err);
