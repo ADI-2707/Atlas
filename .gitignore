@@ -50,3 +50,6 @@ apps/backend/prisma/migrations/*.sql.bak
 docs/atlas_extracted.txt
 docs/extract_doc.py
 docs/~$*
+docs/task.md
+docs/implementation_plan.md
+
