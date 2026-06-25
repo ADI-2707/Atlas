@@ -2,5 +2,12 @@
   "name": "@atlas/plugin-crm",
   "version": "1.0.0",
   "description": "Atlas Crm Management Plugin",
-  "private": true
+  "main": "backend/src/index.ts",
+  "types": "backend/src/index.ts",
+  "private": true,
+  "dependencies": {
+    "@atlas/plugin-sdk": "workspace:*",
+    "@nestjs/common": "10.4.15",
+    "@nestjs/swagger": "8.1.0"
+  }
 }
