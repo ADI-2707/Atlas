@@ -1,0 +1,13 @@
+{
+  "id": "crm",
+  "name": "Crm Management",
+  "version": "1.0.0",
+  "author": "Atlas Team",
+  "description": "Enterprise crm management plugin.",
+  "atlasVersion": "1.0.0",
+  "dependencies": [],
+  "permissions": [],
+  "events": [],
+  "routes": [],
+  "widgets": []
+}

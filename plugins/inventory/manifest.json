@@ -1,0 +1,13 @@
+{
+  "id": "inventory",
+  "name": "Inventory Management",
+  "version": "1.0.0",
+  "author": "Atlas Team",
+  "description": "Enterprise inventory management plugin.",
+  "atlasVersion": "1.0.0",
+  "dependencies": [],
+  "permissions": [],
+  "events": [],
+  "routes": [],
+  "widgets": []
+}

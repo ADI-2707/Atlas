@@ -1,0 +1,6 @@
+{
+  "name": "@atlas/plugin-inventory",
+  "version": "1.0.0",
+  "description": "Atlas Inventory Management Plugin",
+  "private": true
+}

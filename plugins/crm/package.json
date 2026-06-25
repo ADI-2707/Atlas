@@ -1,0 +1,6 @@
+{
+  "name": "@atlas/plugin-crm",
+  "version": "1.0.0",
+  "description": "Atlas Crm Management Plugin",
+  "private": true
+}

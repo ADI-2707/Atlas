@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+
+# Docker volumes
+pgdata/
+redisdata/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Prisma
+apps/backend/prisma/*.db
+apps/backend/prisma/migrations/*.sql.bak
+
+# Docs extraction artifacts
+docs/atlas_extracted.txt
+docs/extract_doc.py
+docs/~$*
