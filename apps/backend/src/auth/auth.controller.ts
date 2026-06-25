@@ -1,4 +1,5 @@
-import { Controller, Post, Body, Ip, Headers } from '@nestjs/common';
+import { Controller, Post, Body, Ip, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -27,8 +28,9 @@ export class AuthController {
   async login(
     @Body() dto: LoginDto,
     @Ip() ip: string,
-    @Headers('user-agent') userAgent: string,
+    @Req() req: Request,
   ) {
+    const userAgent = req.headers['user-agent'] || '';
     return this.authService.login(dto, ip, userAgent);
   }
 
@@ -39,8 +41,9 @@ export class AuthController {
   async refresh(
     @Body() dto: RefreshDto,
     @Ip() ip: string,
-    @Headers('user-agent') userAgent: string,
+    @Req() req: Request,
   ) {
+    const userAgent = req.headers['user-agent'] || '';
     return this.authService.refresh(dto, ip, userAgent);
   }
 
