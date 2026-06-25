@@ -8,16 +8,16 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Set global API prefix
+  
   app.setGlobalPrefix('api/v1');
 
-  // Enable CORS
+  
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true,
   });
 
-  // Global pipes for request validation
+  
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -26,13 +26,13 @@ async function bootstrap() {
     }),
   );
 
-  // Global Interceptors
+  
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  // Global Exception Filters
+  
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // Configure Swagger OpenAPI docs
+  
   const config = new DocumentBuilder()
     .setTitle('Atlas Enterprise API')
     .setDescription(
@@ -45,7 +45,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  // Start the server
+  
   const port = process.env.APP_PORT || 3000;
   await app.listen(port);
   console.log(`Atlas core platform running on: http://localhost:${port}/api/v1`);

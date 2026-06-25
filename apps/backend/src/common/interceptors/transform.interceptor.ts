@@ -22,7 +22,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
   intercept(context: ExecutionContext, next: CallHandler): Observable<Response<T>> {
     return next.handle().pipe(
       map((data) => {
-        // If data is already in standard format, return as is
+        
         if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
           return data;
         }
@@ -32,7 +32,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
         let metadata = { timestamp: new Date().toISOString() };
 
         if (data && typeof data === 'object') {
-          // If response has a message and payload
+          
           if ('message' in data && 'data' in data) {
             message = data.message;
             resultData = data.data;
