@@ -4,7 +4,9 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./"
+    "rootDir": "./",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   },
   "include": ["backend/src/**/*", "shared/**/*"]
 }
