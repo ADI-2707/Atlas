@@ -2,12 +2,15 @@
   "name": "@atlas/plugin-inventory",
   "version": "1.0.0",
   "description": "Atlas Inventory Management Plugin",
-  "main": "backend/src/index.ts",
-  "types": "backend/src/index.ts",
+  "main": "dist/backend/src/index.js",
+  "types": "dist/backend/src/index.d.ts",
   "private": true,
   "dependencies": {
     "@atlas/plugin-sdk": "workspace:*",
     "@nestjs/common": "10.4.15",
     "@nestjs/swagger": "8.1.0"
+  },
+  "scripts": {
+    "build": "tsc"
   }
 }

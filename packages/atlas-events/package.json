@@ -2,8 +2,8 @@
   "name": "@atlas/events",
   "version": "1.0.0",
   "description": "Atlas Event System",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "private": true,
   "scripts": {
     "build": "tsc",
