@@ -35,12 +35,12 @@ export class PluginsModule {
                 if (dbPlugin && dbPlugin.status === 'ENABLED') {
                   let config: any;
                   try {
-                    const pluginExport = await import(`@atlas/plugin-${manifest.id}`);
+                    const pluginExport = require(`@atlas/plugin-${manifest.id}`);
                     config = pluginExport.default || pluginExport;
                   } catch (pkgErr) {
                     const backendPath = join(dir, entry.name, 'backend', 'src', 'index.ts');
                     if (existsSync(backendPath)) {
-                      const pluginExport = await import(backendPath);
+                      const pluginExport = require(backendPath);
                       config = pluginExport.default || pluginExport;
                     }
                   }

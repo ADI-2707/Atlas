@@ -62,13 +62,13 @@ export class PluginManagerService implements OnModuleInit {
             }
 
             try {
-              const pluginExport = await import(`@atlas/plugin-${manifest.id}`);
+              const pluginExport = require(`@atlas/plugin-${manifest.id}`);
               const config = pluginExport.default || pluginExport;
               this.loadedPlugins.set(manifest.id, config);
             } catch (pkgErr) {
               const backendPath = join(this.pluginsDir, entry.name, 'backend', 'src', 'index.ts');
               if (existsSync(backendPath)) {
-                const pluginExport = await import(backendPath);
+                const pluginExport = require(backendPath);
                 const config = pluginExport.default || pluginExport;
                 this.loadedPlugins.set(manifest.id, config);
               }
