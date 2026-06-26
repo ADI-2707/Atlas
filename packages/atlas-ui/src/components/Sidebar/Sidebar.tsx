@@ -60,11 +60,12 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   ...props
 }) => {
   const classes = ['atlas-sidebar-item', isActive ? 'atlas-sidebar-item--active' : '', className].filter(Boolean).join(' ');
+  const displayIcon = icon || <span className="atlas-sidebar-icon-fallback">{label.charAt(0)}</span>;
 
   if (href) {
     return (
       <a href={href} className={classes} {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
-        {icon && <span className="atlas-sidebar-icon">{icon}</span>}
+        <span className="atlas-sidebar-icon">{displayIcon}</span>
         <span className="atlas-sidebar-label">{label}</span>
       </a>
     );
@@ -72,7 +73,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
 
   return (
     <div className={classes} {...(props as React.HTMLAttributes<HTMLDivElement>)}>
-      {icon && <span className="atlas-sidebar-icon">{icon}</span>}
+      <span className="atlas-sidebar-icon">{displayIcon}</span>
       <span className="atlas-sidebar-label">{label}</span>
     </div>
   );
