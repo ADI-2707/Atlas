@@ -3,6 +3,10 @@
   min-height: 100vh;
   width: 100vw;
   background-color: #03040B; /* Deep space background color */
+  background: 
+    url('/space-bg.png') bottom left no-repeat,
+    radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+  background-size: cover;
   overflow: hidden;
   position: relative;
   font-family: var(--font-family-base);
@@ -20,15 +24,11 @@
   padding: 0 10%;
   position: relative;
   z-index: 2;
-  background: 
-    url('/space-bg.png') bottom left no-repeat,
-    radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
-  background-size: 100% auto, cover;
 }
 
 .atlas-brand-container {
   max-width: 400px;
-  margin-top: -15vh; /* Push slightly up to leave room for the planet */
+  margin-top: -15vh; /* Push slightly up */
 }
 
 .atlas-brand-header {
@@ -88,14 +88,12 @@
   position: relative;
 }
 
-/* Glowing Border Animation */
+/* Glowing Border Animation - EDGE ONLY */
 .atlas-login-card-wrapper {
   position: relative;
   width: 100%;
   max-width: 460px;
   border-radius: 16px;
-  padding: 1px; /* The border thickness */
-  overflow: hidden;
 }
 
 .atlas-login-card-wrapper::before {
@@ -115,6 +113,14 @@
   );
   animation: rotate-border 4s linear infinite;
   z-index: 0;
+  
+  /* Mask out the center so ONLY the 1px edge is glowing! */
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  padding: 1px; /* The thickness of the glowing border */
 }
 
 @keyframes rotate-border {
