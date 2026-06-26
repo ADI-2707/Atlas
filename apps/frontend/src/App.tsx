@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, ProtectedRoute } from '@atlas/auth';
+import { AppLayout } from './components/Layout/AppLayout';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Placeholder components for routing
+const Dashboard = () => <div><h2>Dashboard</h2><p>Welcome to Atlas OS Workspace</p></div>;
+const Login = () => <div><h2>Login</h2><p>Please login to continue</p></div>;
+const Inventory = () => <div><h2>Inventory Plugin</h2><p>Loaded from @atlas/plugin-inventory</p></div>;
+const CRM = () => <div><h2>CRM Plugin</h2><p>Loaded from @atlas/plugin-crm</p></div>;
 
+export const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute fallback={<Navigate to="/login" replace />}>
+                <AppLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="inventory/*" element={<Inventory />} />
+            <Route path="crm/*" element={<CRM />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+};
 
-export default App
+export default App;
