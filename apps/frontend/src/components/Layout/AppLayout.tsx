@@ -3,12 +3,14 @@ import { Sidebar, SidebarItem, Navbar, Button } from '@atlas/ui';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@atlas/auth';
 import { usePlugins } from '../../contexts/PluginContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import './AppLayout.css';
 
 export const AppLayout: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { logout, user } = useAuth();
   const { navigationItems } = usePlugins();
+  const { toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,7 +48,7 @@ export const AppLayout: React.FC = () => {
               <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
                 Welcome, {user?.name || 'User'}
               </span>
-              <Button variant="secondary" size="small" onClick={() => document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')}>
+              <Button variant="secondary" size="small" onClick={toggleTheme}>
                 Toggle Theme
               </Button>
             </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, ProtectedRoute } from '@atlas/auth';
 import { PluginProvider } from './contexts/PluginContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { AppLayout } from './components/Layout/AppLayout';
 import { Login } from './pages/Login/Login';
 
@@ -11,28 +12,30 @@ const CRM = () => <div><h2>CRM Plugin</h2><p>Loaded from @atlas/plugin-crm</p></
 
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <PluginProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <PluginProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute fallback={<Navigate to="/login" replace />}>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<Dashboard />} />
-              <Route path="inventory/*" element={<Inventory />} />
-              <Route path="crm/*" element={<CRM />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </PluginProvider>
-    </AuthProvider>
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute fallback={<Navigate to="/login" replace />}>
+                    <AppLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Dashboard />} />
+                <Route path="inventory/*" element={<Inventory />} />
+                <Route path="crm/*" element={<CRM />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </PluginProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
