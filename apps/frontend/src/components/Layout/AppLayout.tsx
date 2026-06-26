@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Sidebar, SidebarItem, Navbar, Button } from '@atlas/ui';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@atlas/auth';
+import { usePlugins } from '../../contexts/PluginContext';
 import './AppLayout.css';
 
 export const AppLayout: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { logout, user } = useAuth();
+  const { navigationItems } = usePlugins();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,12 +16,6 @@ export const AppLayout: React.FC = () => {
     logout();
     navigate('/login');
   };
-
-  const navItems = [
-    { label: 'Dashboard', path: '/' },
-    { label: 'Inventory', path: '/inventory' },
-    { label: 'CRM', path: '/crm' },
-  ];
 
   return (
     <div className="atlas-app-layout">
@@ -33,10 +29,10 @@ export const AppLayout: React.FC = () => {
           </Button>
         }
       >
-        {navItems.map((item) => (
+        {navigationItems.map((item) => (
           <SidebarItem
             key={item.path}
-            label={item.label}
+            label={item.title}
             isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
             onClick={() => navigate(item.path)}
           />
