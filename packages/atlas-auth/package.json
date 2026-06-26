@@ -9,5 +9,9 @@
     "build": "tsc",
     "lint": "echo 'lint passed'",
     "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }
