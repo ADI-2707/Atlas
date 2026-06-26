@@ -52,20 +52,19 @@ const SsoIcon = () => (
   </svg>
 );
 
+// The Modular Core Logo
 const AtlasLogo = () => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="atlas-pulsing-logo">
-    <path d="M20 2L38 34H2L20 2Z" fill="url(#paint0_linear)" />
-    <path d="M20 15L28 30H12L20 15Z" fill="url(#paint1_linear)" />
-    <defs>
-      <linearGradient id="paint0_linear" x1="20" y1="2" x2="20" y2="34" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#8B5CF6" />
-        <stop offset="1" stopColor="#3B82F6" />
-      </linearGradient>
-      <linearGradient id="paint1_linear" x1="20" y1="15" x2="20" y2="30" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#C4B5FD" />
-        <stop offset="1" stopColor="#93C5FD" />
-      </linearGradient>
-    </defs>
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="atlas-logo">
+    <g transform="translate(24, 24) rotate(45)">
+      {/* Center Core (Framework) */}
+      <rect x="-8" y="-8" width="16" height="16" rx="3" fill="currentColor"/>
+      
+      {/* Orbiting Plugins */}
+      <rect x="-20" y="-20" width="10" height="10" rx="2" fill="currentColor" opacity="0.3" className="logo-node node-1"/>
+      <rect x="10" y="-20" width="10" height="10" rx="2" fill="currentColor" opacity="0.3" className="logo-node node-2"/>
+      <rect x="10" y="10" width="10" height="10" rx="2" fill="currentColor" opacity="0.3" className="logo-node node-3"/>
+      <rect x="-20" y="10" width="10" height="10" rx="2" fill="currentColor" opacity="0.3" className="logo-node node-4"/>
+    </g>
   </svg>
 );
 
@@ -102,111 +101,106 @@ export const Login: React.FC = () => {
 
   return (
     <div className="atlas-login-layout">
-      {/* Background elements */}
-      <div className="atlas-stars-bg"></div>
-      <div className="atlas-earth-bg"></div>
-
-      {/* Main Content Overlay */}
-      <div className="atlas-login-content-wrapper">
-        <div className="atlas-login-left">
-          <div className="atlas-brand-container">
-            <div className="atlas-brand-header cascade-1">
-              <AtlasLogo />
-              <h1 className="atlas-brand-title">Atlas</h1>
-            </div>
-            <h2 className="atlas-brand-subtitle cascade-2">Enterprise Intelligence Platform</h2>
-            <div className="atlas-brand-description cascade-3">
-              <p>Secure. Scalable. Seamless.</p>
-              <p>Everything your enterprise needs,</p>
-              <p>connected in one place.</p>
-            </div>
-            <div className="atlas-brand-divider cascade-4"></div>
+      
+      {/* LEFT COLUMN (BRANDING) */}
+      <div className="atlas-login-left">
+        <div className="atlas-brand-container">
+          <div className="atlas-brand-header cascade-1">
+            <AtlasLogo />
+            <h1 className="atlas-brand-title">Atlas</h1>
           </div>
+          <h2 className="atlas-brand-subtitle cascade-2">Enterprise Application Framework</h2>
+          <div className="atlas-brand-description cascade-3">
+            <p>A modular core platform providing reusable enterprise infrastructure.</p>
+            <p>Build and scale independent business plugins seamlessly.</p>
+          </div>
+          <div className="atlas-brand-divider cascade-4"></div>
         </div>
+      </div>
 
-        <div className="atlas-login-right">
-          <div className="atlas-login-card cascade-2">
-            
-            {/* The Animated Glowing Border */}
-            <div className="atlas-login-card-border"></div>
-            
-            {/* The Actual Form Content */}
-            <div className="atlas-login-card-content">
-              <div className="atlas-login-card-header cascade-3">
-                <h2>Welcome <span>back</span></h2>
-                <p>Sign in to your enterprise workspace</p>
+      {/* RIGHT COLUMN (LOGIN FORM) */}
+      <div className="atlas-login-right">
+        <div className="atlas-login-card cascade-2">
+          
+          {/* The Animated Glowing Border Container */}
+          <div className="atlas-login-card-border"></div>
+          
+          <div className="atlas-login-card-content">
+            <div className="atlas-login-card-header cascade-3">
+              <h2>Welcome back</h2>
+              <p>Sign in to your enterprise workspace</p>
+            </div>
+
+            <form onSubmit={handleLogin} className="atlas-login-form">
+              <div className="cascade-4">
+                <Input
+                  type="email"
+                  label="Email Address"
+                  placeholder="name@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  icon={<EnvelopeIcon />}
+                  required
+                />
               </div>
 
-              <form onSubmit={handleLogin} className="atlas-login-form">
-                <div className="cascade-4">
-                  <Input
-                    type="email"
-                    label="Email Address"
-                    placeholder="name@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    icon={<EnvelopeIcon />}
-                    required
-                  />
-                </div>
-
-                <div className="cascade-5">
-                  <Input
-                    type="password"
-                    label="Password"
-                    placeholder="••••••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    icon={<LockIcon />}
-                    trailingIcon={<EyeIcon />}
-                    required
-                  />
-                </div>
-
-                {error && <div className="atlas-login-error cascade-5">{error}</div>}
-
-                <div className="atlas-login-options cascade-6">
-                  <Checkbox label="Remember me" />
-                  <a href="#" className="atlas-login-forgot">Forgot password?</a>
-                </div>
-
-                <div className="cascade-7">
-                  <Button
-                    type="submit"
-                    className="atlas-login-submit"
-                    isLoading={isLoading}
-                    disabled={isLoading}
-                  >
-                    Sign In →
-                  </Button>
-                </div>
-              </form>
-
-              <div className="atlas-login-divider cascade-8">
-                <span>or continue with</span>
+              <div className="cascade-5">
+                <Input
+                  type="password"
+                  label="Password"
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  icon={<LockIcon />}
+                  trailingIcon={<EyeIcon />}
+                  required
+                />
               </div>
 
-              <div className="atlas-sso-container cascade-9">
-                <button type="button" className="atlas-sso-btn" aria-label="Sign in with Microsoft">
-                  <MicrosoftIcon />
-                </button>
-                <button type="button" className="atlas-sso-btn" aria-label="Sign in with Google">
-                  <GoogleIcon />
-                </button>
-                <button type="button" className="atlas-sso-btn atlas-sso-btn-text" aria-label="Sign in with SSO">
-                  <SsoIcon />
-                  <span>SSO</span>
-                </button>
+              {error && <div className="atlas-login-error cascade-5">{error}</div>}
+
+              <div className="atlas-login-options cascade-6">
+                <Checkbox label="Remember me" />
+                <a href="#" className="atlas-login-forgot">Forgot password?</a>
               </div>
 
-              <div className="atlas-login-footer cascade-10">
-                <LockIcon />
-                <span>Secure enterprise authentication</span>
+              <div className="cascade-7">
+                <Button
+                  type="submit"
+                  className="atlas-login-submit"
+                  isLoading={isLoading}
+                  disabled={isLoading}
+                >
+                  Sign In →
+                </Button>
               </div>
+            </form>
+
+            <div className="atlas-login-divider cascade-8">
+              <span>or continue with</span>
+            </div>
+
+            <div className="atlas-sso-container cascade-9">
+              <button type="button" className="atlas-sso-btn" aria-label="Sign in with Microsoft">
+                <MicrosoftIcon />
+              </button>
+              <button type="button" className="atlas-sso-btn" aria-label="Sign in with Google">
+                <GoogleIcon />
+              </button>
+              <button type="button" className="atlas-sso-btn atlas-sso-btn-text" aria-label="Sign in with SSO">
+                <SsoIcon />
+                <span>SSO</span>
+              </button>
+            </div>
+
+            <div className="atlas-login-footer cascade-10">
+              <LockIcon />
+              <span>Secure enterprise authentication</span>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 };

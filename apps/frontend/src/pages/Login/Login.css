@@ -1,50 +1,13 @@
 .atlas-login-layout {
   min-height: 100vh;
   width: 100vw;
-  background-color: #05060A;
-  position: relative;
+  /* Use system theme variables for consistent dark/light modes */
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--font-family-base);
-  color: #fff;
-  overflow: hidden;
-}
-
-/* Simulated starry background spanning the entire layout */
-.atlas-stars-bg {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 40px 70px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 50px 160px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 90px 40px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 160px 120px, #ffffff, rgba(0,0,0,0));
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.3;
-  z-index: 0;
-}
-
-/* The Earth image positioned separately at the bottom left */
-.atlas-earth-bg {
-  position: absolute;
-  bottom: -10%;
-  left: -10%;
-  width: 60%;
-  height: 80%;
-  background: url('/space-bg.png') center/contain no-repeat;
-  opacity: 0.8;
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* Flex wrapper for the actual content above backgrounds */
-.atlas-login-content-wrapper {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
   position: relative;
-  z-index: 2;
+  overflow: hidden;
+  display: flex;
 }
 
 /* -----------------------------
@@ -56,11 +19,12 @@
   flex-direction: column;
   justify-content: center;
   padding: 0 10%;
+  position: relative;
+  z-index: 2;
 }
 
 .atlas-brand-container {
   max-width: 400px;
-  margin-top: -15vh;
 }
 
 .atlas-brand-header {
@@ -73,29 +37,38 @@
 .atlas-brand-title {
   font-size: 3rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   letter-spacing: -1px;
 }
 
-.atlas-pulsing-logo {
-  animation: pulse-glow 3s infinite alternate ease-in-out;
-  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.4));
+/* The Modular Core Logo Animation */
+.atlas-logo {
+  color: var(--text-primary);
 }
 
-@keyframes pulse-glow {
-  0% { filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.4)); }
-  100% { filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.8)); }
+.logo-node {
+  animation: pulse-node 4s infinite ease-in-out;
+}
+
+.logo-node.node-1 { animation-delay: 0s; }
+.logo-node.node-2 { animation-delay: 1s; }
+.logo-node.node-3 { animation-delay: 2s; }
+.logo-node.node-4 { animation-delay: 3s; }
+
+@keyframes pulse-node {
+  0%, 100% { opacity: 0.2; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
 
 .atlas-brand-subtitle {
   font-size: 1.25rem;
   font-weight: 500;
-  color: #93C5FD;
+  color: var(--text-secondary);
   margin-bottom: var(--spacing-xl);
 }
 
 .atlas-brand-description {
-  color: #9CA3AF;
+  color: var(--text-muted);
   font-size: 1rem;
   line-height: 1.6;
 }
@@ -103,7 +76,7 @@
 .atlas-brand-divider {
   height: 2px;
   width: 60px;
-  background: linear-gradient(90deg, #8B5CF6, transparent);
+  background: var(--border-color);
   margin-top: var(--spacing-lg);
 }
 
@@ -116,34 +89,36 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-2xl);
+  position: relative;
+  z-index: 2;
 }
 
 .atlas-login-card {
   position: relative;
   width: 100%;
   max-width: 440px;
-  background: rgba(14, 16, 26, 0.6);
-  backdrop-filter: blur(24px);
+  /* Solid minimal background matching the system theme */
+  background-color: var(--bg-secondary);
   border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  box-shadow: var(--shadow-lg);
 }
 
-/* The Border Mask Container */
+/* The Border Mask Container for Subtle Glow */
 .atlas-login-card-border {
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  padding: 1.5px; /* Border thickness */
+  padding: 1px; /* 1px thin crisp edge */
   -webkit-mask: 
     linear-gradient(#fff 0 0) content-box, 
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
-  overflow: hidden; /* Clips the rotating pseudo-element */
+  overflow: hidden; 
   pointer-events: none;
 }
 
-/* The Rotating Glow */
+/* The Rotating Glow - Subtle Monochrome / Accent */
 .atlas-login-card-border::before {
   content: "";
   position: absolute;
@@ -155,9 +130,9 @@
     transparent, 
     transparent, 
     transparent, 
-    #8B5CF6, 
-    #3B82F6, 
-    transparent 30%
+    var(--text-secondary), 
+    var(--text-primary), 
+    transparent 20%
   );
   animation: rotate-border 4s linear infinite;
 }
@@ -182,17 +157,11 @@
   font-size: 1.875rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #fff;
-}
-
-.atlas-login-card-header h2 span {
-  background: linear-gradient(to right, #C4B5FD, #93C5FD);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .atlas-login-card-header p {
-  color: #9CA3AF;
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
 
@@ -200,20 +169,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
-
-/* Form Overrides for dark theme context */
-.atlas-input {
-  background-color: rgba(0, 0, 0, 0.3) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  color: #fff !important;
-}
-.atlas-input:focus {
-  border-color: #8B5CF6 !important;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2) !important;
-}
-.atlas-input-label {
-  color: #E5E7EB !important;
 }
 
 .atlas-login-options {
@@ -225,31 +180,17 @@
 
 .atlas-login-forgot {
   font-size: var(--font-size-sm);
-  color: #8B5CF6;
+  color: var(--text-secondary);
   transition: color 0.2s;
+  text-decoration: underline;
 }
 
 .atlas-login-forgot:hover {
-  color: #A78BFA;
-  text-decoration: none;
+  color: var(--text-primary);
 }
 
 .atlas-login-submit {
   width: 100%;
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
-  border: none !important;
-  color: white !important;
-  font-weight: 600 !important;
-  padding: 0.875rem !important;
-  font-size: 1rem !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39) !important;
-}
-
-.atlas-login-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5) !important;
-  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%) !important;
 }
 
 .atlas-login-divider {
@@ -257,7 +198,7 @@
   align-items: center;
   text-align: center;
   margin: 2rem 0;
-  color: #4B5563;
+  color: var(--text-muted);
   font-size: 0.75rem;
 }
 
@@ -265,7 +206,7 @@
 .atlas-login-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .atlas-login-divider span {
@@ -285,10 +226,11 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.2s;
+  color: var(--text-primary);
 }
 
 .atlas-sso-btn.atlas-sso-btn-text {
@@ -296,15 +238,13 @@
   padding: 0 1rem;
   border-radius: 24px;
   gap: 0.5rem;
-  color: #D1D5DB;
   font-weight: 500;
   font-size: 0.875rem;
 }
 
 .atlas-sso-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--text-secondary);
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .atlas-login-footer {
@@ -313,7 +253,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: #6B7280;
+  color: var(--text-muted);
   font-size: 0.75rem;
 }
 
