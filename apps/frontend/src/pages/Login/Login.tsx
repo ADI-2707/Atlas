@@ -75,11 +75,10 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Phase 0: Initial state (Void)
-    const t1 = setTimeout(() => setAnimPhase(1), 200); // Phase 1: Zoom in
-    const t2 = setTimeout(() => setAnimPhase(2), 1000); // Phase 2: Spin 360
-    const t3 = setTimeout(() => setAnimPhase(3), 1800); // Phase 3: Shift left and Split screen
-    const t4 = setTimeout(() => setAnimPhase(4), 2800); // Phase 4: Settle & Reveal forms
+    const t1 = setTimeout(() => setAnimPhase(1), 200);
+    const t2 = setTimeout(() => setAnimPhase(2), 1000);
+    const t3 = setTimeout(() => setAnimPhase(3), 1800);
+    const t4 = setTimeout(() => setAnimPhase(4), 2800);
 
     return () => {
       clearTimeout(t1);
@@ -112,8 +111,6 @@ export const Login: React.FC = () => {
 
   return (
     <div className={`atlas-login-layout phase-${animPhase}`}>
-      
-      {/* LEFT COLUMN (PITCH BLACK) */}
       <div className="atlas-login-left-panel">
         <div className="atlas-brand-content">
           <div className="atlas-logo-wrapper">
@@ -130,7 +127,6 @@ export const Login: React.FC = () => {
         </div>
       </div>
 
-      {/* RIGHT COLUMN (PURE WHITE) */}
       <div className="atlas-login-right-panel">
         <div className="atlas-login-card-wrapper">
           <div className="atlas-login-card">
