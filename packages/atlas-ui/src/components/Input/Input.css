@@ -30,6 +30,38 @@
   outline: none;
 }
 
+.atlas-input--has-icon {
+  padding-left: 2.5rem;
+}
+
+.atlas-input--has-trailing-icon {
+  padding-right: 2.5rem;
+}
+
+.atlas-input-icon {
+  position: absolute;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.atlas-input-icon-trailing {
+  position: absolute;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .atlas-input:focus {
   border-color: var(--color-accent-active);
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
