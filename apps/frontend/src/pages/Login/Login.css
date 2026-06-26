@@ -1,150 +1,164 @@
+/* Hardcoded Theme: Cinematic Split Screen */
 .atlas-login-layout {
-  min-height: 100vh;
-  width: 100%;
-  background: linear-gradient(to right, var(--bg-surface-primary) 30%, var(--bg-surface-secondary) 70%);
-  color: var(--text-primary);
-  font-family: var(--font-family-base);
-  position: relative;
-  overflow: hidden;
   display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #050505;
+  font-family: var(--font-family-base);
 }
 
-.atlas-login-left {
-  flex: 1;
+/* -----------------------------
+   LEFT COLUMN (BLACK)
+   ----------------------------- */
+.atlas-login-left-panel {
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  padding: 0 10%;
+  align-items: center;
+  background-color: #050505;
+  color: #fff;
+  height: 100%;
+  
+  /* The core animation mechanic */
+  width: 100%;
+  transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
   position: relative;
   z-index: 2;
 }
 
-.atlas-login-left::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
-  background-size: 24px 24px;
-  opacity: 0.15;
-  z-index: -1;
+/* Shrink the left panel to perfectly slide the centered logo */
+.phase-3 .atlas-login-left-panel,
+.phase-4 .atlas-login-left-panel {
+  width: 50%;
 }
 
-.atlas-brand-container {
-  max-width: 400px;
-}
-
-.atlas-brand-header {
+.atlas-brand-content {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
+  position: relative;
+}
+
+.atlas-logo-wrapper {
+  /* Phase 0 */
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+}
+
+/* Phase 1: Zoom in */
+.phase-1 .atlas-logo-wrapper {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Phase 2: Spin 360 */
+.phase-2 .atlas-logo-wrapper {
+  transform: scale(1) rotate(360deg);
+  opacity: 1;
+  transition: transform 0.8s ease-in-out;
+}
+
+/* Phase 3 & 4: Keep spun state while gliding left (glide happens via parent width change) */
+.phase-3 .atlas-logo-wrapper,
+.phase-4 .atlas-logo-wrapper {
+  transform: scale(1) rotate(360deg);
+  opacity: 1;
+}
+
+.atlas-logo-svg {
+  color: #fff;
+}
+
+.atlas-brand-text {
+  position: absolute;
+  top: 100%;
+  margin-top: 2rem;
+  text-align: center;
+  width: max-content;
+  
+  /* Phase 0-3 hidden */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* Phase 4: Reveal text */
+.phase-4 .atlas-brand-text {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.3s;
 }
 
 .atlas-brand-title {
   font-size: 3rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #fff;
   letter-spacing: -1px;
-}
-
-.atlas-logo {
-  color: var(--text-primary);
-}
-
-.logo-node {
-  animation: pulse-node 4s infinite ease-in-out;
-}
-
-.logo-node.node-1 { animation-delay: 0s; }
-.logo-node.node-2 { animation-delay: 1s; }
-.logo-node.node-3 { animation-delay: 2s; }
-.logo-node.node-4 { animation-delay: 3s; }
-
-@keyframes pulse-node {
-  0%, 100% { opacity: 0.2; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.1); }
+  margin-bottom: 0.5rem;
 }
 
 .atlas-brand-subtitle {
   font-size: 1.25rem;
   font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-xl);
+  color: #d1d5db; /* Whitish-grey */
+  margin-bottom: 1.5rem;
 }
 
 .atlas-brand-description {
-  color: var(--text-muted);
+  color: #9ca3af;
   font-size: 1rem;
   line-height: 1.6;
 }
 
-.atlas-brand-divider {
-  height: 2px;
-  width: 60px;
-  background: var(--border-color);
-  margin-top: var(--spacing-lg);
-}
-
-.atlas-login-right {
-  flex: 1;
+/* -----------------------------
+   RIGHT COLUMN (WHITE)
+   ----------------------------- */
+.atlas-login-right-panel {
+  height: 100%;
+  background-color: #ffffff;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: var(--spacing-2xl);
-  position: relative;
-  z-index: 2;
+  align-items: center;
+  overflow: hidden;
+  
+  /* Phase 0-2 hidden */
+  width: 0%;
+  transition: width 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
+/* Phase 3 & 4: Open the white split */
+.phase-3 .atlas-login-right-panel,
+.phase-4 .atlas-login-right-panel {
+  width: 50%;
+}
+
+.atlas-login-card-wrapper {
+  min-width: 440px; /* Prevent squishing during transition */
+  padding: 2rem;
+  
+  /* Phase 0-3 hidden */
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+/* Phase 4: Settle and reveal */
+.phase-4 .atlas-login-card-wrapper {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.4s;
+}
+
+/* The Dark Login Box */
 .atlas-login-card {
-  position: relative;
-  width: 100%;
-  max-width: 440px;
-  background-color: var(--bg-surface-primary);
+  background-color: #121212;
+  border: 1px solid #27272a;
   border-radius: 16px;
-  box-shadow: var(--shadow-lg);
-}
-
-.atlas-login-card-border {
-  position: absolute;
-  inset: 0;
-  border-radius: 16px;
-  padding: 1px;
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  overflow: hidden; 
-  pointer-events: none;
-}
-
-.atlas-login-card-border::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(
-    transparent, 
-    transparent, 
-    transparent, 
-    var(--text-secondary), 
-    var(--text-primary), 
-    transparent 20%
-  );
-  animation: rotate-border 4s linear infinite;
-}
-
-@keyframes rotate-border {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.atlas-login-card-content {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   padding: 3rem;
-  position: relative;
-  z-index: 2;
+  width: 100%;
+  color: #fff;
 }
 
 .atlas-login-card-header {
@@ -156,11 +170,11 @@
   font-size: 1.875rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: var(--text-primary);
+  color: #fff;
 }
 
 .atlas-login-card-header p {
-  color: var(--text-secondary);
+  color: #a1a1aa;
   font-size: 0.875rem;
 }
 
@@ -170,6 +184,28 @@
   gap: 1.5rem;
 }
 
+/* Override atlas UI inputs to force dark theme in the card */
+.atlas-login-card .atlas-input-wrapper input {
+  background-color: #1f1f1f;
+  border-color: #3f3f46;
+  color: #fff;
+}
+.atlas-login-card .atlas-input-wrapper input:focus {
+  border-color: var(--color-accent-core);
+}
+.atlas-login-card .atlas-input-label {
+  color: #d1d5db;
+}
+
+.atlas-login-error {
+  color: #ef4444;
+  font-size: 0.875rem;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
 .atlas-login-options {
   display: flex;
   justify-content: space-between;
@@ -177,15 +213,19 @@
   margin-top: -0.5rem;
 }
 
+.atlas-login-card .atlas-checkbox-label {
+  color: #d1d5db;
+}
+
 .atlas-login-forgot {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  font-size: 0.875rem;
+  color: #a1a1aa;
   transition: color 0.2s;
   text-decoration: underline;
 }
 
 .atlas-login-forgot:hover {
-  color: var(--text-primary);
+  color: #fff;
 }
 
 .atlas-login-submit {
@@ -197,7 +237,7 @@
   align-items: center;
   text-align: center;
   margin: 2rem 0;
-  color: var(--text-muted);
+  color: #71717a;
   font-size: 0.75rem;
 }
 
@@ -205,7 +245,7 @@
 .atlas-login-divider::after {
   content: '';
   flex: 1;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #3f3f46;
 }
 
 .atlas-login-divider span {
@@ -225,11 +265,11 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--bg-surface-primary);
-  border: 1px solid var(--border-color);
+  background: #1f1f1f;
+  border: 1px solid #3f3f46;
   cursor: pointer;
   transition: all 0.2s;
-  color: var(--text-primary);
+  color: #fff;
 }
 
 .atlas-sso-btn.atlas-sso-btn-text {
@@ -242,8 +282,8 @@
 }
 
 .atlas-sso-btn:hover {
-  border-color: var(--text-secondary);
-  transform: translateY(-2px);
+  border-color: #a1a1aa;
+  background: #27272a;
 }
 
 .atlas-login-footer {
@@ -252,33 +292,11 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: var(--text-muted);
+  color: #71717a;
   font-size: 0.75rem;
 }
 
 .atlas-login-footer svg {
   width: 14px;
   height: 14px;
-}
-
-.cascade-1 { animation: fade-in-up 0.6s ease-out 0.1s both; }
-.cascade-2 { animation: fade-in-up 0.6s ease-out 0.2s both; }
-.cascade-3 { animation: fade-in-up 0.6s ease-out 0.3s both; }
-.cascade-4 { animation: fade-in-up 0.6s ease-out 0.4s both; }
-.cascade-5 { animation: fade-in-up 0.6s ease-out 0.5s both; }
-.cascade-6 { animation: fade-in-up 0.6s ease-out 0.6s both; }
-.cascade-7 { animation: fade-in-up 0.6s ease-out 0.7s both; }
-.cascade-8 { animation: fade-in-up 0.6s ease-out 0.8s both; }
-.cascade-9 { animation: fade-in-up 0.6s ease-out 0.9s both; }
-.cascade-10 { animation: fade-in-up 0.6s ease-out 1.0s both; }
-
-@keyframes fade-in-up {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
