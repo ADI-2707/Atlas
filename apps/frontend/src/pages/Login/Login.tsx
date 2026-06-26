@@ -4,7 +4,6 @@ import { useAuth } from '@atlas/auth';
 import { Input, Button, Checkbox } from '@atlas/ui';
 import './Login.css';
 
-// SVG Icons
 const EnvelopeIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
@@ -52,14 +51,11 @@ const SsoIcon = () => (
   </svg>
 );
 
-// The Modular Core Logo
 const AtlasLogo = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="atlas-logo">
     <g transform="translate(24, 24) rotate(45)">
-      {/* Center Core (Framework) */}
       <rect x="-8" y="-8" width="16" height="16" rx="3" fill="currentColor"/>
       
-      {/* Orbiting Plugins */}
       <rect x="-20" y="-20" width="10" height="10" rx="2" fill="currentColor" opacity="0.3" className="logo-node node-1"/>
       <rect x="10" y="-20" width="10" height="10" rx="2" fill="currentColor" opacity="0.3" className="logo-node node-2"/>
       <rect x="10" y="10" width="10" height="10" rx="2" fill="currentColor" opacity="0.3" className="logo-node node-3"/>
@@ -101,8 +97,6 @@ export const Login: React.FC = () => {
 
   return (
     <div className="atlas-login-layout">
-      
-      {/* LEFT COLUMN (BRANDING) */}
       <div className="atlas-login-left">
         <div className="atlas-brand-container">
           <div className="atlas-brand-header cascade-1">
@@ -118,11 +112,8 @@ export const Login: React.FC = () => {
         </div>
       </div>
 
-      {/* RIGHT COLUMN (LOGIN FORM) */}
       <div className="atlas-login-right">
         <div className="atlas-login-card cascade-2">
-          
-          {/* The Animated Glowing Border Container */}
           <div className="atlas-login-card-border"></div>
           
           <div className="atlas-login-card-content">
