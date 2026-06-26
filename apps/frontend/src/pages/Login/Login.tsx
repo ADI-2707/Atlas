@@ -4,6 +4,7 @@ import { useAuth } from '@atlas/auth';
 import { Input, Button, Checkbox } from '@atlas/ui';
 import './Login.css';
 
+// SVG Icons
 const EnvelopeIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
@@ -101,96 +102,107 @@ export const Login: React.FC = () => {
 
   return (
     <div className="atlas-login-layout">
-      <div className="atlas-login-left">
-        <div className="atlas-brand-container">
-          <div className="atlas-brand-header cascade-1">
-            <AtlasLogo />
-            <h1 className="atlas-brand-title">Atlas</h1>
+      {/* Background elements */}
+      <div className="atlas-stars-bg"></div>
+      <div className="atlas-earth-bg"></div>
+
+      {/* Main Content Overlay */}
+      <div className="atlas-login-content-wrapper">
+        <div className="atlas-login-left">
+          <div className="atlas-brand-container">
+            <div className="atlas-brand-header cascade-1">
+              <AtlasLogo />
+              <h1 className="atlas-brand-title">Atlas</h1>
+            </div>
+            <h2 className="atlas-brand-subtitle cascade-2">Enterprise Intelligence Platform</h2>
+            <div className="atlas-brand-description cascade-3">
+              <p>Secure. Scalable. Seamless.</p>
+              <p>Everything your enterprise needs,</p>
+              <p>connected in one place.</p>
+            </div>
+            <div className="atlas-brand-divider cascade-4"></div>
           </div>
-          <h2 className="atlas-brand-subtitle cascade-2">Enterprise Intelligence Platform</h2>
-          <div className="atlas-brand-description cascade-3">
-            <p>Secure. Scalable. Seamless.</p>
-            <p>Everything your enterprise needs,</p>
-            <p>connected in one place.</p>
-          </div>
-          <div className="atlas-brand-divider cascade-4"></div>
         </div>
-      </div>
 
-      <div className="atlas-login-right">
-        <div className="atlas-login-card-wrapper cascade-2">
-          <div className="atlas-login-card">
-
-            <div className="atlas-login-card-header cascade-3">
-              <h2>Welcome <span>back</span></h2>
-              <p>Sign in to your enterprise workspace</p>
-            </div>
-
-            <form onSubmit={handleLogin} className="atlas-login-form">
-              <div className="cascade-4">
-                <Input
-                  type="email"
-                  label="Email Address"
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  icon={<EnvelopeIcon />}
-                  required
-                />
+        <div className="atlas-login-right">
+          <div className="atlas-login-card cascade-2">
+            
+            {/* The Animated Glowing Border */}
+            <div className="atlas-login-card-border"></div>
+            
+            {/* The Actual Form Content */}
+            <div className="atlas-login-card-content">
+              <div className="atlas-login-card-header cascade-3">
+                <h2>Welcome <span>back</span></h2>
+                <p>Sign in to your enterprise workspace</p>
               </div>
 
-              <div className="cascade-5">
-                <Input
-                  type="password"
-                  label="Password"
-                  placeholder="••••••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  icon={<LockIcon />}
-                  trailingIcon={<EyeIcon />}
-                  required
-                />
+              <form onSubmit={handleLogin} className="atlas-login-form">
+                <div className="cascade-4">
+                  <Input
+                    type="email"
+                    label="Email Address"
+                    placeholder="name@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    icon={<EnvelopeIcon />}
+                    required
+                  />
+                </div>
+
+                <div className="cascade-5">
+                  <Input
+                    type="password"
+                    label="Password"
+                    placeholder="••••••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    icon={<LockIcon />}
+                    trailingIcon={<EyeIcon />}
+                    required
+                  />
+                </div>
+
+                {error && <div className="atlas-login-error cascade-5">{error}</div>}
+
+                <div className="atlas-login-options cascade-6">
+                  <Checkbox label="Remember me" />
+                  <a href="#" className="atlas-login-forgot">Forgot password?</a>
+                </div>
+
+                <div className="cascade-7">
+                  <Button
+                    type="submit"
+                    className="atlas-login-submit"
+                    isLoading={isLoading}
+                    disabled={isLoading}
+                  >
+                    Sign In →
+                  </Button>
+                </div>
+              </form>
+
+              <div className="atlas-login-divider cascade-8">
+                <span>or continue with</span>
               </div>
 
-              {error && <div className="atlas-login-error cascade-5">{error}</div>}
-
-              <div className="atlas-login-options cascade-6">
-                <Checkbox label="Remember me" />
-                <a href="#" className="atlas-login-forgot">Forgot password?</a>
+              <div className="atlas-sso-container cascade-9">
+                <button type="button" className="atlas-sso-btn" aria-label="Sign in with Microsoft">
+                  <MicrosoftIcon />
+                </button>
+                <button type="button" className="atlas-sso-btn" aria-label="Sign in with Google">
+                  <GoogleIcon />
+                </button>
+                <button type="button" className="atlas-sso-btn atlas-sso-btn-text" aria-label="Sign in with SSO">
+                  <SsoIcon />
+                  <span>SSO</span>
+                </button>
               </div>
 
-              <div className="cascade-7">
-                <Button
-                  type="submit"
-                  className="atlas-login-submit"
-                  isLoading={isLoading}
-                  disabled={isLoading}
-                >
-                  Sign In →
-                </Button>
+              <div className="atlas-login-footer cascade-10">
+                <LockIcon />
+                <span>Secure enterprise authentication</span>
               </div>
-            </form>
-
-            <div className="atlas-login-divider cascade-8">
-              <span>or continue with</span>
-            </div>
-
-            <div className="atlas-sso-container cascade-9">
-              <button type="button" className="atlas-sso-btn" aria-label="Sign in with Microsoft">
-                <MicrosoftIcon />
-              </button>
-              <button type="button" className="atlas-sso-btn" aria-label="Sign in with Google">
-                <GoogleIcon />
-              </button>
-              <button type="button" className="atlas-sso-btn atlas-sso-btn-text" aria-label="Sign in with SSO">
-                <SsoIcon />
-                <span>SSO</span>
-              </button>
-            </div>
-
-            <div className="atlas-login-footer cascade-10">
-              <LockIcon />
-              <span>Secure enterprise authentication</span>
             </div>
           </div>
         </div>
