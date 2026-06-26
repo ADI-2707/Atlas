@@ -1,7 +1,6 @@
 .atlas-login-layout {
   min-height: 100vh;
   width: 100%;
-  /* Smooth blend from primary (darker) to secondary (lighter) */
   background: linear-gradient(to right, var(--bg-surface-primary) 30%, var(--bg-surface-secondary) 70%);
   color: var(--text-primary);
   font-family: var(--font-family-base);
@@ -10,9 +9,6 @@
   display: flex;
 }
 
-/* -----------------------------
-   LEFT COLUMN (BRANDING)
-   ----------------------------- */
 .atlas-login-left {
   flex: 1;
   display: flex;
@@ -23,7 +19,6 @@
   z-index: 2;
 }
 
-/* Subtle Engineering Dot Grid Texture */
 .atlas-login-left::before {
   content: '';
   position: absolute;
@@ -52,7 +47,6 @@
   letter-spacing: -1px;
 }
 
-/* The Modular Core Logo Animation */
 .atlas-logo {
   color: var(--text-primary);
 }
@@ -91,9 +85,6 @@
   margin-top: var(--spacing-lg);
 }
 
-/* -----------------------------
-   RIGHT COLUMN (LOGIN FORM)
-   ----------------------------- */
 .atlas-login-right {
   flex: 1;
   display: flex;
@@ -108,18 +99,16 @@
   position: relative;
   width: 100%;
   max-width: 440px;
-  /* Solid minimal background matching the system theme */
   background-color: var(--bg-surface-primary);
   border-radius: 16px;
   box-shadow: var(--shadow-lg);
 }
 
-/* The Border Mask Container for Subtle Glow */
 .atlas-login-card-border {
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  padding: 1px; /* 1px thin crisp edge */
+  padding: 1px;
   -webkit-mask: 
     linear-gradient(#fff 0 0) content-box, 
     linear-gradient(#fff 0 0);
@@ -129,7 +118,6 @@
   pointer-events: none;
 }
 
-/* The Rotating Glow - Subtle Monochrome / Accent */
 .atlas-login-card-border::before {
   content: "";
   position: absolute;
@@ -273,7 +261,6 @@
   height: 14px;
 }
 
-/* CASCADING FADE-IN ANIMATIONS */
 .cascade-1 { animation: fade-in-up 0.6s ease-out 0.1s both; }
 .cascade-2 { animation: fade-in-up 0.6s ease-out 0.2s both; }
 .cascade-3 { animation: fade-in-up 0.6s ease-out 0.3s both; }
