@@ -43,7 +43,7 @@ export const Login: React.FC = () => {
         <Card>
           <CardBody>
             <div className="atlas-login-header">
-              <h1 className="atlas-login-logo">Atlas OS</h1>
+              <h1 className="atlas-login-logo">Atlas</h1>
               <p className="atlas-login-subtitle">Sign in to your enterprise workspace</p>
             </div>
 
