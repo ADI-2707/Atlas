@@ -13,11 +13,11 @@ export const InventoryDashboard: React.FC = () => {
   }, []);
 
   const fetchInventoryData = async () => {
-    const token = localStorage.getItem('atlas_token') || sessionStorage.getItem('atlas_token');
+    const token = localStorage.getItem('atlas_access_token');
     if (!token) return;
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+      const apiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api/v1';
       
       const [configRes, productsRes] = await Promise.all([
         fetch(`${apiUrl}/inventory/config`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -34,11 +34,11 @@ export const InventoryDashboard: React.FC = () => {
   };
 
   const handleCreateProduct = async (data: any) => {
-    const token = localStorage.getItem('atlas_token') || sessionStorage.getItem('atlas_token');
+    const token = localStorage.getItem('atlas_access_token');
     if (!token) return;
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+      const apiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api/v1';
       const res = await fetch(`${apiUrl}/inventory/products`, {
         method: 'POST',
         headers: {
