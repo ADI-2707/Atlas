@@ -18,7 +18,7 @@ export interface PluginContextType {
 const PluginContext = createContext<PluginContextType | undefined>(undefined);
 
 export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [installedPlugins, setInstalledPlugins] = useState<string[]>([]);
   const [isLoadingPlugins, setIsLoadingPlugins] = useState(true);
   const [navigationItems, setNavigationItems] = useState<PluginNavigationItem[]>([
@@ -52,6 +52,10 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
     };
 
+    if (isAuthLoading) {
+      return;
+    }
+
     if (isAuthenticated) {
       fetchPlugins();
     } else {
@@ -59,7 +63,7 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setNavigationItems([{ title: 'Dashboard', path: '/', icon: 'dashboard' }]);
       setIsLoadingPlugins(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isAuthLoading]);
 
   const installPlugin = async (pluginId: string, _tier?: string) => {
     // Optimistically update frontend state for mock plugins that don't exist in backend yet
