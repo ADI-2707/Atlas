@@ -1,0 +1,85 @@
+.inventory-dashboard {
+  padding: 2rem;
+  color: #fff;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.table-container {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #333;
+  overflow: hidden;
+}
+
+.atlas-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.atlas-table th,
+.atlas-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.atlas-table th {
+  background-color: #222;
+  font-weight: 600;
+  color: #aaa;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.atlas-table tr:last-child td {
+  border-bottom: none;
+}
+
+.atlas-table tbody tr:hover {
+  background-color: #252525;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: #1a1a1a;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #333;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}

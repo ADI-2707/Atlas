@@ -11,7 +11,7 @@ import { PluginStore } from './pages/Store/PluginStore';
 import { Welcome } from './pages/Welcome/Welcome';
 import { Dashboard } from './pages/Dashboard/Dashboard';
 
-const Inventory = () => <div><h2>Inventory Plugin</h2><p>Loaded from @atlas/plugin-inventory</p></div>;
+import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
 const CRM = () => <div><h2>CRM Plugin</h2><p>Loaded from @atlas/plugin-crm</p></div>;
 
 const LayoutGuard: React.FC = () => {
