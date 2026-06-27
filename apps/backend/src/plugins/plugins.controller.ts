@@ -38,4 +38,15 @@ export class PluginsController {
   async disablePlugin(@Param('id') id: string) {
     return this.pluginManager.disablePlugin(id);
   }
+
+  @Post(':id/upgrade')
+  @RequirePermissions('plugins.write')
+  @ApiOperation({ summary: 'Upgrade or change a plugin subscription tier' })
+  async upgradePlugin(
+    @Param('id') id: string,
+    @Body() body: { tier: string }
+  ) {
+    return this.pluginManager.upgradePlugin(id, body.tier);
+  }
 }
+
