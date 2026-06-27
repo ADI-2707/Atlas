@@ -27,22 +27,23 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       if (!token) return;
 
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
         const res = await fetch(`${apiUrl}/plugins`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        
+
         if (res.ok) {
-          const plugins = await res.json();
-          // Filter out plugins that are installed or enabled
+          const json = await res.json();
+          const plugins = json.data || [];
+
           const installedIds = plugins
             .filter((p: any) => p.status === 'INSTALLED' || p.status === 'ENABLED')
             .map((p: any) => p.id);
-            
+
           setInstalledPlugins(installedIds);
-          
+
           const navItems: PluginNavigationItem[] = [{ title: 'Dashboard', path: '/' }];
           installedIds.forEach((pid: string) => {
             const plugin = mockPlugins.find(p => p.id === pid);
@@ -65,20 +66,20 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (!token) return;
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
       const res = await fetch(`${apiUrl}/plugins/${pluginId}/install`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (res.ok) {
         setInstalledPlugins(prev => {
           const updated = prev.includes(pluginId) ? prev : [...prev, pluginId];
           return updated;
         });
-        
+
         const plugin = mockPlugins.find(p => p.id === pluginId);
         if (plugin) {
           plugin.navigation.forEach(registerNavigationItem);
@@ -94,20 +95,20 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (!token) return;
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
       const res = await fetch(`${apiUrl}/plugins/${pluginId}/disable`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (res.ok) {
         setInstalledPlugins(prev => {
           const updated = prev.filter(id => id !== pluginId);
           return updated;
         });
-        
+
         const plugin = mockPlugins.find(p => p.id === pluginId);
         if (plugin) {
           plugin.navigation.forEach(nav => removeNavigationItem(nav.path));
