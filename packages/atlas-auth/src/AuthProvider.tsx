@@ -20,7 +20,7 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = ({ children, apiUrl = 'http://localhost:3001/api/v1' }) => {
+export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = ({ children, apiUrl = 'http://localhost:3000/api/v1' }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
