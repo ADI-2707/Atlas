@@ -25,6 +25,15 @@ const EyeIcon = () => (
   </svg>
 );
 
+const EyeOffIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+    <line x1="2" y1="2" x2="22" y2="22"></line>
+  </svg>
+);
+
 const MicrosoftIcon = () => (
   <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="1" y="1" width="9" height="9" fill="#F25022" />
@@ -68,6 +77,7 @@ export const Login: React.FC = () => {
   const [animPhase, setAnimPhase] = useState(0);
   const [email, setEmail] = useState('admin@atlas.com');
   const [password, setPassword] = useState('password');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -152,13 +162,17 @@ export const Login: React.FC = () => {
 
                 <div>
                   <Input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     label="Password"
                     placeholder="••••••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     icon={<LockIcon />}
-                    trailingIcon={<EyeIcon />}
+                    trailingIcon={
+                      <span onClick={() => setShowPassword(!showPassword)} style={{ display: 'flex' }}>
+                        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                      </span>
+                    }
                     required
                   />
                 </div>
