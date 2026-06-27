@@ -56,12 +56,16 @@ api.addResponseInterceptor(async (response, retry, config) => {
         } else {
           TokenStorage.removeToken();
           localStorage.removeItem('atlas_refresh_token');
-          window.location.href = '/login';
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
         }
       } catch (err) {
         TokenStorage.removeToken();
         localStorage.removeItem('atlas_refresh_token');
-        window.location.href = '/login';
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
       }
       isRefreshing = false;
     } else {
