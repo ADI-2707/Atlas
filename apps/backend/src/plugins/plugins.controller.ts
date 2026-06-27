@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body } from '@nestjs/common';
 import { PluginManagerService } from './plugin-manager.service';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
@@ -18,8 +18,11 @@ export class PluginsController {
   @Post(':id/install')
   @RequirePermissions('plugins.write')
   @ApiOperation({ summary: 'Install a plugin and run onInstall lifecycle hook' })
-  async installPlugin(@Param('id') id: string) {
-    return this.pluginManager.installPlugin(id);
+  async installPlugin(
+    @Param('id') id: string,
+    @Body() body?: { tier?: string }
+  ) {
+    return this.pluginManager.installPlugin(id, body?.tier);
   }
 
   @Post(':id/enable')

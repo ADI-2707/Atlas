@@ -66,8 +66,7 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [isAuthenticated, isAuthLoading]);
 
-  const installPlugin = async (pluginId: string, _tier?: string) => {
-
+  const installPlugin = async (pluginId: string, tier?: string) => {
     setInstalledPlugins(prev => {
       const updated = prev.includes(pluginId) ? prev : [...prev, pluginId];
       return updated;
@@ -78,8 +77,13 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       plugin.navigation.forEach(registerNavigationItem);
     }
 
+    let backendTier = 'free';
+    if (tier === 'pro') backendTier = 'tier1';
+    else if (tier === 'business') backendTier = 'tier2';
+    else if (tier === 'enterprise') backendTier = 'tier3';
+
     try {
-      await api.post(`/plugins/${pluginId}/install`);
+      await api.post(`/plugins/${pluginId}/install`, { tier: backendTier });
     } catch (err) {
       console.error(`Failed to install plugin ${pluginId}`, err);
     }
