@@ -26,16 +26,17 @@ model Organization {
 }
 
 model User {
-  id             String       @id @default(uuid())
-  email          String       @unique
-  passwordHash   String       @map("password_hash")
-  firstName      String       @map("first_name")
-  lastName       String       @map("last_name")
-  status         String       @default("ACTIVE") // ACTIVE, INACTIVE
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
-  organizationId String       @map("organization_id")
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                String       @id @default(uuid())
+  email             String       @unique
+  passwordHash      String       @map("password_hash")
+  firstName         String       @map("first_name")
+  lastName          String       @map("last_name")
+  status            String       @default("ACTIVE") // ACTIVE, INACTIVE
+  hasCompletedSetup Boolean      @default(false) @map("has_completed_setup")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  organizationId    String       @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   roles     Role[]     @relation("UserRoles")
   sessions  Session[]
@@ -44,6 +45,7 @@ model User {
   @@map("users")
   @@schema("atlas_core")
 }
+
 
 model Role {
   id             String        @id @default(uuid())

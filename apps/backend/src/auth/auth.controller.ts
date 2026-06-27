@@ -57,4 +57,13 @@ export class AuthController {
   ) {
     return this.authService.logout(user.sessionId, user.id, user.organizationId, ip);
   }
+
+  @Post('complete-setup')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Mark the onboarding setup as completed for this user (one-time, permanent)' })
+  @ApiResponse({ status: 200, description: 'Setup marked as completed' })
+  async completeSetup(@CurrentUser() user: any) {
+    return this.authService.completeSetup(user.id);
+  }
 }
+

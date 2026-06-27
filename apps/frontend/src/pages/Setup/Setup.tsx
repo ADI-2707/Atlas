@@ -44,13 +44,13 @@ export const Setup: React.FC = () => {
     }
   };
 
-  const handleSkip = () => {
-    completeSetup();
+  const handleSkip = async () => {
+    await completeSetup();
     navigate('/');
   };
 
-  const handlePluginSelect = (pluginId: string) => {
-    completeSetup();
+  const handlePluginSelect = async (pluginId: string) => {
+    await completeSetup();
     navigate(`/store/${pluginId}`);
   };
 
