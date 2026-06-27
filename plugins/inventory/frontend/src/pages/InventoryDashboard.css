@@ -1,8 +1,10 @@
 .inventory-dashboard {
   padding: 2rem;
+  padding-bottom: 80px; /* Room for absolute sheets bar */
   color: #fff;
   height: 100%;
   overflow-y: auto;
+  position: relative;
 }
 
 .dashboard-header {
@@ -54,84 +56,80 @@
   background-color: #252525;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
+/* Excel Style Tabs at bottom */
+.excel-tabs {
+  position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  height: 40px;
+  background-color: #201f1e;
+  border-top: 1px solid #323130;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background-color: #1a1a1a;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 100%;
-  max-width: 500px;
-  border: 1px solid #333;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
-}
-
-.modal-content h2 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.25rem;
-}
-
-.excel-tabs {
-  display: flex;
-  background-color: #111;
-  border-top: 1px solid #333;
-  padding: 0 1rem;
+  align-items: flex-end;
+  padding: 0 1.5rem;
+  z-index: 10;
+  user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: auto;
 }
 
+.excel-tabs::-webkit-scrollbar {
+  display: none;
+}
+
 .excel-tab {
-  background: transparent;
+  background-color: #252423;
+  color: #d2d0ce;
   border: none;
-  color: #888;
-  padding: 0.75rem 1.5rem;
+  border-right: 1px solid #323130;
+  height: 32px;
+  padding: 0 16px;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  border-right: 1px solid #222;
-  border-left: 1px solid #222;
-  margin-left: -1px;
-  position: relative;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 400;
+  transition: background-color 0.15s, color 0.15s;
+  border-top: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  margin-right: 1px;
 }
 
 .excel-tab:hover {
-  background-color: #1a1a1a;
-  color: #ccc;
+  background-color: #2d2c2b;
+  color: #f3f2f1;
 }
 
 .excel-tab.active {
-  background-color: #1a1a1a;
-  color: #fff;
-  border-top: 2px solid #5c6bc0;
+  background-color: #1b1a19;
+  color: #107c41; /* Excel green active text */
+  font-weight: 600;
+  border-top: 2px solid #107c41; /* Excel green top line */
 }
 
 .excel-tab-add {
   background: transparent;
   border: none;
-  color: #888;
-  padding: 0.75rem 1rem;
+  color: #a19f9d;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: bold;
-  transition: color 0.2s ease;
+  font-size: 20px;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background-color 0.15s;
+  border-radius: 50%;
+  margin-left: 8px;
+  margin-bottom: 2px;
 }
 
 .excel-tab-add:hover {
-  color: #fff;
+  background-color: #292827;
+  color: #107c41;
 }
+
 
 /* Column Modal */
 .column-modal {
@@ -197,3 +195,33 @@
 .atlas-input:focus {
   border-color: #5c6bc0;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: #1a1a1a;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid #333;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}

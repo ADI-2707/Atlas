@@ -23,4 +23,4 @@ import { PluginsModule } from './plugins/plugins.module';
     PluginsModule.register(),
   ],
 })
-export class AppModule {}
+export class AppModule { }
