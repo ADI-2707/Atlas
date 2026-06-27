@@ -125,8 +125,32 @@ export class InventoryService {
   }
 
   async getProducts(organizationId: string, tableId: string) {
+    const plugin = await this.prisma.plugin.findUnique({
+      where: { id: 'inventory' }
+    });
+    const config: any = plugin?.config || {};
+    const tier = config.tier || 'free';
+
+    let maxProducts = 50;
+    if (tier === 'tier1') maxProducts = 1000;
+    else if (tier === 'tier2') maxProducts = 10000;
+    else if (tier === 'tier3') maxProducts = 100000;
+
+    // Get the first maxProducts product IDs globally sorted by creation date
+    const allowedProducts = await this.prisma.product.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'asc' },
+      take: maxProducts,
+      select: { id: true }
+    });
+    const allowedIds = allowedProducts.map(p => p.id);
+
     return this.prisma.product.findMany({
-      where: { organizationId, tableId },
+      where: { 
+        organizationId, 
+        tableId,
+        id: { in: allowedIds }
+      },
       include: {
         stock: {
           include: { warehouse: true }
