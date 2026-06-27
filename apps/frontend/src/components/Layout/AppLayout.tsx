@@ -105,6 +105,9 @@ export const AppLayout: React.FC = () => {
               <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
                 Welcome, {user?.name || 'User'}
               </span>
+              <Button variant="primary" size="small" onClick={() => navigate('/store')}>
+                Plugin Marketplace
+              </Button>
               <Button variant="secondary" size="small" onClick={toggleTheme}>
                 Toggle Theme
               </Button>
