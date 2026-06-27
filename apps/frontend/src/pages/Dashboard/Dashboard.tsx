@@ -16,7 +16,7 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     if (installedPlugins.includes('inventory')) {
       api.get<any>('/inventory/stats')
-        .then(res => setInventoryStats(res))
+        .then(res => setInventoryStats(res.data))
         .catch(err => console.error('Failed to load inventory stats', err));
     }
   }, [installedPlugins]);
