@@ -15,13 +15,13 @@ export const InventoryDashboard: React.FC = () => {
 
   const fetchInventoryData = async () => {
     try {
-      const [configData, productsData] = await Promise.all([
-        api.get<any>('/inventory/config'),
-        api.get<any[]>('/inventory/products')
+      const [configRes, productsRes] = await Promise.all([
+        api.get<{ data: any }>('/inventory/config'),
+        api.get<{ data: any[] }>('/inventory/products')
       ]);
 
-      setConfig(configData);
-      setProducts(productsData);
+      setConfig(configRes.data);
+      setProducts(productsRes.data || []);
     } catch (err) {
       console.error('Failed to fetch inventory data', err);
     }

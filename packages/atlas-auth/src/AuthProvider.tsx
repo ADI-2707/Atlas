@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = 
       email: backendUser.email,
       name: `${backendUser.firstName} ${backendUser.lastName}`,
       role: backendUser.roles[0] || 'User',
-      hasCompletedSetup: false 
+      hasCompletedSetup: backendUser.hasCompletedSetup ?? true
     };
     
     // We still store user in localStorage for persistence across reloads until we add a /me endpoint

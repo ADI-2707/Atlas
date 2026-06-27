@@ -28,7 +28,8 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   useEffect(() => {
     const fetchPlugins = async () => {
       try {
-        const plugins = await api.get<any[]>('/plugins');
+        const json = await api.get<{ data: any[] }>('/plugins');
+        const plugins = json.data || [];
 
         const installedIds = plugins
           .filter((p: any) => p.status === 'INSTALLED' || p.status === 'ENABLED')
