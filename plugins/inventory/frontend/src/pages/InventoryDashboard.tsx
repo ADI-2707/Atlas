@@ -16,15 +16,36 @@ export const InventoryDashboard: React.FC = () => {
   const [newColumnType, setNewColumnType] = useState('string');
   const [errorMsg, setErrorMsg] = useState('');
 
+  const [limitStats, setLimitStats] = useState<any>(null);
+
   useEffect(() => {
     fetchTables();
+    fetchLimitStats();
   }, []);
+
+  const fetchLimitStats = async () => {
+    try {
+      const res = await api.get<{ data: any }>('/inventory/stats');
+      setLimitStats(res.data);
+    } catch (err) {
+      console.error('Failed to fetch limit stats', err);
+    }
+  };
 
   useEffect(() => {
     if (activeTableId) {
       fetchProducts(activeTableId);
     }
   }, [activeTableId]);
+
+  useEffect(() => {
+    if (tables.length > 0 && limitStats && activeTableId) {
+      const activeIdx = tables.findIndex(t => t.id === activeTableId);
+      if (activeIdx >= limitStats.maxTables) {
+        setActiveTableId(tables[0].id);
+      }
+    }
+  }, [tables, limitStats, activeTableId]);
 
   const fetchTables = async () => {
     try {
@@ -163,15 +184,28 @@ export const InventoryDashboard: React.FC = () => {
       </div>
 
       <div className="excel-tabs">
-        {tables.map(table => (
-          <button 
-            key={table.id} 
-            className={`excel-tab ${table.id === activeTableId ? 'active' : ''}`}
-            onClick={() => setActiveTableId(table.id)}
-          >
-            {table.name}
-          </button>
-        ))}
+        {tables.map((table, idx) => {
+          const maxTables = limitStats?.maxTables || 1;
+          const isLocked = idx >= maxTables;
+
+          return (
+            <button 
+              key={table.id} 
+              className={`excel-tab ${table.id === activeTableId ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
+              onClick={() => {
+                if (isLocked) {
+                  alert("This table is locked under your current subscription plan. Upgrade to unlock access.");
+                  return;
+                }
+                setActiveTableId(table.id);
+              }}
+              title={isLocked ? "Table locked under current plan" : ""}
+            >
+              {isLocked && <span style={{ marginRight: '6px' }}>🔒</span>}
+              {table.name}
+            </button>
+          );
+        })}
         <button className="excel-tab-add" onClick={handleCreateTable}>+</button>
       </div>
 
