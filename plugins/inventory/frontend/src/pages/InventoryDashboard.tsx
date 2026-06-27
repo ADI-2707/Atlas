@@ -137,15 +137,32 @@ export const InventoryDashboard: React.FC = () => {
   const activeTable = tables.find(t => t.id === activeTableId) || tables[0];
   const customFields = activeTable?.fieldSchema || [];
 
+  const isAddLocked = limitStats ? (limitStats.productCount / limitStats.maxProducts) >= 0.995 : false;
+
   return (
     <div className="inventory-dashboard">
       <div className="dashboard-header">
         <h1>{activeTable.name}</h1>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <Button variant="secondary" onClick={() => setIsColumnModalOpen(true)}>Manage Columns</Button>
-          <Button variant="primary" onClick={() => setIsProductModalOpen(true)}>+ Add Product</Button>
+          <Button 
+            variant="primary" 
+            disabled={isAddLocked}
+            onClick={() => setIsProductModalOpen(true)}
+            title={isAddLocked ? "Storage limit reached. Upgrade plan to add products." : ""}
+          >
+            + Add Product
+          </Button>
         </div>
       </div>
+
+      {limitStats && (limitStats.productCount / limitStats.maxProducts) >= 0.80 && (
+        <div className={`inventory-alert-banner ${(limitStats.productCount / limitStats.maxProducts) >= 0.995 ? 'locked-banner' : ''}`}>
+          ⚠️ {(limitStats.productCount / limitStats.maxProducts) >= 0.995 
+            ? "Critical limit reached. Storage is locked. Please upgrade your subscription plan to add or modify items."
+            : `Warning: You are approaching your item storage limit (${limitStats.productCount} / ${limitStats.maxProducts} items). Upgrade your plan to avoid lockout.`}
+        </div>
+      )}
 
       <div className="table-container">
         <table className="atlas-table">
