@@ -36,7 +36,6 @@ export const Dashboard: React.FC = () => {
           const isInventory = pid === 'inventory';
           const stats = isInventory ? inventoryStats : null;
           const productPct = stats ? (stats.productCount / stats.maxProducts) * 100 : 0;
-          const tablePct = stats ? (stats.tableCount / stats.maxTables) * 100 : 0;
 
           let fillClass = 'fill-normal';
           if (productPct >= 90) fillClass = 'fill-critical';
@@ -74,15 +73,23 @@ export const Dashboard: React.FC = () => {
                     </div>
 
                     <div className="limit-item">
-                      <div className="limit-label">
+                      <div className="limit-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>Tables</span>
-                        <span>{stats.tableCount} / {stats.maxTables} ({tablePct.toFixed(0)}%)</span>
-                      </div>
-                      <div className="limit-progress-bar">
-                        <div
-                          className="limit-progress-fill fill-normal"
-                          style={{ width: `${Math.min(tablePct, 100)}%` }}
-                        />
+                        {stats.tableCount > stats.maxTables ? (
+                          <span>
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{stats.maxTables} Active</span>
+                            {', '}
+                            <span style={{ color: '#f87171', fontWeight: 600 }}>{stats.tableCount - stats.maxTables} Locked</span>
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginLeft: '6px' }}>
+                              (Upgrade to unlock)
+                            </span>
+                          </span>
+                        ) : (
+                          <span>
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{stats.tableCount}</span>
+                            {` / ${stats.maxTables}`}
+                          </span>
+                        )}
                       </div>
                     </div>
 
