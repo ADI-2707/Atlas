@@ -1,7 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["atlas_core"]
+  schemas  = ["atlas_core", "atlas_inventory"]
 }
 
 generator client {
@@ -123,4 +123,67 @@ model AuditLog {
 
   @@map("audit_logs")
   @@schema("atlas_core")
+}
+
+// -----------------------------------------
+// INVENTORY PLUGIN SCHEMA
+// -----------------------------------------
+
+model InventoryConfig {
+  id             String   @id @default(uuid())
+  organizationId String   @unique @map("organization_id")
+  fieldSchema    Json     @default("[]") // custom field definitions
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("inv_config")
+  @@schema("atlas_inventory")
+}
+
+model Product {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  sku            String
+  basePrice      Float    @map("base_price")
+  customData     Json?    @default("{}") @map("custom_data")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  stock Stock[]
+
+  @@unique([organizationId, sku])
+  @@map("inv_products")
+  @@schema("atlas_inventory")
+}
+
+model Warehouse {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  location       String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  stock Stock[]
+
+  @@map("inv_warehouses")
+  @@schema("atlas_inventory")
+}
+
+model Stock {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  productId      String   @map("product_id")
+  warehouseId    String   @map("warehouse_id")
+  quantity       Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, warehouseId])
+  @@map("inv_stock")
+  @@schema("atlas_inventory")
 }
