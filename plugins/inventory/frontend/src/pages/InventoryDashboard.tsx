@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input } from '@atlas/ui';
+import { Button } from '@atlas/ui';
 import { ProductForm } from '../components/ProductForm';
 import './InventoryDashboard.css';
 
