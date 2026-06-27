@@ -13,6 +13,13 @@ const tiers = [
   { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'Unlimited everything.', features: ['Everything in Business', 'Dedicated Account Manager', 'On-premise option'] },
 ];
 
+const tierOrder: Record<string, number> = {
+  free: 0,
+  pro: 1,
+  business: 2,
+  enterprise: 3
+};
+
 export const PluginStore: React.FC = () => {
   const { pluginId } = useParams<{ pluginId?: string }>();
   const navigate = useNavigate();
@@ -27,7 +34,15 @@ export const PluginStore: React.FC = () => {
     navigate(`/${pId}`);
   };
 
-  const handleUpgrade = async (pId: string, tier: string) => {
+  const handleUpgrade = async (pId: string, tier: string, activeTierId: string) => {
+    const isDowngrade = tierOrder[tier] < tierOrder[activeTierId];
+    if (isDowngrade) {
+      const confirmed = window.confirm(
+        `If you downgrade, the privileges of this tier will be revoked and only privileges of the downgraded tier will be available. Are you sure you want to switch from ${activeTierId.toUpperCase()} to ${tier.toUpperCase()}?`
+      );
+      if (!confirmed) return;
+    }
+
     try {
       await upgradePlugin(pId, tier);
       alert(`Successfully changed to the ${tier.charAt(0).toUpperCase() + tier.slice(1)} plan!`);
@@ -89,7 +104,7 @@ export const PluginStore: React.FC = () => {
                     </Button>
                   ) : (
                     <Button 
-                      onClick={() => isInstalled ? handleUpgrade(plugin.id, tier.id) : handleInstall(plugin.id, tier.id)}
+                      onClick={() => isInstalled ? handleUpgrade(plugin.id, tier.id, activeTierId) : handleInstall(plugin.id, tier.id)}
                       style={{ width: '100%' }}
                     >
                       {isInstalled ? 'Change to this Plan' : `Select ${tier.name}`}
