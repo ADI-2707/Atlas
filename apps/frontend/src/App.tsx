@@ -4,13 +4,25 @@ import { AuthProvider, ProtectedRoute, useAuth } from '@atlas/auth';
 import { PluginProvider } from './contexts/PluginContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AppLayout } from './components/Layout/AppLayout';
+import { usePlugins } from './contexts/PluginContext';
 import { Login } from './pages/Login/Login';
 import { Setup } from './pages/Setup/Setup';
 import { PluginStore } from './pages/Store/PluginStore';
+import { Welcome } from './pages/Welcome/Welcome';
+import { Dashboard } from './pages/Dashboard/Dashboard';
 
-const Dashboard = () => <div><h2>Dashboard</h2><p>Welcome to Atlas OS Workspace</p></div>;
 const Inventory = () => <div><h2>Inventory Plugin</h2><p>Loaded from @atlas/plugin-inventory</p></div>;
 const CRM = () => <div><h2>CRM Plugin</h2><p>Loaded from @atlas/plugin-crm</p></div>;
+
+const LayoutGuard: React.FC = () => {
+  const { installedPlugins } = usePlugins();
+  const location = useLocation();
+
+  if (installedPlugins.length === 0 && location.pathname === '/') {
+    return <Navigate to="/welcome" replace />;
+  }
+  return <AppLayout />;
+};
 
 const SetupGuard: React.FC<{ children: React.ReactNode, requireSetup?: boolean }> = ({ children, requireSetup = true }) => {
   const { user, isLoading } = useAuth();
@@ -46,12 +58,20 @@ export const App: React.FC = () => {
                 </ProtectedRoute>
               } />
 
+              <Route path="/welcome" element={
+                <ProtectedRoute fallback={<Navigate to="/login" replace />}>
+                  <SetupGuard>
+                    <Welcome />
+                  </SetupGuard>
+                </ProtectedRoute>
+              } />
+
               <Route
                 path="/"
                 element={
                   <ProtectedRoute fallback={<Navigate to="/login" replace />}>
                     <SetupGuard>
-                      <AppLayout />
+                      <LayoutGuard />
                     </SetupGuard>
                   </ProtectedRoute>
                 }

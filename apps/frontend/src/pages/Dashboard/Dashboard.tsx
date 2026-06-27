@@ -11,25 +11,6 @@ export const Dashboard: React.FC = () => {
   const { installedPlugins } = usePlugins();
   const navigate = useNavigate();
 
-  const handleAddPlugins = () => {
-    navigate('/store');
-  };
-
-  if (installedPlugins.length === 0) {
-    return (
-      <div className="dashboard-empty-state">
-        <div className="empty-state-content">
-          <div className="welcome-icon">👋</div>
-          <h1>Welcome to Atlas, {user?.name || 'User'}!</h1>
-          <p>Your workspace is currently empty. To get started and unlock the power of Atlas, you need to install some enterprise plugins.</p>
-          <Button onClick={handleAddPlugins} size="large">
-            Add Plugins
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="dashboard-active-state">
       <div className="dashboard-header">
