@@ -27,6 +27,7 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   useEffect(() => {
     const fetchPlugins = async () => {
+      setIsLoadingPlugins(true);
       try {
         const json = await api.get<{ data: any[] }>('/plugins');
         const plugins = json.data || [];

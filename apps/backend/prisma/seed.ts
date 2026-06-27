@@ -117,6 +117,7 @@ async function main() {
     where: { email: 'admin@atlas.com' },
     update: {
       passwordHash,
+      hasCompletedSetup: true,
     },
     create: {
       email: 'admin@atlas.com',
@@ -124,6 +125,7 @@ async function main() {
       firstName: 'Admin',
       lastName: 'User',
       status: 'ACTIVE',
+      hasCompletedSetup: true,
       organizationId: org.id,
       roles: {
         connect: [

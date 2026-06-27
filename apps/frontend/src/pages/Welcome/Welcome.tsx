@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
 import { useAuth } from '@atlas/auth';
+import { usePlugins } from '../../contexts/PluginContext';
 import './Welcome.css';
 
 export const Welcome: React.FC = () => {
   const { user } = useAuth();
+  const { installedPlugins } = usePlugins();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (installedPlugins.length > 0) {
+      navigate('/', { replace: true });
+    }
+  }, [installedPlugins, navigate]);
 
   const handleAddPlugins = () => {
     navigate('/store');
   };
+
 
   return (
     <div className="welcome-landing-container">
