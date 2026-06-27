@@ -16,7 +16,7 @@ const tiers = [
 export const PluginStore: React.FC = () => {
   const { pluginId } = useParams<{ pluginId?: string }>();
   const navigate = useNavigate();
-  const { installPlugin, installedPlugins } = usePlugins();
+  const { installPlugin, upgradePlugin, installedPlugins, allPlugins } = usePlugins();
   const { user, completeSetup } = useAuth();
   
   const handleInstall = async (pId: string, tier: string) => {
@@ -27,11 +27,30 @@ export const PluginStore: React.FC = () => {
     navigate(`/${pId}`);
   };
 
+  const handleUpgrade = async (pId: string, tier: string) => {
+    try {
+      await upgradePlugin(pId, tier);
+      alert(`Successfully changed to the ${tier.charAt(0).toUpperCase() + tier.slice(1)} plan!`);
+      window.location.reload();
+    } catch (e) {
+      alert('Failed to change plan.');
+    }
+  };
+
   if (pluginId) {
     const plugin = mockPlugins.find(p => p.id === pluginId);
     if (!plugin) return <div>Plugin not found</div>;
 
     const isInstalled = installedPlugins.includes(plugin.id);
+    
+    // Determine active tier config from DB
+    const dbPlugin = allPlugins.find(p => p.id === pluginId);
+    const activeBackendTier = dbPlugin?.config?.tier || 'free';
+    
+    let activeTierId = 'free';
+    if (activeBackendTier === 'tier1') activeTierId = 'pro';
+    else if (activeBackendTier === 'tier2') activeTierId = 'business';
+    else if (activeBackendTier === 'tier3') activeTierId = 'enterprise';
 
     return (
       <div className="store-container">
@@ -45,29 +64,41 @@ export const PluginStore: React.FC = () => {
         </div>
 
         <div className="tiers-grid">
-          {tiers.map(tier => (
-            <div key={tier.id} className="tier-card">
-              <h3>{tier.name}</h3>
-              <div className="tier-price">{tier.price}<span>/mo</span></div>
-              <p className="tier-desc">{tier.desc}</p>
-              
-              <ul className="tier-features">
-                {tier.features.map((f, i) => (
-                  <li key={i}>✓ {f}</li>
-                ))}
-              </ul>
+          {tiers.map(tier => {
+            const isActive = isInstalled && activeTierId === tier.id;
+            
+            return (
+              <div key={tier.id} className={`tier-card ${isActive ? 'active-tier' : ''}`}>
+                <h3>{tier.name}</h3>
+                <div className="tier-price">{tier.price}<span>/mo</span></div>
+                <p className="tier-desc">{tier.desc}</p>
+                
+                <ul className="tier-features">
+                  {tier.features.map((f, i) => (
+                    <li key={i}>✓ {f}</li>
+                  ))}
+                </ul>
 
-              <div className="tier-action">
-                <Button 
-                  disabled={isInstalled} 
-                  onClick={() => handleInstall(plugin.id, tier.id)}
-                  style={{ width: '100%' }}
-                >
-                  {isInstalled ? 'Already Installed' : `Select ${tier.name}`}
-                </Button>
+                <div className="tier-action">
+                  {isActive ? (
+                    <Button 
+                      disabled
+                      style={{ width: '100%', backgroundColor: '#107c41', color: '#fff', borderColor: '#107c41' }}
+                    >
+                      Active Plan
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={() => isInstalled ? handleUpgrade(plugin.id, tier.id) : handleInstall(plugin.id, tier.id)}
+                      style={{ width: '100%' }}
+                    >
+                      {isInstalled ? 'Change to this Plan' : `Select ${tier.name}`}
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
