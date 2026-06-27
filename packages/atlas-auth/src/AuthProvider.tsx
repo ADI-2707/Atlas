@@ -58,8 +58,7 @@ export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = 
 
     TokenStorage.setToken(accessToken);
     
-    // Check if the user has completed setup. Since backend doesn't store this yet,
-    // we'll keep the mock logic or default to false for now.
+
     const userWithSetup = {
       id: backendUser.id,
       email: backendUser.email,
@@ -68,7 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = 
       hasCompletedSetup: backendUser.hasCompletedSetup ?? true
     };
     
-    // We still store user in localStorage for persistence across reloads until we add a /me endpoint
+
     localStorage.setItem('atlas_user', JSON.stringify(userWithSetup));
     setUser(userWithSetup);
     setIsAuthenticated(true);

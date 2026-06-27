@@ -66,7 +66,7 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, [isAuthenticated, isAuthLoading]);
 
   const installPlugin = async (pluginId: string, _tier?: string) => {
-    // Optimistically update frontend state for mock plugins that don't exist in backend yet
+
     setInstalledPlugins(prev => {
       const updated = prev.includes(pluginId) ? prev : [...prev, pluginId];
       return updated;
