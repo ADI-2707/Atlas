@@ -1,0 +1,235 @@
+.atlas-setup-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-surface-base);
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-family-base);
+}
+
+.atlas-setup-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.setup-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  animation: setup-float 15s ease-in-out infinite alternate;
+}
+
+.setup-glow-1 {
+  background: var(--color-accent-primary);
+  top: -200px;
+  left: -200px;
+}
+
+.setup-glow-2 {
+  background: var(--color-accent-hover);
+  bottom: -200px;
+  right: -200px;
+  animation-delay: -5s;
+}
+
+@keyframes setup-float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(100px, 50px) scale(1.2); }
+}
+
+.atlas-setup-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.setup-progress {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.setup-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--text-primary);
+  opacity: 0.15;
+  transition: all 0.3s ease;
+}
+
+.setup-progress-dot.active {
+  width: 24px;
+  background-color: var(--text-primary);
+  opacity: 1;
+}
+
+.setup-progress-dot.completed {
+  background-color: var(--text-primary);
+  opacity: 0.4;
+}
+
+.setup-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-height: 400px;
+  justify-content: center;
+}
+
+.setup-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.setup-title {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.setup-subtitle {
+  font-size: 1.25rem;
+  color: var(--color-accent-primary);
+  margin: 0;
+}
+
+.setup-body {
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.setup-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.setup-plugins-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.setup-plugin-card {
+  background: var(--bg-surface-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.setup-plugin-card:hover {
+  border-color: var(--color-accent-primary);
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
+}
+
+.plugin-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-surface-tertiary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--color-accent-primary);
+  flex-shrink: 0;
+}
+
+.plugin-info h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.plugin-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+.slide-in-right .setup-title,
+.slide-in-right .setup-subtitle,
+.slide-in-right .setup-body,
+.slide-in-right .setup-actions {
+  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.slide-in-right .delay-1 { animation-delay: 0.1s; }
+.slide-in-right .delay-2 { animation-delay: 0.2s; }
+.slide-in-right .delay-3 { animation-delay: 0.3s; }
+
+
+.slide-out-right .setup-title,
+.slide-out-right .setup-subtitle,
+.slide-out-right .setup-body,
+.slide-out-right .setup-actions {
+  animation: slideOutRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.slide-out-right .delay-1 { animation-delay: 0.05s; }
+.slide-out-right .delay-2 { animation-delay: 0.1s; }
+.slide-out-right .delay-3 { animation-delay: 0.15s; }
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+}

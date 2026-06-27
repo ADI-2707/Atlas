@@ -6,6 +6,7 @@ export interface User {
   email: string;
   name: string;
   role: string;
+  hasCompletedSetup?: boolean;
 }
 
 export interface AuthContextType {
@@ -13,6 +14,7 @@ export interface AuthContextType {
   user: User | null;
   login: (token: string, userData: User) => void;
   logout: () => void;
+  completeSetup: () => void;
   isLoading: boolean;
 }
 
@@ -41,9 +43,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = (token: string, userData: User) => {
     TokenStorage.setToken(token);
-    localStorage.setItem('atlas_user', JSON.stringify(userData));
-    setUser(userData);
+    const userWithSetup = { ...userData, hasCompletedSetup: userData.hasCompletedSetup ?? false };
+    localStorage.setItem('atlas_user', JSON.stringify(userWithSetup));
+    setUser(userWithSetup);
     setIsAuthenticated(true);
+  };
+
+  const completeSetup = () => {
+    if (user) {
+      const updatedUser = { ...user, hasCompletedSetup: true };
+      localStorage.setItem('atlas_user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    }
   };
 
   const logout = () => {
@@ -54,7 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, completeSetup, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

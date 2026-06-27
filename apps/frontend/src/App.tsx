@@ -1,14 +1,33 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, ProtectedRoute } from '@atlas/auth';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, ProtectedRoute, useAuth } from '@atlas/auth';
 import { PluginProvider } from './contexts/PluginContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AppLayout } from './components/Layout/AppLayout';
 import { Login } from './pages/Login/Login';
+import { Setup } from './pages/Setup/Setup';
+import { PluginStore } from './pages/Store/PluginStore';
 
 const Dashboard = () => <div><h2>Dashboard</h2><p>Welcome to Atlas OS Workspace</p></div>;
 const Inventory = () => <div><h2>Inventory Plugin</h2><p>Loaded from @atlas/plugin-inventory</p></div>;
 const CRM = () => <div><h2>CRM Plugin</h2><p>Loaded from @atlas/plugin-crm</p></div>;
+
+const SetupGuard: React.FC<{ children: React.ReactNode, requireSetup?: boolean }> = ({ children, requireSetup = true }) => {
+  const { user, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading || !user) return <>{children}</>;
+
+  if (requireSetup && !user.hasCompletedSetup && location.pathname !== '/setup') {
+    return <Navigate to="/setup" replace />;
+  }
+  
+  if (!requireSetup && user.hasCompletedSetup && location.pathname === '/setup') {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 export const App: React.FC = () => {
   return (
@@ -18,16 +37,28 @@ export const App: React.FC = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
+              
+              <Route path="/setup" element={
+                <ProtectedRoute fallback={<Navigate to="/login" replace />}>
+                  <SetupGuard requireSetup={false}>
+                    <Setup />
+                  </SetupGuard>
+                </ProtectedRoute>
+              } />
 
               <Route
                 path="/"
                 element={
                   <ProtectedRoute fallback={<Navigate to="/login" replace />}>
-                    <AppLayout />
+                    <SetupGuard>
+                      <AppLayout />
+                    </SetupGuard>
                   </ProtectedRoute>
                 }
               >
                 <Route index element={<Dashboard />} />
+                <Route path="store" element={<PluginStore />} />
+                <Route path="store/:pluginId" element={<PluginStore />} />
                 <Route path="inventory/*" element={<Inventory />} />
                 <Route path="crm/*" element={<CRM />} />
               </Route>
