@@ -1,0 +1,65 @@
+.atlas-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  outline: none;
+}
+
+.atlas-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.atlas-btn--primary {
+  background-color: var(--color-accent-active);
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+.atlas-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.atlas-btn--secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.atlas-btn--secondary:hover:not(:disabled) {
+  background-color: var(--bg-surface-tertiary);
+  border-color: var(--border-color-hover);
+}
+
+.atlas-btn--danger {
+  background-color: transparent;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.atlas-btn--danger:hover:not(:disabled) {
+  background-color: #fef2f2;
+}
+
+/* For Dark mode danger variant hover */
+[data-theme="dark"] .atlas-btn--danger:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.atlas-btn--large {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-base);
+}
+
+.atlas-btn--small {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+}
