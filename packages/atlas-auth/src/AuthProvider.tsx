@@ -12,7 +12,7 @@ export interface User {
 export interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (token: string, userData: User) => void;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   completeSetup: () => void;
   isLoading: boolean;
@@ -20,7 +20,7 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = ({ children, apiUrl = 'http://localhost:3001' }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -41,9 +41,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
-  const login = (token: string, userData: User) => {
-    TokenStorage.setToken(token);
-    const userWithSetup = { ...userData, hasCompletedSetup: userData.hasCompletedSetup ?? false };
+  const login = async (email: string, password: string) => {
+    const res = await fetch(`${apiUrl}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Invalid email or password');
+    }
+
+    const { data } = await res.json();
+    const { accessToken, user: backendUser } = data;
+
+    TokenStorage.setToken(accessToken);
+    
+    // Check if the user has completed setup. Since backend doesn't store this yet,
+    // we'll keep the mock logic or default to false for now.
+    const userWithSetup = {
+      id: backendUser.id,
+      email: backendUser.email,
+      name: `${backendUser.firstName} ${backendUser.lastName}`,
+      role: backendUser.roles[0] || 'User',
+      hasCompletedSetup: false 
+    };
+    
+    // We still store user in localStorage for persistence across reloads until we add a /me endpoint
     localStorage.setItem('atlas_user', JSON.stringify(userWithSetup));
     setUser(userWithSetup);
     setIsAuthenticated(true);
