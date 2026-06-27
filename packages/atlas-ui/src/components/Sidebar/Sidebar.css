@@ -55,9 +55,14 @@
   flex: 1;
   padding: var(--spacing-md) 0;
   overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+}
+
+.atlas-sidebar--collapsed .atlas-sidebar-nav {
+  overflow: visible;
 }
 
 .atlas-sidebar-item {
@@ -118,4 +123,31 @@
 .atlas-sidebar-footer {
   padding: var(--spacing-md);
   border-top: 1px solid var(--border-color);
+  position: relative;
+}
+
+/* Tooltips */
+.atlas-sidebar--collapsed .atlas-sidebar-item {
+  position: relative;
+}
+
+.atlas-sidebar--collapsed .atlas-sidebar-item:hover::after,
+.atlas-sidebar--collapsed .atlas-sidebar-tooltip-wrapper:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 12px;
+  background-color: var(--bg-surface-primary);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+  z-index: 1000;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  pointer-events: none;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }

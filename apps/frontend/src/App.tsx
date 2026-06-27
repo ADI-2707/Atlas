@@ -15,8 +15,12 @@ const Inventory = () => <div><h2>Inventory Plugin</h2><p>Loaded from @atlas/plug
 const CRM = () => <div><h2>CRM Plugin</h2><p>Loaded from @atlas/plugin-crm</p></div>;
 
 const LayoutGuard: React.FC = () => {
-  const { installedPlugins } = usePlugins();
+  const { installedPlugins, isLoadingPlugins } = usePlugins();
   const location = useLocation();
+
+  if (isLoadingPlugins) {
+    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#050505', color: '#fff' }}>Loading Atlas...</div>;
+  }
 
   if (installedPlugins.length === 0 && location.pathname === '/') {
     return <Navigate to="/welcome" replace />;

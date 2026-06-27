@@ -64,7 +64,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
 
   if (href) {
     return (
-      <a href={href} className={classes} {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
+      <a href={href} className={classes} data-tooltip={label} {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
         <span className="atlas-sidebar-icon">{displayIcon}</span>
         <span className="atlas-sidebar-label">{label}</span>
       </a>
@@ -72,7 +72,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   }
 
   return (
-    <div className={classes} {...(props as React.HTMLAttributes<HTMLDivElement>)}>
+    <div className={classes} data-tooltip={label} {...(props as React.HTMLAttributes<HTMLDivElement>)}>
       <span className="atlas-sidebar-icon">{displayIcon}</span>
       <span className="atlas-sidebar-label">{label}</span>
     </div>

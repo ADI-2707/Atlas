@@ -24,7 +24,7 @@ export const PluginStore: React.FC = () => {
     if (user && !user.hasCompletedSetup) {
       completeSetup();
     }
-    navigate('/');
+    navigate(`/${pId}`);
   };
 
   if (pluginId) {
