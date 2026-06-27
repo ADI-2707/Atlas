@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@atlas/ui';
+import { api } from '@atlas/api';
 import { ProductForm } from '../components/ProductForm';
 import './InventoryDashboard.css';
 
@@ -13,45 +14,24 @@ export const InventoryDashboard: React.FC = () => {
   }, []);
 
   const fetchInventoryData = async () => {
-    const token = localStorage.getItem('atlas_access_token');
-    if (!token) return;
-
     try {
-      const apiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api/v1';
-      
-      const [configRes, productsRes] = await Promise.all([
-        fetch(`${apiUrl}/inventory/config`, { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch(`${apiUrl}/inventory/products`, { headers: { 'Authorization': `Bearer ${token}` } })
+      const [configData, productsData] = await Promise.all([
+        api.get<any>('/inventory/config'),
+        api.get<any[]>('/inventory/products')
       ]);
 
-      if (configRes.ok && productsRes.ok) {
-        setConfig(await configRes.json());
-        setProducts(await productsRes.json());
-      }
+      setConfig(configData);
+      setProducts(productsData);
     } catch (err) {
       console.error('Failed to fetch inventory data', err);
     }
   };
 
   const handleCreateProduct = async (data: any) => {
-    const token = localStorage.getItem('atlas_access_token');
-    if (!token) return;
-
     try {
-      const apiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001/api/v1';
-      const res = await fetch(`${apiUrl}/inventory/products`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (res.ok) {
-        fetchInventoryData();
-        setIsModalOpen(false);
-      }
+      await api.post('/inventory/products', data);
+      fetchInventoryData();
+      setIsModalOpen(false);
     } catch (err) {
       console.error('Failed to create product', err);
     }

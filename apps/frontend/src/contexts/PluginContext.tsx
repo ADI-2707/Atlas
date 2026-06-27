@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PluginNavigationItem } from '@atlas/plugin-sdk';
-import { TokenStorage } from '@atlas/auth';
+import { api } from '@atlas/api';
 
 import { mockPlugins } from '../plugins/mock-plugins';
 
@@ -25,36 +25,23 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   useEffect(() => {
     const fetchPlugins = async () => {
-      const token = TokenStorage.getToken();
-      if (!token) return;
-
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
-        const res = await fetch(`${apiUrl}/plugins`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
+        const plugins = await api.get<any[]>('/plugins');
+
+        const installedIds = plugins
+          .filter((p: any) => p.status === 'INSTALLED' || p.status === 'ENABLED')
+          .map((p: any) => p.id);
+
+        setInstalledPlugins(installedIds);
+
+        const navItems: PluginNavigationItem[] = [{ title: 'Dashboard', path: '/', icon: 'dashboard' }];
+        installedIds.forEach((pid: string) => {
+          const plugin = mockPlugins.find(p => p.id === pid);
+          if (plugin) {
+            navItems.push(...plugin.navigation);
           }
         });
-
-        if (res.ok) {
-          const json = await res.json();
-          const plugins = json.data || [];
-
-          const installedIds = plugins
-            .filter((p: any) => p.status === 'INSTALLED' || p.status === 'ENABLED')
-            .map((p: any) => p.id);
-
-          setInstalledPlugins(installedIds);
-
-          const navItems: PluginNavigationItem[] = [{ title: 'Dashboard', path: '/', icon: 'dashboard' }];
-          installedIds.forEach((pid: string) => {
-            const plugin = mockPlugins.find(p => p.id === pid);
-            if (plugin) {
-              navItems.push(...plugin.navigation);
-            }
-          });
-          setNavigationItems(navItems);
-        }
+        setNavigationItems(navItems);
       } catch (err) {
         console.error('Failed to fetch installed plugins from API', err);
       } finally {
@@ -66,9 +53,6 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, []);
 
   const installPlugin = async (pluginId: string, _tier?: string) => {
-    const token = TokenStorage.getToken();
-    if (!token) return;
-
     // Optimistically update frontend state for mock plugins that don't exist in backend yet
     setInstalledPlugins(prev => {
       const updated = prev.includes(pluginId) ? prev : [...prev, pluginId];
@@ -81,41 +65,24 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
-      await fetch(`${apiUrl}/plugins/${pluginId}/install`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await api.post(`/plugins/${pluginId}/install`);
     } catch (err) {
       console.error(`Failed to install plugin ${pluginId}`, err);
     }
   };
 
   const uninstallPlugin = async (pluginId: string) => {
-    const token = TokenStorage.getToken();
-    if (!token) return;
-
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
-      const res = await fetch(`${apiUrl}/plugins/${pluginId}/disable`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      await api.post(`/plugins/${pluginId}/disable`);
+      
+      setInstalledPlugins(prev => {
+        const updated = prev.filter(id => id !== pluginId);
+        return updated;
       });
 
-      if (res.ok) {
-        setInstalledPlugins(prev => {
-          const updated = prev.filter(id => id !== pluginId);
-          return updated;
-        });
-
-        const plugin = mockPlugins.find(p => p.id === pluginId);
-        if (plugin) {
-          plugin.navigation.forEach(nav => removeNavigationItem(nav.path));
-        }
+      const plugin = mockPlugins.find(p => p.id === pluginId);
+      if (plugin) {
+        plugin.navigation.forEach(nav => removeNavigationItem(nav.path));
       }
     } catch (err) {
       console.error(`Failed to uninstall plugin ${pluginId}`, err);

@@ -1,5 +1,5 @@
 type RequestInterceptor = (config: RequestInit) => RequestInit | Promise<RequestInit>;
-type ResponseInterceptor = (response: Response) => Response | Promise<Response>;
+type ResponseInterceptor = (response: Response, retry: (newConfig?: RequestInit) => Promise<Response>, config: RequestInit) => Response | Promise<Response>;
 
 export class AtlasApi {
   private baseUrl: string;
@@ -27,8 +27,12 @@ export class AtlasApi {
     const fullUrl = url.startsWith('http') ? url : `${this.baseUrl}${url}`;
     let response = await fetch(fullUrl, currentConfig);
 
+    const retry = async (newConfig?: RequestInit) => {
+      return fetch(fullUrl, newConfig || currentConfig);
+    };
+
     for (const interceptor of this.responseInterceptors) {
-      response = await interceptor(response);
+      response = await interceptor(response, retry, currentConfig);
     }
 
     return response;
