@@ -104,16 +104,10 @@ export const Login: React.FC = () => {
     setError('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      await login('mock-token-123', {
-        id: '1',
-        name: 'Admin User',
-        email: email,
-        role: 'admin'
-      });
+      await login(email, password);
       navigate('/');
-    } catch (err) {
-      setError('Invalid email or password');
+    } catch (err: any) {
+      setError(err.message || 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }

@@ -19,12 +19,12 @@ export const PluginStore: React.FC = () => {
   const { installPlugin, installedPlugins } = usePlugins();
   const { user, completeSetup } = useAuth();
   
-  const handleInstall = (pId: string, tier: string) => {
-    installPlugin(pId, tier);
+  const handleInstall = async (pId: string, tier: string) => {
+    await installPlugin(pId, tier);
     if (user && !user.hasCompletedSetup) {
       completeSetup();
     }
-    navigate('/');
+    navigate(`/${pId}`);
   };
 
   if (pluginId) {
