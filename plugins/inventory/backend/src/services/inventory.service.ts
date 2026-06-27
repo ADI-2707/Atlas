@@ -78,6 +78,25 @@ export class InventoryService {
   }
 
   async createProduct(organizationId: string, data: any) {
+    const plugin = await this.prisma.plugin.findUnique({
+      where: { id: 'inventory' }
+    });
+    const config: any = plugin?.config || {};
+    const tier = config.tier || 'free';
+
+    let maxProducts = 50;
+    if (tier === 'tier1') maxProducts = 1000;
+    else if (tier === 'tier2') maxProducts = 10000;
+    else if (tier === 'tier3') maxProducts = 100000;
+
+    const currentProductCount = await this.prisma.product.count({
+      where: { organizationId }
+    });
+
+    if (currentProductCount >= maxProducts) {
+      throw new Error(`Item limit reached. Upgrade your plan to store more than ${maxProducts} products.`);
+    }
+
     return this.prisma.product.create({
       data: {
         organizationId,
