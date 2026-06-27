@@ -1,4 +1,3 @@
-
 .dashboard-active-state {
   padding: 2rem;
   font-family: var(--font-family-base);
@@ -73,4 +72,77 @@
   padding-top: 1rem;
   display: flex;
   justify-content: flex-end;
+}
+
+.widget-limits-container {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border-color);
+}
+
+.limit-item {
+  margin-bottom: 0.75rem;
+}
+
+.limit-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.limit-progress-bar {
+  background: var(--bg-surface-tertiary);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.limit-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.fill-normal {
+  background-color: #22c55e;
+}
+
+.fill-warning {
+  background-color: #f59e0b;
+}
+
+.fill-critical {
+  background-color: #ef4444;
+}
+
+@keyframes pulse-red-border {
+  0% {
+    border-color: #ef4444;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+  }
+
+  50% {
+    border-color: #f87171;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+  }
+
+  100% {
+    border-color: #ef4444;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+  }
+}
+
+.pulsing-critical {
+  animation: pulse-red-border 1.5s infinite ease-in-out;
+  background-color: rgba(239, 68, 68, 0.03) !important;
+}
+
+.critical-message {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #f87171;
+  font-weight: 500;
 }
