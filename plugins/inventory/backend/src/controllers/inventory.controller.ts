@@ -6,7 +6,13 @@ import { InventoryService } from '../services/inventory.service';
 @ApiBearerAuth()
 @Controller('inventory')
 export class InventoryController {
-  constructor(private readonly inventoryService: InventoryService) {}
+  constructor(private readonly inventoryService: InventoryService) { }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Get inventory storage and table limit stats' })
+  async getStats(@Req() req: any) {
+    return this.inventoryService.getLimitStats(req.user.organizationId);
+  }
 
   @Get('tables')
   @ApiOperation({ summary: 'Get all inventory tables' })
@@ -26,7 +32,6 @@ export class InventoryController {
     @Req() req: any,
     @Body() data: any,
   ) {
-    // Assuming data is an array of fieldSchema objects
     return this.inventoryService.updateTableSchema(req.user.organizationId, req.params.id, data);
   }
 
