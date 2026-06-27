@@ -129,14 +129,18 @@ model AuditLog {
 // INVENTORY PLUGIN SCHEMA
 // -----------------------------------------
 
-model InventoryConfig {
+model InventoryTable {
   id             String   @id @default(uuid())
-  organizationId String   @unique @map("organization_id")
+  organizationId String   @map("organization_id")
+  name           String
   fieldSchema    Json     @default("[]") // custom field definitions
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  @@map("inv_config")
+  products       Product[]
+
+  @@unique([organizationId, name])
+  @@map("inv_tables")
   @@schema("atlas_inventory")
 }
 
@@ -147,8 +151,11 @@ model Product {
   sku            String
   basePrice      Float    @map("base_price")
   customData     Json?    @default("{}") @map("custom_data")
+  tableId        String   @map("table_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
+
+  table          InventoryTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
 
   stock Stock[]
 

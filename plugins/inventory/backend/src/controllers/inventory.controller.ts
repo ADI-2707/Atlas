@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { InventoryService } from '../services/inventory.service';
 
@@ -8,16 +8,32 @@ import { InventoryService } from '../services/inventory.service';
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
-  @Get('config')
-  @ApiOperation({ summary: 'Get organization inventory config' })
-  async getConfig(@Req() req: any) {
-    return this.inventoryService.getInventoryConfig(req.user.organizationId);
+  @Get('tables')
+  @ApiOperation({ summary: 'Get all inventory tables' })
+  async getTables(@Req() req: any) {
+    return this.inventoryService.getTables(req.user.organizationId);
   }
 
-  @Get('products')
-  @ApiOperation({ summary: 'Get all products' })
+  @Post('tables')
+  @ApiOperation({ summary: 'Create a new inventory table' })
+  async createTable(@Req() req: any, @Body() data: any) {
+    return this.inventoryService.createTable(req.user.organizationId, data);
+  }
+
+  @Patch('tables/:id/schema')
+  @ApiOperation({ summary: 'Update table schema' })
+  async updateTableSchema(
+    @Req() req: any,
+    @Body() data: any,
+  ) {
+    // Assuming data is an array of fieldSchema objects
+    return this.inventoryService.updateTableSchema(req.user.organizationId, req.params.id, data);
+  }
+
+  @Get('tables/:id/products')
+  @ApiOperation({ summary: 'Get all products for a table' })
   async getProducts(@Req() req: any) {
-    return this.inventoryService.getProducts(req.user.organizationId);
+    return this.inventoryService.getProducts(req.user.organizationId, req.params.id);
   }
 
   @Post('products')

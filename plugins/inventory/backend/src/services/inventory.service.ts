@@ -5,31 +5,70 @@ import { PrismaClient } from '@prisma/client';
 export class InventoryService {
   constructor(@Inject('PRISMA_SERVICE') private readonly prisma: PrismaClient) {}
 
-  async getInventoryConfig(organizationId: string) {
-    let config = await this.prisma.inventoryConfig.findUnique({
+  async getTables(organizationId: string) {
+    let tables = await this.prisma.inventoryTable.findMany({
       where: { organizationId },
+      orderBy: { createdAt: 'asc' }
     });
 
-    if (!config) {
-      // Default standard fields
+    if (tables.length === 0) {
+      // Create default standard table
       const defaultFields = [
         { name: 'category', label: 'Category', type: 'string' },
         { name: 'weight', label: 'Weight (kg)', type: 'number' }
       ];
-      config = await this.prisma.inventoryConfig.create({
+      const defaultTable = await this.prisma.inventoryTable.create({
         data: {
           organizationId,
+          name: 'Main Inventory',
           fieldSchema: defaultFields,
         },
       });
+      tables = [defaultTable];
     }
 
-    return config;
+    return tables;
   }
 
-  async getProducts(organizationId: string) {
+  async createTable(organizationId: string, data: any) {
+    const plugin = await this.prisma.plugin.findUnique({
+      where: { id: 'inventory' }
+    });
+    const config: any = plugin?.config || {};
+    const tier = config.tier || 'free';
+
+    let maxTables = 1;
+    if (tier === 'tier1') maxTables = 5;
+    else if (tier === 'tier2') maxTables = 10;
+    else if (tier === 'tier3') maxTables = 25;
+
+    const currentCount = await this.prisma.inventoryTable.count({
+      where: { organizationId }
+    });
+
+    if (currentCount >= maxTables) {
+      throw new Error(`Tier limit reached. Upgrade to add more than ${maxTables} tables.`);
+    }
+
+    return this.prisma.inventoryTable.create({
+      data: {
+        organizationId,
+        name: data.name,
+        fieldSchema: data.fieldSchema || [],
+      },
+    });
+  }
+
+  async updateTableSchema(organizationId: string, tableId: string, fieldSchema: any) {
+    return this.prisma.inventoryTable.update({
+      where: { id: tableId, organizationId },
+      data: { fieldSchema },
+    });
+  }
+
+  async getProducts(organizationId: string, tableId: string) {
     return this.prisma.product.findMany({
-      where: { organizationId },
+      where: { organizationId, tableId },
       include: {
         stock: {
           include: { warehouse: true }
@@ -42,6 +81,7 @@ export class InventoryService {
     return this.prisma.product.create({
       data: {
         organizationId,
+        tableId: data.tableId,
         name: data.name,
         sku: data.sku,
         basePrice: data.basePrice || 0,
