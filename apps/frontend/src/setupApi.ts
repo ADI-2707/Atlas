@@ -3,6 +3,8 @@ import { TokenStorage } from '@atlas/auth';
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 
+api.setBaseUrl(apiUrl);
+
 api.addRequestInterceptor((config) => {
   const token = TokenStorage.getToken();
   if (token) {

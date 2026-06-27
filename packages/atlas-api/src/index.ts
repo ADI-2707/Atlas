@@ -10,6 +10,10 @@ export class AtlasApi {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   }
 
+  public setBaseUrl(baseUrl: string) {
+    this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  }
+
   public addRequestInterceptor(interceptor: RequestInterceptor) {
     this.requestInterceptors.push(interceptor);
   }
