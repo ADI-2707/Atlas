@@ -5,47 +5,125 @@ import { ProductForm } from '../components/ProductForm';
 import './InventoryDashboard.css';
 
 export const InventoryDashboard: React.FC = () => {
-  const [config, setConfig] = useState<any>(null);
+  const [tables, setTables] = useState<any[]>([]);
+  const [activeTableId, setActiveTableId] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  
+  const [newColumnLabel, setNewColumnLabel] = useState('');
+  const [newColumnType, setNewColumnType] = useState('string');
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    fetchInventoryData();
+    fetchTables();
   }, []);
 
-  const fetchInventoryData = async () => {
-    try {
-      const [configRes, productsRes] = await Promise.all([
-        api.get<{ data: any }>('/inventory/config'),
-        api.get<{ data: any[] }>('/inventory/products')
-      ]);
+  useEffect(() => {
+    if (activeTableId) {
+      fetchProducts(activeTableId);
+    }
+  }, [activeTableId]);
 
-      setConfig(configRes.data);
-      setProducts(productsRes.data || []);
+  const fetchTables = async () => {
+    try {
+      const res = await api.get<{ data: any[] }>('/inventory/tables');
+      const fetchedTables = res.data || [];
+      setTables(fetchedTables);
+      if (fetchedTables.length > 0 && !activeTableId) {
+        setActiveTableId(fetchedTables[0].id);
+      }
     } catch (err) {
-      console.error('Failed to fetch inventory data', err);
+      console.error('Failed to fetch tables', err);
+    }
+  };
+
+  const fetchProducts = async (tableId: string) => {
+    try {
+      const res = await api.get<{ data: any[] }>(`/inventory/tables/${tableId}/products`);
+      setProducts(res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch products', err);
     }
   };
 
   const handleCreateProduct = async (data: any) => {
+    if (!activeTableId) return;
     try {
-      await api.post('/inventory/products', data);
-      fetchInventoryData();
-      setIsModalOpen(false);
+      await api.post('/inventory/products', { ...data, tableId: activeTableId });
+      fetchProducts(activeTableId);
+      setIsProductModalOpen(false);
     } catch (err) {
       console.error('Failed to create product', err);
     }
   };
 
-  if (!config) return <div style={{ padding: '2rem', color: '#fff' }}>Loading Inventory...</div>;
+  const handleCreateTable = async () => {
+    const name = prompt('Enter new table name:');
+    if (!name) return;
+    try {
+      const res = await api.post<any>('/inventory/tables', { name, fieldSchema: [] });
+      await fetchTables();
+      if (res && res.id) {
+        setActiveTableId(res.id);
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to create table');
+    }
+  };
 
-  const customFields = config.fieldSchema || [];
+  const handleAddColumn = async () => {
+    if (!activeTableId || !newColumnLabel.trim()) return;
+    const activeTable = tables.find(t => t.id === activeTableId);
+    if (!activeTable) return;
+
+    const name = newColumnLabel.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+    
+    if (activeTable.fieldSchema.some((f: any) => f.name === name)) {
+      setErrorMsg('Column with this name already exists!');
+      return;
+    }
+
+    const newSchema = [...activeTable.fieldSchema, { name, label: newColumnLabel, type: newColumnType }];
+    
+    try {
+      await api.patch(`/inventory/tables/${activeTableId}/schema`, newSchema);
+      setNewColumnLabel('');
+      setErrorMsg('');
+      fetchTables();
+    } catch (err) {
+      setErrorMsg('Failed to update schema');
+    }
+  };
+
+  const handleDeleteColumn = async (colName: string) => {
+    if (!activeTableId) return;
+    const activeTable = tables.find(t => t.id === activeTableId);
+    if (!activeTable) return;
+
+    const newSchema = activeTable.fieldSchema.filter((f: any) => f.name !== colName);
+    try {
+      await api.patch(`/inventory/tables/${activeTableId}/schema`, newSchema);
+      fetchTables();
+    } catch (err) {
+      alert('Failed to delete column');
+    }
+  };
+
+  if (tables.length === 0) return <div style={{ padding: '2rem', color: '#fff' }}>Loading Inventory...</div>;
+
+  const activeTable = tables.find(t => t.id === activeTableId) || tables[0];
+  const customFields = activeTable?.fieldSchema || [];
 
   return (
     <div className="inventory-dashboard">
       <div className="dashboard-header">
-        <h1>Inventory Management</h1>
-        <Button variant="primary" onClick={() => setIsModalOpen(true)}>+ Add Product</Button>
+        <h1>{activeTable.name}</h1>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <Button variant="secondary" onClick={() => setIsColumnModalOpen(true)}>Manage Columns</Button>
+          <Button variant="primary" onClick={() => setIsProductModalOpen(true)}>+ Add Product</Button>
+        </div>
       </div>
 
       <div className="table-container">
@@ -84,11 +162,62 @@ export const InventoryDashboard: React.FC = () => {
         </table>
       </div>
 
-      {isModalOpen && (
+      <div className="excel-tabs">
+        {tables.map(table => (
+          <button 
+            key={table.id} 
+            className={`excel-tab ${table.id === activeTableId ? 'active' : ''}`}
+            onClick={() => setActiveTableId(table.id)}
+          >
+            {table.name}
+          </button>
+        ))}
+        <button className="excel-tab-add" onClick={handleCreateTable}>+</button>
+      </div>
+
+      {isProductModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>Add New Product</h2>
-            <ProductForm customFields={customFields} onSubmit={handleCreateProduct} onCancel={() => setIsModalOpen(false)} />
+            <h2>Add New Product to {activeTable.name}</h2>
+            <ProductForm customFields={customFields} onSubmit={handleCreateProduct} onCancel={() => setIsProductModalOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {isColumnModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content column-modal">
+            <h2>Manage Columns for {activeTable.name}</h2>
+            <div className="current-columns">
+              {customFields.map((f: any) => (
+                <div key={f.name} className="column-item">
+                  <span>{f.label} <small>({f.type})</small></span>
+                  <button className="btn-delete" onClick={() => handleDeleteColumn(f.name)}>×</button>
+                </div>
+              ))}
+              {customFields.length === 0 && <p className="text-muted">No custom columns yet.</p>}
+            </div>
+
+            <h3 style={{ marginTop: '2rem', marginBottom: '1rem', color: '#fff' }}>Add New Column</h3>
+            <div className="add-column-form">
+              <input 
+                type="text" 
+                placeholder="Column Label (e.g. Brand)" 
+                value={newColumnLabel} 
+                onChange={e => setNewColumnLabel(e.target.value)}
+                className="atlas-input"
+              />
+              <select value={newColumnType} onChange={e => setNewColumnType(e.target.value)} className="atlas-input">
+                <option value="string">Text</option>
+                <option value="number">Number</option>
+              </select>
+              <Button variant="primary" onClick={handleAddColumn}>Add</Button>
+            </div>
+            {errorMsg && <p className="text-danger" style={{ marginTop: '0.5rem' }}>{errorMsg}</p>}
+
+            <div style={{ marginTop: '2rem', textAlign: 'right' }}>
+              <Button variant="secondary" onClick={() => setIsColumnModalOpen(false)}>Close</Button>
+            </div>
           </div>
         </div>
       )}

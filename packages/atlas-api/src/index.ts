@@ -76,6 +76,20 @@ export class AtlasApi {
     return response.json();
   }
 
+  public async patch<T>(url: string, data?: any, config?: RequestInit): Promise<T> {
+    const response = await this.executeRequest(url, {
+      ...config,
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...config?.headers,
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  }
+
   public async delete<T>(url: string, config?: RequestInit): Promise<T> {
     const response = await this.executeRequest(url, { ...config, method: 'DELETE' });
     if (!response.ok) throw new Error(await response.text());
