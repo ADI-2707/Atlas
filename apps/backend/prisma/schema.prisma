@@ -160,6 +160,7 @@ model Product {
   table          InventoryTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
 
   stock Stock[]
+  transactions StockTransaction[]
 
   @@unique([organizationId, sku])
   @@map("inv_products")
@@ -175,6 +176,8 @@ model Warehouse {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   stock Stock[]
+  transactionsFrom StockTransaction[] @relation("WarehouseFrom")
+  transactionsTo   StockTransaction[] @relation("WarehouseTo")
 
   @@map("inv_warehouses")
   @@schema("atlas_inventory")
@@ -194,5 +197,25 @@ model Stock {
 
   @@unique([productId, warehouseId])
   @@map("inv_stock")
+  @@schema("atlas_inventory")
+}
+
+model StockTransaction {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  productId      String   @map("product_id")
+  warehouseId    String?  @map("warehouse_id")
+  toWarehouseId  String?  @map("to_warehouse_id")
+  type           String   // RECEIPT, ISSUE, TRANSFER, ADJUSTMENT
+  quantity       Int      // The change quantity (e.g. +5, -10)
+  reference      String?
+  userId         String?  @map("user_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse     Warehouse? @relation("WarehouseFrom", fields: [warehouseId], references: [id], onDelete: Cascade)
+  toWarehouse   Warehouse? @relation("WarehouseTo", fields: [toWarehouseId], references: [id], onDelete: Cascade)
+
+  @@map("inv_stock_transactions")
   @@schema("atlas_inventory")
 }

@@ -3,13 +3,14 @@ import { Button, Pagination, useDebounce } from '@atlas/ui';
 import { api } from '@atlas/api';
 import { ProductForm } from '../components/ProductForm';
 import { WarehouseManager } from '../components/WarehouseManager';
+import { AdjustmentLogs } from '../components/AdjustmentLogs';
 import './InventoryDashboard.css';
 
 export const InventoryDashboard: React.FC = () => {
   const [tables, setTables] = useState<any[]>([]);
   const [activeTableId, setActiveTableId] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
-  const [activeView, setActiveView] = useState<'products' | 'warehouses'>('products');
+  const [activeView, setActiveView] = useState<'products' | 'warehouses' | 'logs'>('products');
 
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -165,7 +166,13 @@ export const InventoryDashboard: React.FC = () => {
     <div className="inventory-dashboard">
       <div className="dashboard-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <h1>{activeView === 'products' ? activeTable.name : 'Warehouse & Stock'}</h1>
+          <h1>
+            {activeView === 'products'
+              ? activeTable.name
+              : activeView === 'warehouses'
+              ? 'Warehouse & Stock'
+              : 'Adjustment Logs'}
+          </h1>
           <div className="view-toggles" style={{ display: 'flex', gap: '0.5rem', background: '#222', padding: '0.25rem', borderRadius: '6px', border: '1px solid #333' }}>
             <button
               type="button"
@@ -198,6 +205,22 @@ export const InventoryDashboard: React.FC = () => {
               }}
             >
               🏢 Warehouses
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('logs')}
+              style={{
+                background: activeView === 'logs' ? 'var(--color-accent-active)' : 'transparent',
+                color: activeView === 'logs' ? '#000' : '#888',
+                border: 'none',
+                padding: '0.4rem 0.8rem',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '0.85rem'
+              }}
+            >
+              📜 Logs
             </button>
           </div>
         </div>
@@ -313,11 +336,13 @@ export const InventoryDashboard: React.FC = () => {
             <button className="excel-tab-add" onClick={handleCreateTable}>+</button>
           </div>
         </>
-      ) : (
+      ) : activeView === 'warehouses' ? (
         <WarehouseManager
           products={products}
           onRefreshProducts={() => activeTableId && fetchProducts(activeTableId, page, limit, debouncedSearch)}
         />
+      ) : (
+        <AdjustmentLogs />
       )}
 
       {isProductModalOpen && (

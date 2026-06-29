@@ -89,7 +89,22 @@ export class InventoryController {
     @Req() req: any,
     @Body() data: { productId: string; warehouseId: string; quantity: number },
   ) {
-    return this.inventoryService.adjustStock(req.user.organizationId, data);
+    return this.inventoryService.adjustStock(req.user.organizationId, data, req.user.id);
+  }
+
+  @Get('stock/transactions')
+  @ApiOperation({ summary: 'Get stock transaction logs' })
+  async getStockTransactions(
+    @Req() req: any,
+    @Query('search') search?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.inventoryService.getStockTransactions(req.user.organizationId, {
+      search,
+      page,
+      limit,
+    });
   }
 }
 

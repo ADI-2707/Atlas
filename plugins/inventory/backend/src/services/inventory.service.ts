@@ -252,8 +252,24 @@ export class InventoryService {
     });
   }
 
-  async adjustStock(organizationId: string, data: { productId: string; warehouseId: string; quantity: number }) {
-    return this.prisma.stock.upsert({
+  async adjustStock(
+    organizationId: string,
+    data: { productId: string; warehouseId: string; quantity: number },
+    userId?: string,
+  ) {
+    const currentStock = await this.prisma.stock.findUnique({
+      where: {
+        productId_warehouseId: {
+          productId: data.productId,
+          warehouseId: data.warehouseId,
+        },
+      },
+    });
+
+    const previousQty = currentStock ? currentStock.quantity : 0;
+    const diff = data.quantity - previousQty;
+
+    const stock = await this.prisma.stock.upsert({
       where: {
         productId_warehouseId: {
           productId: data.productId,
@@ -270,5 +286,53 @@ export class InventoryService {
         quantity: data.quantity,
       },
     });
+
+    if (diff !== 0) {
+      await this.prisma.stockTransaction.create({
+        data: {
+          organizationId,
+          productId: data.productId,
+          warehouseId: data.warehouseId,
+          type: 'ADJUSTMENT',
+          quantity: diff,
+          reference: `Manual adjustment from UI (set to ${data.quantity})`,
+          userId: userId || null,
+        },
+      });
+    }
+
+    return stock;
+  }
+
+  async getStockTransactions(organizationId: string, query: { page?: string; limit?: string; search?: string }) {
+    const { page, limit, skip } = getPaginationParams(query);
+
+    const whereCondition: any = {
+      organizationId,
+    };
+
+    if (query.search) {
+      whereCondition.product = {
+        name: { contains: query.search, mode: 'insensitive' },
+      };
+    }
+
+    const total = await this.prisma.stockTransaction.count({
+      where: whereCondition,
+    });
+
+    const data = await this.prisma.stockTransaction.findMany({
+      where: whereCondition,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+      include: {
+        product: true,
+        warehouse: true,
+        toWarehouse: true,
+      },
+    });
+
+    return buildPaginatedResult(data, total, page, limit);
   }
 }
