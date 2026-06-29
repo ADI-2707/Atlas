@@ -31,6 +31,9 @@ export const InventoryDashboard: React.FC = () => {
 
   const [limitStats, setLimitStats] = useState<any>(null);
 
+  const [adjustingStockMap, setAdjustingStockMap] = useState<Record<string, number>>({});
+  const [isSavingStock, setIsSavingStock] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     fetchTables();
     fetchLimitStats();
@@ -42,6 +45,38 @@ export const InventoryDashboard: React.FC = () => {
       setLimitStats(res.data);
     } catch (err) {
       console.error('Failed to fetch limit stats', err);
+    }
+  };
+
+  const handleStockInputChange = (productId: string, value: string) => {
+    const val = parseInt(value, 10);
+    if (isNaN(val) || val < 0) return;
+    setAdjustingStockMap(prev => ({
+      ...prev,
+      [productId]: val
+    }));
+  };
+
+  const handleSaveStock = async (productId: string) => {
+    const qty = adjustingStockMap[productId];
+    if (qty === undefined) return;
+    setIsSavingStock(prev => ({ ...prev, [productId]: true }));
+    try {
+      await api.post(`/inventory/products/${productId}/stock`, { quantity: qty });
+      setAdjustingStockMap(prev => {
+        const next = { ...prev };
+        delete next[productId];
+        return next;
+      });
+      if (activeTableId) {
+        fetchProducts(activeTableId, page, limit, debouncedSearch);
+      }
+      fetchLimitStats();
+    } catch (err) {
+      console.error('Failed to update stock', err);
+      alert('Failed to update stock count');
+    } finally {
+      setIsSavingStock(prev => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -338,7 +373,32 @@ export const InventoryDashboard: React.FC = () => {
                       {customFields.map((field: any) => (
                         <td key={field.name}>{product.customData?.[field.name] || '-'}</td>
                       ))}
-                      <td>{stock}</td>
+                      <td>
+                        {isWarehouseLocked ? (
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <input
+                              type="number"
+                              min="0"
+                              value={adjustingStockMap[product.id] !== undefined ? adjustingStockMap[product.id] : stock}
+                              onChange={e => handleStockInputChange(product.id, e.target.value)}
+                              className="atlas-input"
+                              style={{ width: '80px', textAlign: 'center', padding: '0.25rem' }}
+                            />
+                            {adjustingStockMap[product.id] !== undefined && (
+                              <Button
+                                variant="primary"
+                                size="small"
+                                disabled={isSavingStock[product.id]}
+                                onClick={() => handleSaveStock(product.id)}
+                              >
+                                {isSavingStock[product.id] ? 'Saving...' : 'Set'}
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          stock
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
