@@ -383,7 +383,7 @@ export const DealsPipeline: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
                 <div>
                   {editingDeal && (
-                    <Button type="button" variant="secondary" style={{ background: '#ef4444', color: '#fff', border: 'none' }} onClick={() => handleDeleteDeal(editingDeal.id)}>
+                    <Button type="button" variant="secondary" onClick={() => handleDeleteDeal(editingDeal.id)}>
                       Delete Deal
                     </Button>
                   )}

@@ -206,8 +206,8 @@ export const CustomersList: React.FC = () => {
                 </td>
                 <td style={{ textAlign: 'right' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                    <Button variant="secondary" size="small" style={{ background: '#eab308', color: '#000', border: 'none', fontWeight: 'bold' }} onClick={() => handleOpenEditModal(cust)}>Edit</Button>
-                    <Button variant="secondary" size="small" style={{ background: '#ef4444', color: '#fff', border: 'none' }} onClick={() => handleDelete(cust.id)}>Delete</Button>
+                    <Button variant="secondary" size="small" onClick={() => handleOpenEditModal(cust)}>Edit</Button>
+                    <Button variant="secondary" size="small" onClick={() => handleDelete(cust.id)}>Delete</Button>
                   </div>
                 </td>
               </tr>
