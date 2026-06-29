@@ -50,8 +50,12 @@ export const Dashboard: React.FC = () => {
           const isCrm = pid === 'crm';
           
           let fillClass = 'fill-normal';
+          let contactsFillClass = 'fill-normal';
+          let dealsFillClass = 'fill-normal';
           let isCriticalPulsing = false;
           let productPct = 0;
+          let contactsPct = 0;
+          let dealsPct = 0;
 
           if (isInventory && inventoryStats) {
             productPct = (inventoryStats.productCount / inventoryStats.maxProducts) * 100;
@@ -59,11 +63,16 @@ export const Dashboard: React.FC = () => {
             else if (productPct >= 80) fillClass = 'fill-warning';
             isCriticalPulsing = productPct >= 99.5;
           } else if (isCrm && crmStats) {
-            const cPct = crmStats.limits.customers === -1 ? 0 : (crmStats.usage.customers / crmStats.limits.customers) * 100;
-            const dPct = crmStats.limits.deals === -1 ? 0 : (crmStats.usage.deals / crmStats.limits.deals) * 100;
-            const maxPct = Math.max(cPct, dPct);
-            if (maxPct >= 90) fillClass = 'fill-critical';
-            else if (maxPct >= 80) fillClass = 'fill-warning';
+            contactsPct = crmStats.limits.customers === -1 ? 0 : (crmStats.usage.customers / crmStats.limits.customers) * 100;
+            dealsPct = crmStats.limits.deals === -1 ? 0 : (crmStats.usage.deals / crmStats.limits.deals) * 100;
+            
+            if (contactsPct >= 90) contactsFillClass = 'fill-critical';
+            else if (contactsPct >= 80) contactsFillClass = 'fill-warning';
+            
+            if (dealsPct >= 90) dealsFillClass = 'fill-critical';
+            else if (dealsPct >= 80) dealsFillClass = 'fill-warning';
+            
+            const maxPct = Math.max(contactsPct, dealsPct);
             isCriticalPulsing = maxPct >= 99.5;
           }
 
@@ -86,7 +95,7 @@ export const Dashboard: React.FC = () => {
                     <div className="limit-item">
                       <div className="limit-label">
                         <span>Products Usage</span>
-                        <span>{inventoryStats.productCount} / {inventoryStats.maxProducts} ({productPct.toFixed(1)}%)</span>
+                        <span>{inventoryStats.productCount} / {inventoryStats.maxProducts} ({productPct.toFixed(1)}%) &mdash; {Math.max(0, inventoryStats.maxProducts - inventoryStats.productCount)} left</span>
                       </div>
                       <div className="limit-progress-bar">
                         <div
@@ -133,13 +142,13 @@ export const Dashboard: React.FC = () => {
                         <span>
                           {crmStats.limits.customers === -1 
                             ? `${crmStats.usage.customers} (Unlimited)`
-                            : `${crmStats.usage.customers} / ${crmStats.limits.customers} (${((crmStats.usage.customers / crmStats.limits.customers) * 100).toFixed(1)}%)`}
+                            : `${crmStats.usage.customers} / ${crmStats.limits.customers} (${contactsPct.toFixed(1)}%) &mdash; ${Math.max(0, crmStats.limits.customers - crmStats.usage.customers)} left`}
                         </span>
                       </div>
                       <div className="limit-progress-bar">
                         <div
-                          className={`limit-progress-fill ${fillClass}`}
-                          style={{ width: `${crmStats.limits.customers === -1 ? 0 : Math.min((crmStats.usage.customers / crmStats.limits.customers) * 100, 100)}%` }}
+                          className={`limit-progress-fill ${contactsFillClass}`}
+                          style={{ width: `${crmStats.limits.customers === -1 ? 0 : Math.min(contactsPct, 100)}%` }}
                         />
                       </div>
                     </div>
@@ -169,13 +178,13 @@ export const Dashboard: React.FC = () => {
                         <span>
                           {crmStats.limits.deals === -1 
                             ? `${crmStats.usage.deals} (Unlimited)`
-                            : `${crmStats.usage.deals} / ${crmStats.limits.deals} (${((crmStats.usage.deals / crmStats.limits.deals) * 100).toFixed(1)}%)`}
+                            : `${crmStats.usage.deals} / ${crmStats.limits.deals} (${dealsPct.toFixed(1)}%) &mdash; ${Math.max(0, crmStats.limits.deals - crmStats.usage.deals)} left`}
                         </span>
                       </div>
                       <div className="limit-progress-bar">
                         <div
-                          className={`limit-progress-fill ${fillClass}`}
-                          style={{ width: `${crmStats.limits.deals === -1 ? 0 : Math.min((crmStats.usage.deals / crmStats.limits.deals) * 100, 100)}%` }}
+                          className={`limit-progress-fill ${dealsFillClass}`}
+                          style={{ width: `${crmStats.limits.deals === -1 ? 0 : Math.min(dealsPct, 100)}%` }}
                         />
                       </div>
                     </div>
