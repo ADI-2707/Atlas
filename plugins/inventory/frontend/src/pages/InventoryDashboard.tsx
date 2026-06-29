@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Pagination, useDebounce } from '@atlas/ui';
 import { api } from '@atlas/api';
 import { ProductForm } from '../components/ProductForm';
@@ -7,6 +8,7 @@ import { AdjustmentLogs } from '../components/AdjustmentLogs';
 import './InventoryDashboard.css';
 
 export const InventoryDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [tables, setTables] = useState<any[]>([]);
   const [activeTableId, setActiveTableId] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
@@ -412,7 +414,7 @@ export const InventoryDashboard: React.FC = () => {
               cursor: 'pointer',
               fontWeight: '600',
             }}
-            onClick={() => alert('Redirecting to upgrade portal...')}
+            onClick={() => navigate('/store/inventory')}
           >
             Upgrade Plan
           </button>
