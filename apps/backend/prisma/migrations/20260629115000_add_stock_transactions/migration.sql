@@ -1,3 +1,6 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "atlas_inventory";
+
 -- CreateTable
 CREATE TABLE "atlas_inventory"."inv_stock_transactions" (
     "id" TEXT NOT NULL,
