@@ -215,6 +215,32 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
               Stock at <span style={{ color: 'var(--color-accent-active)' }}>{selectedWarehouse.name}</span>
             </h2>
 
+            {selectedWarehouseId && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.9rem', color: '#aaa' }}>Track Product:</span>
+                <select
+                  className="atlas-input"
+                  style={{ background: '#222', color: '#fff', border: '1px solid #444', padding: '0.4rem', borderRadius: '4px', maxWidth: '250px', cursor: 'pointer' }}
+                  onChange={async (e) => {
+                    const prodId = e.target.value;
+                    if (!prodId) return;
+                    try {
+                      await api.post('/inventory/stock/adjust', { productId: prodId, warehouseId: selectedWarehouseId, quantity: 0 });
+                      onRefreshProducts();
+                    } catch (err) {
+                      console.error('Failed to add product to warehouse', err);
+                    }
+                    e.target.value = '';
+                  }}
+                >
+                  <option value="">-- Select Product to Track --</option>
+                  {products.filter(prod => !prod.stock?.some((s: any) => s.warehouseId === selectedWarehouseId)).map(p => (
+                    <option key={p.id} value={p.id}>{p.name} ({p.sku})</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <table className="atlas-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr>
@@ -225,48 +251,54 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
                 </tr>
               </thead>
               <tbody>
-                {products.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>No products found. Add products first.</td>
-                  </tr>
-                ) : products.map(prod => {
-                  const stockEntry = prod.stock?.find((s: any) => s.warehouseId === selectedWarehouseId);
-                  const currentQty = stockEntry ? stockEntry.quantity : 0;
-                  const isEditing = adjustingStockMap[prod.id] !== undefined;
-                  const displayQty = isEditing ? adjustingStockMap[prod.id] : currentQty;
+                {(() => {
+                  const associated = products.filter(prod => prod.stock?.some((s: any) => s.warehouseId === selectedWarehouseId));
+                  if (associated.length === 0) {
+                    return (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>No products tracked in this warehouse yet. Select a product above to start tracking stock.</td>
+                      </tr>
+                    );
+                  }
+                  return associated.map(prod => {
+                    const stockEntry = prod.stock?.find((s: any) => s.warehouseId === selectedWarehouseId);
+                    const currentQty = stockEntry ? stockEntry.quantity : 0;
+                    const isEditing = adjustingStockMap[prod.id] !== undefined;
+                    const displayQty = isEditing ? adjustingStockMap[prod.id] : currentQty;
 
-                  return (
-                    <tr key={prod.id} style={{ borderBottom: '1px solid #333' }}>
-                      <td style={{ padding: '0.75rem 1rem' }}>{prod.sku}</td>
-                      <td style={{ padding: '0.75rem 1rem' }}>{prod.name}</td>
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'center', fontWeight: 'bold' }}>
-                        {currentQty}
-                      </td>
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
-                          <input
-                            type="number"
-                            min="0"
-                            value={displayQty}
-                            onChange={e => handleStockInputChange(prod.id, e.target.value)}
-                            className="atlas-input"
-                            style={{ width: '80px', textAlign: 'center', padding: '0.25rem' }}
-                          />
-                          {isEditing && (
-                            <Button
-                              variant="primary"
-                              size="small"
-                              disabled={isSavingStock[prod.id]}
-                              onClick={() => handleSaveStock(prod.id)}
-                            >
-                              {isSavingStock[prod.id] ? 'Saving...' : 'Set'}
-                            </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                    return (
+                      <tr key={prod.id} style={{ borderBottom: '1px solid #333' }}>
+                        <td style={{ padding: '0.75rem 1rem' }}>{prod.sku}</td>
+                        <td style={{ padding: '0.75rem 1rem' }}>{prod.name}</td>
+                        <td style={{ padding: '0.75rem 1rem', textAlign: 'center', fontWeight: 'bold' }}>
+                          {currentQty}
+                        </td>
+                        <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <input
+                              type="number"
+                              min="0"
+                              value={displayQty}
+                              onChange={e => handleStockInputChange(prod.id, e.target.value)}
+                              className="atlas-input"
+                              style={{ width: '80px', textAlign: 'center', padding: '0.25rem' }}
+                            />
+                            {isEditing && (
+                              <Button
+                                variant="primary"
+                                size="small"
+                                disabled={isSavingStock[prod.id]}
+                                onClick={() => handleSaveStock(prod.id)}
+                              >
+                                {isSavingStock[prod.id] ? 'Saving...' : 'Set'}
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
               </tbody>
             </table>
           </div>
