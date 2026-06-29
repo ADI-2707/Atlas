@@ -253,7 +253,7 @@ export const InventoryDashboard: React.FC = () => {
               ? 'Warehouse & Stock'
               : 'Adjustment Logs'}
           </h1>
-          <div className="view-toggles" style={{ display: 'flex', gap: '0.5rem', background: '#222', padding: '0.25rem', borderRadius: '6px', border: '1px solid #333' }}>
+          <div className="view-toggles" style={{ display: 'flex', gap: '0.5rem', background: 'var(--bg-surface-secondary)', padding: '0.25rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
             <button
               type="button"
               onClick={() => setActiveView('products')}
@@ -463,16 +463,16 @@ export const InventoryDashboard: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           padding: '4rem 2rem',
-          background: '#1a1a1a',
-          border: '1px solid #333',
+          background: 'var(--bg-surface-primary)',
+          border: '1px solid var(--border-color)',
           borderRadius: '8px',
           textAlign: 'center',
           gap: '1.5rem',
           marginTop: '1rem'
         }}>
           <span style={{ fontSize: '3.5rem' }}>🔒</span>
-          <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>Warehouse Feature Locked</h2>
-          <p style={{ color: '#aaa', maxWidth: '500px', margin: '0 auto', fontSize: '0.95rem', lineHeight: '1.5' }}>
+          <h2 style={{ color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 'bold' }}>Warehouse Feature Locked</h2>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto', fontSize: '0.95rem', lineHeight: '1.5' }}>
             Multi-location warehouse tracking and audit logs are premium features available only on the **Business (Tier 2)** and **Enterprise (Tier 3)** plans.
           </p>
           <button 

@@ -1,10 +1,11 @@
 .inventory-dashboard {
   padding: 2rem;
   padding-bottom: 80px;
-  color: #fff;
+  color: var(--text-primary);
   height: 100%;
   overflow-y: auto;
   position: relative;
+  background-color: var(--bg-surface-secondary);
 }
 
 .dashboard-header {
@@ -18,13 +19,15 @@
   margin: 0;
   font-size: 1.75rem;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .table-container {
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  border: 1px solid #333;
+  background-color: var(--bg-surface-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .atlas-table {
@@ -36,13 +39,14 @@
 .atlas-table th,
 .atlas-table td {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 .atlas-table th {
-  background-color: #222;
+  background-color: var(--bg-surface-secondary);
   font-weight: 600;
-  color: #aaa;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -53,7 +57,7 @@
 }
 
 .atlas-table tbody tr:hover {
-  background-color: #252525;
+  background-color: var(--bg-surface-tertiary);
 }
 
 .excel-tabs {
@@ -62,8 +66,8 @@
   right: 0;
   bottom: 0;
   height: 40px;
-  background-color: #201f1e;
-  border-top: 1px solid #323130;
+  background-color: var(--bg-surface-tertiary);
+  border-top: 1px solid var(--border-color);
   display: flex;
   align-items: flex-end;
   padding: 0 1.5rem;
@@ -78,10 +82,10 @@
 }
 
 .excel-tab {
-  background-color: #252423;
-  color: #d2d0ce;
+  background-color: var(--bg-surface-secondary);
+  color: var(--text-secondary);
   border: none;
-  border-right: 1px solid #323130;
+  border-right: 1px solid var(--border-color);
   height: 32px;
   padding: 0 16px;
   cursor: pointer;
@@ -95,33 +99,33 @@
 }
 
 .excel-tab:hover {
-  background-color: #2d2c2b;
-  color: #f3f2f1;
+  background-color: var(--bg-surface-tertiary);
+  color: var(--text-primary);
 }
 
 .excel-tab.active {
-  background-color: #1b1a19;
-  color: #107c41;
+  background-color: var(--bg-surface-primary);
+  color: var(--color-accent-active);
   font-weight: 600;
-  border-top: 2px solid #107c41;
+  border-top: 2px solid var(--color-accent-active);
 }
 
 .excel-tab.locked {
-  background-color: #1a1a19;
-  color: #797775;
+  background-color: var(--bg-surface-secondary);
+  color: var(--text-tertiary);
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 .excel-tab.locked:hover {
-  background-color: #1a1a19;
-  color: #797775;
+  background-color: var(--bg-surface-secondary);
+  color: var(--text-tertiary);
 }
 
 .excel-tab-add {
   background: transparent;
   border: none;
-  color: #a19f9d;
+  color: var(--text-tertiary);
   width: 32px;
   height: 32px;
   cursor: pointer;
@@ -137,8 +141,8 @@
 }
 
 .excel-tab-add:hover {
-  background-color: #292827;
-  color: #107c41;
+  background-color: var(--bg-surface-tertiary);
+  color: var(--color-accent-active);
 }
 
 .column-modal {
@@ -155,19 +159,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #222;
+  background: var(--bg-surface-secondary);
   padding: 0.75rem 1rem;
-  border-radius: 4px;
-  border: 1px solid #333;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
 }
 
 .column-item span {
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .column-item small {
-  color: #888;
+  color: var(--text-tertiary);
   margin-left: 0.5rem;
 }
 
@@ -193,16 +197,17 @@
 
 .atlas-input {
   flex: 1;
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  color: #fff;
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   outline: none;
+  transition: border-color 0.15s;
 }
 
 .atlas-input:focus {
-  border-color: #5c6bc0;
+  border-color: var(--color-accent-active);
 }
 
 .modal-overlay {
@@ -211,7 +216,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -220,19 +225,21 @@
 }
 
 .modal-content {
-  background-color: #1a1a1a;
+  background-color: var(--bg-surface-primary);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
-  border: 1px solid #333;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
 }
 
 .modal-content h2 {
   margin-top: 0;
   margin-bottom: 1.5rem;
   font-size: 1.25rem;
+  color: var(--text-primary);
 }
 
 .inventory-alert-banner {
@@ -240,7 +247,7 @@
   border: 1px solid #f59e0b;
   color: #fbbf24;
   padding: 0.75rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
   font-size: 0.875rem;
   display: flex;

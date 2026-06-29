@@ -83,29 +83,29 @@ export const AdjustmentLogs: React.FC = () => {
         />
       </div>
 
-      <div className="table-container" style={{ background: '#1a1a1a', borderRadius: '8px', border: '1px solid #333', overflow: 'hidden' }}>
+      <div className="table-container" style={{ background: 'var(--bg-surface-primary)', borderRadius: '8px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
         <table className="atlas-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th style={{ padding: '1rem 1.5rem', background: '#222', color: '#aaa', textAlign: 'left' }}>Date</th>
-              <th style={{ padding: '1rem 1.5rem', background: '#222', color: '#aaa', textAlign: 'left' }}>SKU</th>
-              <th style={{ padding: '1rem 1.5rem', background: '#222', color: '#aaa', textAlign: 'left' }}>Product</th>
-              <th style={{ padding: '1rem 1.5rem', background: '#222', color: '#aaa', textAlign: 'left' }}>Warehouse</th>
-              <th style={{ padding: '1rem 1.5rem', background: '#222', color: '#aaa', textAlign: 'center' }}>Adjustment</th>
-              <th style={{ padding: '1rem 1.5rem', background: '#222', color: '#aaa', textAlign: 'left' }}>Reference Notes</th>
+              <th style={{ padding: '1rem 1.5rem', textAlign: 'left' }}>Date</th>
+              <th style={{ padding: '1rem 1.5rem', textAlign: 'left' }}>SKU</th>
+              <th style={{ padding: '1rem 1.5rem', textAlign: 'left' }}>Product</th>
+              <th style={{ padding: '1rem 1.5rem', textAlign: 'left' }}>Warehouse</th>
+              <th style={{ padding: '1rem 1.5rem', textAlign: 'center' }}>Adjustment</th>
+              <th style={{ padding: '1rem 1.5rem', textAlign: 'left' }}>Reference Notes</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>Loading logs...</td>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>Loading logs...</td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#888' }}>No stock transactions found.</td>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>No stock transactions found.</td>
               </tr>
             ) : logs.map((log) => (
-              <tr key={log.id} style={{ borderBottom: '1px solid #333' }}>
+              <tr key={log.id}>
                 <td style={{ padding: '1rem 1.5rem' }}>{new Date(log.createdAt).toLocaleString()}</td>
                 <td style={{ padding: '1rem 1.5rem' }}>{log.product.sku}</td>
                 <td style={{ padding: '1rem 1.5rem' }}>{log.product.name}</td>

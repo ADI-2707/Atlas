@@ -128,7 +128,7 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
 
   return (
     <div className="warehouse-manager-container" style={{ display: 'flex', gap: '2rem', marginTop: '1rem', minHeight: '400px' }}>
-      <div className="warehouse-list-pane" style={{ flex: '1', background: '#1a1a1a', padding: '1.5rem', borderRadius: '8px', border: '1px solid #333', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="warehouse-list-pane" style={{ flex: '1', background: 'var(--bg-surface-primary)', padding: '1.5rem', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Warehouses ({limitStats?.warehouseCount || 0}/{limitStats?.maxWarehouses || 0})</h2>
           <Button variant="primary" size="small" disabled={isLimitReached} title={isLimitReached ? "Warehouse limit reached for your plan" : ""} onClick={() => {
@@ -140,7 +140,7 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
         </div>
 
         {isAddingWarehouse && (
-          <form onSubmit={handleAddWarehouse} style={{ background: '#222', padding: '1rem', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.75rem', border: '1px solid #444' }}>
+          <form onSubmit={handleAddWarehouse} style={{ background: 'var(--bg-surface-secondary)', padding: '1rem', borderRadius: '6px', display: 'flex', flexDirection: 'column', gap: '0.75rem', border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: '0.9rem', margin: 0 }}>{editingWhId ? 'Edit Warehouse' : 'New Warehouse'}</h3>
             <input
               placeholder="Warehouse Name"
@@ -171,8 +171,8 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
               onClick={() => setSelectedWarehouseId(wh.id)}
               style={{
                 padding: '0.75rem 1rem',
-                background: selectedWarehouseId === wh.id ? 'var(--color-accent-active)' : '#262626',
-                color: selectedWarehouseId === wh.id ? '#000' : '#fff',
+                background: selectedWarehouseId === wh.id ? 'var(--color-accent-active)' : 'var(--bg-surface-secondary)',
+                color: selectedWarehouseId === wh.id ? 'var(--text-inverse)' : 'var(--text-primary)',
                 fontWeight: selectedWarehouseId === wh.id ? '600' : '400',
                 borderRadius: '6px',
                 cursor: 'pointer',
@@ -208,7 +208,7 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
         </div>
       </div>
 
-      <div className="warehouse-stock-pane" style={{ flex: '2', background: '#1a1a1a', padding: '1.5rem', borderRadius: '8px', border: '1px solid #333' }}>
+      <div className="warehouse-stock-pane" style={{ flex: '2', background: 'var(--bg-surface-primary)', padding: '1.5rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
         {selectedWarehouse ? (
           <div>
             <h2 style={{ fontSize: '1.2rem', marginBottom: '1.5rem' }}>
