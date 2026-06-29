@@ -356,12 +356,13 @@ export const InventoryDashboard: React.FC = () => {
                     <th key={field.name}>{field.label}</th>
                   ))}
                   <th>Stock</th>
+                  {isWarehouseLocked && <th style={{ textAlign: 'center' }}>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {products.length === 0 ? (
                   <tr>
-                    <td colSpan={4 + customFields.length} style={{ textAlign: 'center', padding: '2rem' }}>No products found.</td>
+                    <td colSpan={4 + customFields.length + (isWarehouseLocked ? 1 : 0)} style={{ textAlign: 'center', padding: '2rem' }}>No products found.</td>
                   </tr>
                 ) : products.map(product => {
                   const stock = product.stock?.reduce((acc: number, s: any) => acc + s.quantity, 0) || 0;
@@ -374,45 +375,42 @@ export const InventoryDashboard: React.FC = () => {
                         <td key={field.name}>{product.customData?.[field.name] || '-'}</td>
                       ))}
                       <td>
-                        {isWarehouseLocked ? (
-                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            {adjustingStockMap[product.id] !== undefined ? (
-                              <>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  value={adjustingStockMap[product.id]}
-                                  onChange={e => handleStockInputChange(product.id, e.target.value)}
-                                  className="atlas-input"
-                                  style={{ width: '80px', textAlign: 'center', padding: '0.25rem' }}
-                                />
-                                <Button
-                                  variant="primary"
-                                  size="small"
-                                  disabled={isSavingStock[product.id]}
-                                  onClick={() => handleSaveStock(product.id)}
-                                >
-                                  {isSavingStock[product.id] ? 'Saving...' : 'Set'}
-                                </Button>
-                              </>
-                            ) : (
-                              <>
-                                <span style={{ marginRight: '0.5rem' }}>{stock}</span>
-                                <Button
-                                  variant="secondary"
-                                  size="small"
-                                  style={{ background: '#eab308', color: '#000', border: 'none', fontWeight: 'bold' }}
-                                  onClick={() => handleStockInputChange(product.id, String(stock))}
-                                >
-                                  Edit
-                                </Button>
-                              </>
-                            )}
-                          </div>
+                        {isWarehouseLocked && adjustingStockMap[product.id] !== undefined ? (
+                          <input
+                            type="number"
+                            min="0"
+                            value={adjustingStockMap[product.id]}
+                            onChange={e => handleStockInputChange(product.id, e.target.value)}
+                            className="atlas-input"
+                            style={{ width: '80px', textAlign: 'center', padding: '0.25rem' }}
+                          />
                         ) : (
                           stock
                         )}
                       </td>
+                      {isWarehouseLocked && (
+                        <td style={{ textAlign: 'center' }}>
+                          {adjustingStockMap[product.id] !== undefined ? (
+                            <Button
+                              variant="primary"
+                              size="small"
+                              disabled={isSavingStock[product.id]}
+                              onClick={() => handleSaveStock(product.id)}
+                            >
+                              {isSavingStock[product.id] ? 'Saving...' : 'Set'}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="secondary"
+                              size="small"
+                              style={{ background: '#eab308', color: '#000', border: 'none', fontWeight: 'bold' }}
+                              onClick={() => handleStockInputChange(product.id, String(stock))}
+                            >
+                              Edit
+                            </Button>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   );
                 })}
