@@ -7,6 +7,12 @@ import { CrmService } from '../services/crm.service';
 export class CrmController {
   constructor(private readonly crmService: CrmService) { }
 
+  @Get('limits')
+  @ApiOperation({ summary: 'Get CRM limits and current usage for the organization' })
+  async getLimits(@Req() req: any) {
+    return this.crmService.getLimitStats(req.user.organizationId);
+  }
+
   @Get('customers')
   @ApiOperation({ summary: 'Get all customers with pagination and search' })
   async getCustomers(
