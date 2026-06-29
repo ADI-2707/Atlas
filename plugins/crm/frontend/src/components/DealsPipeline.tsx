@@ -51,6 +51,9 @@ export const DealsPipeline: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState<LimitStats | null>(null);
 
+  const isAddLocked = stats && stats.limits.deals !== -1 ? (stats.usage.deals / stats.limits.deals) >= 0.995 : false;
+  const isWarningActive = stats && stats.limits.deals !== -1 ? (stats.usage.deals / stats.limits.deals) >= 0.80 : false;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
 
@@ -156,10 +159,9 @@ export const DealsPipeline: React.FC = () => {
   const handleItemChange = (idx: number, field: keyof DealItem, val: any) => {
     setFormItems(prev => prev.map((item, i) => {
       if (i !== idx) return item;
-      
+
       const updated = { ...item, [field]: val };
-      
-      // Auto-populate price when product changes
+
       if (field === 'productId') {
         const prod = products.find(p => p.id === val);
         if (prod) {
@@ -217,7 +219,15 @@ export const DealsPipeline: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      
+
+      {stats && isWarningActive && (
+        <div className={`crm-alert-banner ${isAddLocked ? 'locked-banner' : ''}`}>
+          ⚠️ {isAddLocked
+            ? "Critical limit reached. CRM deal modifications and additions are locked. Please upgrade your subscription plan to modify or add CRM deals."
+            : `Warning: You are approaching your CRM deal limit (${stats.usage.deals} / ${stats.limits.deals} deals). Upgrade your plan to avoid lockout.`}
+        </div>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           {stats && stats.limits.deals !== -1 && (
@@ -231,7 +241,14 @@ export const DealsPipeline: React.FC = () => {
             </span>
           )}
         </div>
-        <Button variant="primary" onClick={handleOpenCreateModal}>+ New Deal</Button>
+        <Button
+          variant="primary"
+          disabled={isAddLocked}
+          onClick={handleOpenCreateModal}
+          title={isAddLocked ? "Deal limit reached. Upgrade plan to add deals." : ""}
+        >
+          + New Deal
+        </Button>
       </div>
 
       {isLoading ? (
@@ -278,7 +295,7 @@ export const DealsPipeline: React.FC = () => {
           <div className="modal-content" style={{ maxWidth: '650px' }}>
             <h2>{editingDeal ? 'Edit Deal Opportunity' : 'Create Deal Opportunity'}</h2>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              
+
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                   <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Deal Title</label>
@@ -290,7 +307,7 @@ export const DealsPipeline: React.FC = () => {
                     className="atlas-input"
                   />
                 </div>
-                
+
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                   <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Contact / Customer</label>
                   <select
@@ -392,7 +409,14 @@ export const DealsPipeline: React.FC = () => {
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                  <Button type="submit" variant="primary">Save</Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isAddLocked}
+                    title={isAddLocked ? "Deal limits reached. Upgrade plan to save changes." : ""}
+                  >
+                    Save
+                  </Button>
                 </div>
               </div>
             </form>

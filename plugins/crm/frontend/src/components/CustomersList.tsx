@@ -26,6 +26,9 @@ export const CustomersList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState<LimitStats | null>(null);
 
+  const isAddLocked = stats && stats.limits.customers !== -1 ? (stats.usage.customers / stats.limits.customers) >= 0.995 : false;
+  const isWarningActive = stats && stats.limits.customers !== -1 ? (stats.usage.customers / stats.limits.customers) >= 0.80 : false;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
@@ -152,6 +155,14 @@ export const CustomersList: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
+      {stats && isWarningActive && (
+        <div className={`crm-alert-banner ${isAddLocked ? 'locked-banner' : ''}`}>
+          ⚠️ {isAddLocked
+            ? "Critical limit reached. CRM contact modifications and additions are locked. Please upgrade your subscription plan to modify or add CRM contacts."
+            : `Warning: You are approaching your CRM contact limit (${stats.usage.customers} / ${stats.limits.customers} contacts). Upgrade your plan to avoid lockout.`}
+        </div>
+      )}
+      
       <div className="table-actions-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <input
@@ -173,7 +184,14 @@ export const CustomersList: React.FC = () => {
             </span>
           )}
         </div>
-        <Button variant="primary" onClick={handleOpenCreateModal}>+ Add Contact</Button>
+        <Button
+          variant="primary"
+          disabled={isAddLocked}
+          onClick={handleOpenCreateModal}
+          title={isAddLocked ? "Contact limit reached. Upgrade plan to add contacts." : ""}
+        >
+          + Add Contact
+        </Button>
       </div>
 
       <div className="table-container">
@@ -208,7 +226,15 @@ export const CustomersList: React.FC = () => {
                 </td>
                 <td style={{ textAlign: 'right' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                    <Button variant="secondary" size="small" onClick={() => handleOpenEditModal(cust)}>Edit</Button>
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      disabled={isAddLocked}
+                      onClick={() => handleOpenEditModal(cust)}
+                      title={isAddLocked ? "Limit reached. Upgrade plan to edit contacts." : ""}
+                    >
+                      Edit
+                    </Button>
                     <Button variant="secondary" size="small" onClick={() => handleDelete(cust.id)}>Delete</Button>
                   </div>
                 </td>
@@ -290,7 +316,14 @@ export const CustomersList: React.FC = () => {
               </div>
               <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
                 <Button type="button" variant="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                <Button type="submit" variant="primary">Save</Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={isAddLocked}
+                  title={isAddLocked ? "Contact limits reached. Upgrade plan to save changes." : ""}
+                >
+                  Save
+                </Button>
               </div>
             </form>
           </div>

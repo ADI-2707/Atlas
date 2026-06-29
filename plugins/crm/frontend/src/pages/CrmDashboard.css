@@ -195,3 +195,37 @@
 .badge-prospect { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 .badge-customer { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
 .badge-churned { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+.crm-alert-banner {
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+}
+
+.crm-alert-banner.locked-banner {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #f87171;
+  animation: pulse-red-border 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-red-border {
+  0% {
+    border-color: #ef4444;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    border-color: #f87171;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+  }
+  100% {
+    border-color: #ef4444;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+  }
+}
