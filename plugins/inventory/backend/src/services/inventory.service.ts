@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { getPaginationParams, buildPaginatedResult } from '@atlas/utils';
 
 @Injectable()
 export class InventoryService {
@@ -124,7 +125,11 @@ export class InventoryService {
     });
   }
 
-  async getProducts(organizationId: string, tableId: string) {
+  async getProducts(
+    organizationId: string,
+    tableId: string,
+    query: { search?: string; page?: string; limit?: string }
+  ) {
     const plugin = await this.prisma.plugin.findUnique({
       where: { id: 'inventory' }
     });
@@ -136,7 +141,6 @@ export class InventoryService {
     else if (tier === 'tier2') maxProducts = 10000;
     else if (tier === 'tier3') maxProducts = 100000;
 
-    // Get the first maxProducts product IDs globally sorted by creation date
     const allowedProducts = await this.prisma.product.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'asc' },
@@ -145,18 +149,38 @@ export class InventoryService {
     });
     const allowedIds = allowedProducts.map(p => p.id);
 
-    return this.prisma.product.findMany({
-      where: { 
-        organizationId, 
-        tableId,
-        id: { in: allowedIds }
-      },
+    const whereCondition: any = {
+      organizationId,
+      tableId,
+      id: { in: allowedIds }
+    };
+
+    if (query.search) {
+      whereCondition.OR = [
+        { name: { contains: query.search, mode: 'insensitive' } },
+        { sku: { contains: query.search, mode: 'insensitive' } }
+      ];
+    }
+
+    const { page, limit, skip } = getPaginationParams(query);
+
+    const total = await this.prisma.product.count({
+      where: whereCondition
+    });
+
+    const data = await this.prisma.product.findMany({
+      where: whereCondition,
+      orderBy: { createdAt: 'asc' },
+      skip,
+      take: limit,
       include: {
         stock: {
           include: { warehouse: true }
         }
       }
     });
+
+    return buildPaginatedResult(data, total, page, limit);
   }
 
   async createProduct(organizationId: string, data: any) {

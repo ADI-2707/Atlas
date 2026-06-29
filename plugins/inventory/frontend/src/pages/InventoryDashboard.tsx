@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@atlas/ui';
+import { Button, Pagination, useDebounce } from '@atlas/ui';
 import { api } from '@atlas/api';
 import { ProductForm } from '../components/ProductForm';
 import './InventoryDashboard.css';
@@ -8,6 +8,14 @@ export const InventoryDashboard: React.FC = () => {
   const [tables, setTables] = useState<any[]>([]);
   const [activeTableId, setActiveTableId] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
+  
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  const debouncedSearch = useDebounce(search, 300);
   
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
@@ -34,9 +42,13 @@ export const InventoryDashboard: React.FC = () => {
 
   useEffect(() => {
     if (activeTableId) {
-      fetchProducts(activeTableId);
+      fetchProducts(activeTableId, page, limit, debouncedSearch);
     }
-  }, [activeTableId]);
+  }, [activeTableId, page, limit, debouncedSearch]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeTableId, debouncedSearch]);
 
   useEffect(() => {
     if (tables.length > 0 && limitStats && activeTableId) {
@@ -60,10 +72,19 @@ export const InventoryDashboard: React.FC = () => {
     }
   };
 
-  const fetchProducts = async (tableId: string) => {
+  const fetchProducts = async (tableId: string, currentPage: number, currentLimit: number, currentSearch: string) => {
     try {
-      const res = await api.get<{ data: any[] }>(`/inventory/tables/${tableId}/products`);
-      setProducts(res.data || []);
+      const queryParams = new URLSearchParams({
+        page: String(currentPage),
+        limit: String(currentLimit),
+      });
+      if (currentSearch.trim()) {
+        queryParams.append('search', currentSearch.trim());
+      }
+      const res = await api.get<{ data: any }>(`/inventory/tables/${tableId}/products?${queryParams.toString()}`);
+      setProducts(res.data?.data || []);
+      setTotalPages(res.data?.meta?.totalPages || 1);
+      setTotalProducts(res.data?.meta?.total || 0);
     } catch (err) {
       console.error('Failed to fetch products', err);
     }
@@ -73,7 +94,8 @@ export const InventoryDashboard: React.FC = () => {
     if (!activeTableId) return;
     try {
       await api.post('/inventory/products', { ...data, tableId: activeTableId });
-      fetchProducts(activeTableId);
+      fetchProducts(activeTableId, page, limit, debouncedSearch);
+      fetchLimitStats();
       setIsProductModalOpen(false);
     } catch (err) {
       console.error('Failed to create product', err);
@@ -164,6 +186,17 @@ export const InventoryDashboard: React.FC = () => {
         </div>
       )}
 
+      <div className="table-actions-bar" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+        <input
+          type="text"
+          placeholder="Search products by name or SKU..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="atlas-input"
+          style={{ maxWidth: '300px' }}
+        />
+      </div>
+
       <div className="table-container">
         <table className="atlas-table">
           <thead>
@@ -199,6 +232,18 @@ export const InventoryDashboard: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        pageSize={limit}
+        pageSizeOptions={[5, 10, 20, 50]}
+        onPageChange={(p) => setPage(p)}
+        onPageSizeChange={(s) => {
+          setLimit(s);
+          setPage(1);
+        }}
+      />
 
       <div className="excel-tabs">
         {tables.map((table, idx) => {

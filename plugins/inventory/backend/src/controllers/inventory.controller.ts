@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Req } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { InventoryService } from '../services/inventory.service';
 
@@ -37,8 +37,17 @@ export class InventoryController {
 
   @Get('tables/:id/products')
   @ApiOperation({ summary: 'Get all products for a table' })
-  async getProducts(@Req() req: any) {
-    return this.inventoryService.getProducts(req.user.organizationId, req.params.id);
+  async getProducts(
+    @Req() req: any,
+    @Query('search') search?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.inventoryService.getProducts(req.user.organizationId, req.params.id, {
+      search,
+      page,
+      limit,
+    });
   }
 
   @Post('products')
