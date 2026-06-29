@@ -53,3 +53,4 @@ async function bootstrap() {
 }
 
 bootstrap();
+// Reload again to register fallback endpoint

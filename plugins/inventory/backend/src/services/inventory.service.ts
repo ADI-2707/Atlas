@@ -140,6 +140,8 @@ export class InventoryService {
     tableId: string,
     query: { search?: string; page?: string; limit?: string }
   ) {
+    await this.getOrCreateDefaultWarehouse(organizationId);
+
     const plugin = await this.prisma.plugin.findUnique({
       where: { id: 'inventory' }
     });
@@ -252,6 +254,31 @@ export class InventoryService {
         location: data.location || null,
       },
     });
+  }
+
+  async getOrCreateDefaultWarehouse(organizationId: string) {
+    let defaultWh = await this.prisma.warehouse.findFirst({
+      where: { organizationId, name: 'Default Warehouse' }
+    });
+    if (!defaultWh) {
+      defaultWh = await this.prisma.warehouse.create({
+        data: {
+          organizationId,
+          name: 'Default Warehouse',
+          location: 'Primary Storage',
+        }
+      });
+    }
+    return defaultWh;
+  }
+
+  async adjustProductFlatStock(organizationId: string, productId: string, data: { quantity: number }, userId?: string) {
+    const defaultWh = await this.getOrCreateDefaultWarehouse(organizationId);
+    return this.adjustStock(organizationId, {
+      productId,
+      warehouseId: defaultWh.id,
+      quantity: data.quantity
+    }, userId);
   }
 
   async updateWarehouse(organizationId: string, id: string, data: any) {

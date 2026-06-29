@@ -92,6 +92,15 @@ export class InventoryController {
     return this.inventoryService.adjustStock(req.user.organizationId, data, req.user.id);
   }
 
+  @Post('products/:id/stock')
+  @ApiOperation({ summary: 'Adjust flat stock for a product (Free/Tier 1 fallback)' })
+  async adjustProductFlatStock(
+    @Req() req: any,
+    @Body() data: { quantity: number },
+  ) {
+    return this.inventoryService.adjustProductFlatStock(req.user.organizationId, req.params.id, data, req.user.id);
+  }
+
   @Get('stock/transactions')
   @ApiOperation({ summary: 'Get stock transaction logs' })
   async getStockTransactions(
