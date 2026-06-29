@@ -1,5 +1,6 @@
 import { AtlasPlugin } from '@atlas/plugin-sdk';
 import { CrmController } from './controllers/crm.controller';
+import { CrmService } from './services/crm.service';
 
 const manifest = {
   id: 'crm',
@@ -18,6 +19,7 @@ const manifest = {
 const config = AtlasPlugin({
   manifest,
   controllers: [CrmController],
+  providers: [CrmService],
   permissions: [
     {
       code: 'crm.read',
