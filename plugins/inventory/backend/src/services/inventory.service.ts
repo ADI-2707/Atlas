@@ -222,6 +222,53 @@ export class InventoryService {
   async getWarehouses(organizationId: string) {
     return this.prisma.warehouse.findMany({
       where: { organizationId },
+      orderBy: { name: 'asc' }
+    });
+  }
+
+  async createWarehouse(organizationId: string, data: any) {
+    return this.prisma.warehouse.create({
+      data: {
+        organizationId,
+        name: data.name,
+        location: data.location || null,
+      },
+    });
+  }
+
+  async updateWarehouse(organizationId: string, id: string, data: any) {
+    return this.prisma.warehouse.update({
+      where: { id, organizationId },
+      data: {
+        name: data.name,
+        location: data.location !== undefined ? data.location : undefined,
+      },
+    });
+  }
+
+  async deleteWarehouse(organizationId: string, id: string) {
+    return this.prisma.warehouse.delete({
+      where: { id, organizationId },
+    });
+  }
+
+  async adjustStock(organizationId: string, data: { productId: string; warehouseId: string; quantity: number }) {
+    return this.prisma.stock.upsert({
+      where: {
+        productId_warehouseId: {
+          productId: data.productId,
+          warehouseId: data.warehouseId,
+        },
+      },
+      update: {
+        quantity: data.quantity,
+      },
+      create: {
+        organizationId,
+        productId: data.productId,
+        warehouseId: data.warehouseId,
+        quantity: data.quantity,
+      },
     });
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req, Query, Delete } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { InventoryService } from '../services/inventory.service';
 
@@ -64,4 +64,32 @@ export class InventoryController {
   async getWarehouses(@Req() req: any) {
     return this.inventoryService.getWarehouses(req.user.organizationId);
   }
+
+  @Post('warehouses')
+  @ApiOperation({ summary: 'Create a new warehouse' })
+  async createWarehouse(@Req() req: any, @Body() data: any) {
+    return this.inventoryService.createWarehouse(req.user.organizationId, data);
+  }
+
+  @Patch('warehouses/:id')
+  @ApiOperation({ summary: 'Update a warehouse' })
+  async updateWarehouse(@Req() req: any, @Body() data: any) {
+    return this.inventoryService.updateWarehouse(req.user.organizationId, req.params.id, data);
+  }
+
+  @Delete('warehouses/:id')
+  @ApiOperation({ summary: 'Delete a warehouse' })
+  async deleteWarehouse(@Req() req: any) {
+    return this.inventoryService.deleteWarehouse(req.user.organizationId, req.params.id);
+  }
+
+  @Post('stock/adjust')
+  @ApiOperation({ summary: 'Adjust stock quantity for a product in a warehouse' })
+  async adjustStock(
+    @Req() req: any,
+    @Body() data: { productId: string; warehouseId: string; quantity: number },
+  ) {
+    return this.inventoryService.adjustStock(req.user.organizationId, data);
+  }
 }
+
