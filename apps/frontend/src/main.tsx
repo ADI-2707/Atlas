@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './setupApi'
 import App from './App.tsx'
-import '@atlas/ui/src/design-tokens.css'
+import '@atlas/ui/design-tokens.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
