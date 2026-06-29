@@ -60,8 +60,41 @@ export class CrmService {
     });
     const tier = this.getNormalizedTier((plugin?.config as any)?.tier);
 
-    const customersCount = await this.prisma.customer.count({ where: { organizationId } });
-    const dealsCount = await this.prisma.deal.count({ where: { organizationId } });
+    const [
+      customersCount,
+      dealsCount,
+      leadCount,
+      prospectCount,
+      customerCount,
+      churnedCount,
+      qualificationCount,
+      proposalCount,
+      negotiationCount,
+      closedWonCount,
+      closedLostCount,
+      pipelineValue,
+      closedWonValue,
+    ] = await Promise.all([
+      this.prisma.customer.count({ where: { organizationId } }),
+      this.prisma.deal.count({ where: { organizationId } }),
+      this.prisma.customer.count({ where: { organizationId, status: 'LEAD' } }),
+      this.prisma.customer.count({ where: { organizationId, status: 'PROSPECT' } }),
+      this.prisma.customer.count({ where: { organizationId, status: 'CUSTOMER' } }),
+      this.prisma.customer.count({ where: { organizationId, status: 'CHURNED' } }),
+      this.prisma.deal.count({ where: { organizationId, stage: 'QUALIFICATION' } }),
+      this.prisma.deal.count({ where: { organizationId, stage: 'PROPOSAL' } }),
+      this.prisma.deal.count({ where: { organizationId, stage: 'NEGOTIATION' } }),
+      this.prisma.deal.count({ where: { organizationId, stage: 'CLOSED_WON' } }),
+      this.prisma.deal.count({ where: { organizationId, stage: 'CLOSED_LOST' } }),
+      this.prisma.deal.aggregate({
+        where: { organizationId },
+        _sum: { value: true },
+      }),
+      this.prisma.deal.aggregate({
+        where: { organizationId, stage: 'CLOSED_WON' },
+        _sum: { value: true },
+      }),
+    ]);
 
     const currentLimits = this.tierLimits[tier];
 
@@ -70,6 +103,21 @@ export class CrmService {
       usage: {
         customers: customersCount,
         deals: dealsCount,
+        customerStatuses: {
+          lead: leadCount,
+          prospect: prospectCount,
+          customer: customerCount,
+          churned: churnedCount,
+        },
+        dealStages: {
+          qualification: qualificationCount,
+          proposal: proposalCount,
+          negotiation: negotiationCount,
+          closedWon: closedWonCount,
+          closedLost: closedLostCount,
+        },
+        pipelineValue: pipelineValue._sum.value || 0,
+        closedWonValue: closedWonValue._sum.value || 0,
       },
       limits: currentLimits,
     };

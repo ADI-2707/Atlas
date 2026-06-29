@@ -14,6 +14,13 @@ export const Dashboard: React.FC = () => {
   const [inventoryStats, setInventoryStats] = useState<any>(null);
   const [crmStats, setCrmStats] = useState<any>(null);
 
+  const formatCurrency = (value: number) =>
+    value.toLocaleString(undefined, {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    });
+
   useEffect(() => {
     if (installedPlugins.includes('inventory')) {
       api.get<any>('/inventory/stats')
@@ -136,6 +143,25 @@ export const Dashboard: React.FC = () => {
                         />
                       </div>
                     </div>
+
+                    <div className="crm-usage-grid">
+                      <div className="crm-usage-metric">
+                        <span>Leads</span>
+                        <strong>{crmStats.usage.customerStatuses?.lead || 0}</strong>
+                      </div>
+                      <div className="crm-usage-metric">
+                        <span>Prospects</span>
+                        <strong>{crmStats.usage.customerStatuses?.prospect || 0}</strong>
+                      </div>
+                      <div className="crm-usage-metric">
+                        <span>Customers</span>
+                        <strong>{crmStats.usage.customerStatuses?.customer || 0}</strong>
+                      </div>
+                      <div className="crm-usage-metric">
+                        <span>Churned</span>
+                        <strong>{crmStats.usage.customerStatuses?.churned || 0}</strong>
+                      </div>
+                    </div>
                     
                     <div className="limit-item">
                       <div className="limit-label">
@@ -151,6 +177,36 @@ export const Dashboard: React.FC = () => {
                           className={`limit-progress-fill ${fillClass}`}
                           style={{ width: `${crmStats.limits.deals === -1 ? 0 : Math.min((crmStats.usage.deals / crmStats.limits.deals) * 100, 100)}%` }}
                         />
+                      </div>
+                    </div>
+
+                    <div className="crm-usage-grid">
+                      <div className="crm-usage-metric">
+                        <span>Qualification</span>
+                        <strong>{crmStats.usage.dealStages?.qualification || 0}</strong>
+                      </div>
+                      <div className="crm-usage-metric">
+                        <span>Proposal</span>
+                        <strong>{crmStats.usage.dealStages?.proposal || 0}</strong>
+                      </div>
+                      <div className="crm-usage-metric">
+                        <span>Negotiation</span>
+                        <strong>{crmStats.usage.dealStages?.negotiation || 0}</strong>
+                      </div>
+                      <div className="crm-usage-metric">
+                        <span>Won / Lost</span>
+                        <strong>{crmStats.usage.dealStages?.closedWon || 0} / {crmStats.usage.dealStages?.closedLost || 0}</strong>
+                      </div>
+                    </div>
+
+                    <div className="crm-value-summary">
+                      <div>
+                        <span>Total Pipeline</span>
+                        <strong>{formatCurrency(crmStats.usage.pipelineValue || 0)}</strong>
+                      </div>
+                      <div>
+                        <span>Closed Won</span>
+                        <strong>{formatCurrency(crmStats.usage.closedWonValue || 0)}</strong>
                       </div>
                     </div>
 
