@@ -125,8 +125,13 @@ export class CrmService {
 
   async createCustomer(organizationId: string, data: any) {
     const stats = await this.getLimitStats(organizationId);
-    if (stats.limits.customers !== -1 && stats.usage.customers >= stats.limits.customers) {
-      throw new BadRequestException(`Customer limit reached for your current tier (${stats.tier}). Please upgrade to add more.`);
+    if (stats.limits.customers !== -1) {
+      if (stats.usage.customers / stats.limits.customers >= 0.995) {
+        throw new BadRequestException(`Critical limit reached (>=99.5%). Upgrade your subscription plan to modify or add CRM contacts.`);
+      }
+      if (stats.usage.customers >= stats.limits.customers) {
+        throw new BadRequestException(`Customer limit reached for your current tier (${stats.tier}). Please upgrade to add more.`);
+      }
     }
 
     return this.prisma.customer.create({
@@ -189,8 +194,13 @@ export class CrmService {
 
   async createDeal(organizationId: string, data: any) {
     const stats = await this.getLimitStats(organizationId);
-    if (stats.limits.deals !== -1 && stats.usage.deals >= stats.limits.deals) {
-      throw new BadRequestException(`Deal limit reached for your current tier (${stats.tier}). Please upgrade to add more.`);
+    if (stats.limits.deals !== -1) {
+      if (stats.usage.deals / stats.limits.deals >= 0.995) {
+        throw new BadRequestException(`Critical limit reached (>=99.5%). Upgrade your subscription plan to modify or add CRM deals.`);
+      }
+      if (stats.usage.deals >= stats.limits.deals) {
+        throw new BadRequestException(`Deal limit reached for your current tier (${stats.tier}). Please upgrade to add more.`);
+      }
     }
 
     const lineItems = data.lineItems || [];

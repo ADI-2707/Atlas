@@ -6,9 +6,12 @@
   "types": "dist/backend/src/index.d.ts",
   "private": true,
   "dependencies": {
+    "@atlas/events": "workspace:*",
     "@atlas/plugin-sdk": "workspace:*",
+    "@atlas/utils": "workspace:*",
     "@nestjs/common": "10.4.15",
-    "@nestjs/swagger": "8.1.0"
+    "@nestjs/swagger": "8.1.0",
+    "@prisma/client": "5.22.0"
   },
   "scripts": {
     "build": "tsc"

@@ -34,14 +34,23 @@ export class PluginsModule {
                 });
                 if (dbPlugin && (dbPlugin.status === 'ENABLED' || dbPlugin.status === 'INSTALLED')) {
                   let config: any;
-                  try {
-                    const pluginExport = require(`@atlas/plugin-${manifest.id}`);
+                  const backendPath = join(dir, entry.name, 'backend', 'src', 'index.ts');
+                  const shouldPreferSource = process.env.NODE_ENV !== 'production';
+
+                  if (shouldPreferSource && existsSync(backendPath)) {
+                    const pluginExport = require(backendPath);
                     config = pluginExport.default || pluginExport;
-                  } catch (pkgErr) {
-                    const backendPath = join(dir, entry.name, 'backend', 'src', 'index.ts');
+                  }
+
+                  if (!config) {
+                    try {
+                      const pluginExport = require(`@atlas/plugin-${manifest.id}`);
+                      config = pluginExport.default || pluginExport;
+                    } catch (pkgErr) {
                     if (existsSync(backendPath)) {
                       const pluginExport = require(backendPath);
                       config = pluginExport.default || pluginExport;
+                    }
                     }
                   }
                   if (config) {
