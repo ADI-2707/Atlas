@@ -19,6 +19,14 @@ export class InventoryService {
     else if (tier === 'tier2') { maxTables = 10; maxProducts = 10000; }
     else if (tier === 'tier3') { maxTables = 25; maxProducts = 100000; }
 
+    let maxWarehouses = 0;
+    if (tier === 'tier2') maxWarehouses = 5;
+    else if (tier === 'tier3') maxWarehouses = 20;
+
+    const warehouseCount = await this.prisma.warehouse.count({
+      where: { organizationId }
+    });
+
     const tableCount = await this.prisma.inventoryTable.count({
       where: { organizationId }
     });
@@ -61,7 +69,9 @@ export class InventoryService {
       maxTables,
       productCount,
       maxProducts,
-      usagePercent
+      usagePercent,
+      warehouseCount,
+      maxWarehouses
     };
   }
 
@@ -227,6 +237,14 @@ export class InventoryService {
   }
 
   async createWarehouse(organizationId: string, data: any) {
+    const stats = await this.getLimitStats(organizationId);
+    if (stats.maxWarehouses === 0) {
+      throw new Error(`Warehouse feature is not available on your current plan (${stats.tier}). Upgrade to Business (Tier 2) or Enterprise (Tier 3).`);
+    }
+    if (stats.warehouseCount >= stats.maxWarehouses) {
+      throw new Error(`Warehouse limit reached. Upgrade your plan to store more than ${stats.maxWarehouses} warehouses.`);
+    }
+
     return this.prisma.warehouse.create({
       data: {
         organizationId,
