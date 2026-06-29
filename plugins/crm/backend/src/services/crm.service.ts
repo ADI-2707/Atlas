@@ -150,6 +150,11 @@ export class CrmService {
     const exists = await this.getCustomer(organizationId, id);
     if (!exists) throw new Error('Customer not found or access denied');
 
+    const stats = await this.getLimitStats(organizationId);
+    if (stats.limits.customers !== -1 && stats.usage.customers / stats.limits.customers >= 0.995) {
+      throw new BadRequestException(`Critical limit reached (>=99.5%). Upgrade your subscription plan to modify or add CRM contacts.`);
+    }
+
     return this.prisma.customer.update({
       where: { id },
       data: {
@@ -233,6 +238,11 @@ export class CrmService {
       where: { id, organizationId }
     });
     if (!previousDeal) throw new Error('Deal not found');
+
+    const stats = await this.getLimitStats(organizationId);
+    if (stats.limits.deals !== -1 && stats.usage.deals / stats.limits.deals >= 0.995) {
+      throw new BadRequestException(`Critical limit reached (>=99.5%). Upgrade your subscription plan to modify or add CRM deals.`);
+    }
 
     const lineItems = data.lineItems || [];
     const calculatedValue = lineItems.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
