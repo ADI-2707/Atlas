@@ -119,7 +119,8 @@ export const CustomersList: React.FC = () => {
         await api.post('/crm/customers', payload);
       }
       setIsModalOpen(false);
-      fetchCustomers();
+      await fetchCustomers();
+      await fetchStats();
     } catch (err) {
       console.error('Failed to save customer', err);
       alert('Error saving customer detail');
@@ -130,7 +131,8 @@ export const CustomersList: React.FC = () => {
     if (!confirm('Are you sure you want to delete this contact?')) return;
     try {
       await api.delete(`/crm/customers/${id}`);
-      fetchCustomers();
+      await fetchCustomers();
+      await fetchStats();
     } catch (err) {
       console.error('Failed to delete customer', err);
       alert('Failed to delete contact');

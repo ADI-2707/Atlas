@@ -191,7 +191,8 @@ export const DealsPipeline: React.FC = () => {
         await api.post('/crm/deals', payload);
       }
       setIsModalOpen(false);
-      fetchDeals();
+      await fetchDeals();
+      await fetchStats();
     } catch (err) {
       console.error('Failed to save deal', err);
       alert('Error saving sales deal');
@@ -202,7 +203,8 @@ export const DealsPipeline: React.FC = () => {
     if (!confirm('Are you sure you want to delete this opportunity?')) return;
     try {
       await api.delete(`/crm/deals/${id}`);
-      fetchDeals();
+      await fetchDeals();
+      await fetchStats();
     } catch (err) {
       console.error('Failed to delete deal', err);
       alert('Failed to delete opportunity');
