@@ -253,6 +253,11 @@ export const InventoryDashboard: React.FC = () => {
               ? 'Warehouse & Stock'
               : 'Adjustment Logs'}
           </h1>
+          {limitStats && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-secondary)', padding: '0.25rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
+              Remaining Capacity: {Math.max(0, limitStats.maxProducts - limitStats.productCount)} items
+            </span>
+          )}
           <div className="view-toggles" style={{ display: 'flex', gap: '0.5rem', background: 'var(--bg-surface-secondary)', padding: '0.25rem', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
             <button
               type="button"

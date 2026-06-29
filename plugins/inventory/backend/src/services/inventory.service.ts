@@ -164,7 +164,7 @@ export class InventoryService implements OnModuleInit {
       take: maxProducts,
       select: { id: true }
     });
-    const allowedIds = allowedProducts.map(p => p.id);
+    const allowedIds = allowedProducts.map((p: any) => p.id);
 
     const whereCondition: any = {
       organizationId,
@@ -411,7 +411,7 @@ export class InventoryService implements OnModuleInit {
       take: maxProducts,
       select: { id: true },
     });
-    const allowedIds = allowedProducts.map((p) => p.id);
+    const allowedIds = allowedProducts.map((p: any) => p.id);
 
     const products = await this.prisma.product.findMany({
       where: {
@@ -422,10 +422,10 @@ export class InventoryService implements OnModuleInit {
       orderBy: { createdAt: 'asc' },
     });
 
-    const headers = ['SKU', 'Name', 'Base Price', ...customFields.map((f) => f.label)];
-    const rows = products.map((p) => {
-      const row = [p.sku, p.name, p.basePrice, ...customFields.map((f) => (p.customData as any)?.[f.name] || '')];
-      return row.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(',');
+    const headers = ['SKU', 'Name', 'Base Price', ...customFields.map((f: any) => f.label)];
+    const rows = products.map((p: any) => {
+      const row = [p.sku, p.name, p.basePrice, ...customFields.map((f: any) => (p.customData as any)?.[f.name] || '')];
+      return row.map((val: any) => `"${String(val).replace(/"/g, '""')}"`).join(',');
     });
 
     const csvContent = [headers.join(','), ...rows].join('\n');
