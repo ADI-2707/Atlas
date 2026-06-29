@@ -51,7 +51,7 @@ export const CustomersList: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await api.get<LimitStats>('/crm/limits');
+      const res = await api.get<{ data: LimitStats }>('/crm/limits');
       setStats(res.data);
     } catch (err) {
       console.error('Failed to fetch stats', err);
