@@ -8,6 +8,12 @@ interface Customer {
   company: string | null;
 }
 
+interface LimitStats {
+  tier: string;
+  usage: { customers: number; deals: number };
+  limits: { customers: number; deals: number };
+}
+
 interface DealItem {
   productId: string;
   quantity: number;
@@ -43,6 +49,7 @@ export const DealsPipeline: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState<LimitStats | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
@@ -53,10 +60,20 @@ export const DealsPipeline: React.FC = () => {
   const [formItems, setFormItems] = useState<DealItem[]>([]);
 
   useEffect(() => {
+    fetchStats();
     fetchDeals();
     fetchCustomers();
     fetchInventoryProducts();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const res = await api.get<LimitStats>('/crm/limits');
+      setStats(res.data);
+    } catch (err) {
+      console.error('Failed to fetch stats', err);
+    }
+  };
 
   const fetchDeals = async () => {
     setIsLoading(true);
@@ -95,6 +112,10 @@ export const DealsPipeline: React.FC = () => {
   };
 
   const handleOpenCreateModal = () => {
+    if (stats && stats.limits.deals !== -1 && stats.usage.deals >= stats.limits.deals) {
+      alert(`Deal limit reached for your current tier (${stats.tier}). Please upgrade to add more.`);
+      return;
+    }
     setEditingDeal(null);
     setFormTitle('');
     setFormCustomerId(customers[0]?.id || '');
@@ -195,7 +216,19 @@ export const DealsPipeline: React.FC = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          {stats && stats.limits.deals !== -1 && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              Usage: {stats.usage.deals} / {stats.limits.deals} Deals ({stats.tier.toUpperCase()} Plan)
+            </span>
+          )}
+          {stats && stats.limits.deals === -1 && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              Usage: {stats.usage.deals} Deals (Unlimited Plan)
+            </span>
+          )}
+        </div>
         <Button variant="primary" onClick={handleOpenCreateModal}>+ New Deal</Button>
       </div>
 

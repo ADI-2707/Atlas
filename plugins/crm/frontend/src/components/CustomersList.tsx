@@ -11,6 +11,12 @@ interface Customer {
   status: string;
 }
 
+interface LimitStats {
+  tier: string;
+  usage: { customers: number; deals: number };
+  limits: { customers: number; deals: number };
+}
+
 export const CustomersList: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
@@ -18,6 +24,7 @@ export const CustomersList: React.FC = () => {
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState<LimitStats | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
@@ -37,6 +44,19 @@ export const CustomersList: React.FC = () => {
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const res = await api.get<LimitStats>('/crm/limits');
+      setStats(res.data);
+    } catch (err) {
+      console.error('Failed to fetch stats', err);
+    }
+  };
 
   const fetchCustomers = async () => {
     setIsLoading(true);
@@ -59,6 +79,10 @@ export const CustomersList: React.FC = () => {
   };
 
   const handleOpenCreateModal = () => {
+    if (stats && stats.limits.customers !== -1 && stats.usage.customers >= stats.limits.customers) {
+      alert(`Customer limit reached for your current tier (${stats.tier}). Please upgrade to add more.`);
+      return;
+    }
     setEditingCustomer(null);
     setFormName('');
     setFormEmail('');
@@ -127,14 +151,26 @@ export const CustomersList: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       
       <div className="table-actions-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <input
-          type="text"
-          placeholder="Search contacts..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="atlas-input"
-          style={{ maxWidth: '300px' }}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <input
+            type="text"
+            placeholder="Search contacts..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="atlas-input"
+            style={{ maxWidth: '300px' }}
+          />
+          {stats && stats.limits.customers !== -1 && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              Usage: {stats.usage.customers} / {stats.limits.customers} Contacts ({stats.tier.toUpperCase()} Plan)
+            </span>
+          )}
+          {stats && stats.limits.customers === -1 && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              Usage: {stats.usage.customers} Contacts (Unlimited Plan)
+            </span>
+          )}
+        </div>
         <Button variant="primary" onClick={handleOpenCreateModal}>+ Add Contact</Button>
       </div>
 
