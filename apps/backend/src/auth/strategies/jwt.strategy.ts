@@ -50,7 +50,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     this.prisma.session.update({
       where: { id: session.id },
       data: { lastActivity: new Date() },
-    }).catch((err) => console.error('Failed to update session activity:', err));
+    }).catch((err: any) => console.error('Failed to update session activity:', err));
 
     
     const permissions = new Set<string>();
@@ -66,7 +66,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       firstName: session.user.firstName,
       lastName: session.user.lastName,
       organizationId: session.user.organizationId,
-      roles: session.user.roles.map((r) => r.name),
+      roles: session.user.roles.map((r: any) => r.name),
       permissions: Array.from(permissions),
       sessionId: session.id,
     };
