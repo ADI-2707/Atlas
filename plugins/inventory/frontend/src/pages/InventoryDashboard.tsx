@@ -263,7 +263,7 @@ export const InventoryDashboard: React.FC = () => {
                 fontSize: '0.85rem'
               }}
             >
-              📜 Logs {isWarehouseLocked && '🔒'}
+              📜 Logs
             </button>
           </div>
         </div>
@@ -382,7 +382,7 @@ export const InventoryDashboard: React.FC = () => {
             <button className="excel-tab-add" onClick={handleCreateTable}>+</button>
           </div>
         </>
-      ) : isWarehouseLocked ? (
+      ) : isWarehouseLocked && activeView === 'warehouses' ? (
         <div style={{
           display: 'flex',
           flexDirection: 'column',
