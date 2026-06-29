@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { getPaginationParams, buildPaginatedResult } from '@atlas/utils';
+import { eventBus } from '@atlas/events';
 
 @Injectable()
 export class CrmService {
@@ -200,9 +201,9 @@ export class CrmService {
       }
     });
 
-    // If deal transitioned to CLOSED_WON, trigger stock deduction
+    // If deal transitioned to CLOSED_WON, publish an event for interested plugins.
     if (data.stage === 'CLOSED_WON' && previousDeal.stage !== 'CLOSED_WON') {
-      await this.handleClosedWonDeal(organizationId, id, userId);
+      await this.publishClosedWonDealEvent(organizationId, updatedDeal, userId);
     }
 
     return updatedDeal;
@@ -217,57 +218,21 @@ export class CrmService {
     });
   }
 
-  private async handleClosedWonDeal(organizationId: string, dealId: string, userId?: string) {
-    const deal = await this.prisma.deal.findFirst({
-      where: { id: dealId, organizationId },
-      include: { lineItems: true }
-    });
-    if (!deal) throw new Error('Deal not found');
-
-    let defaultWh = await this.prisma.warehouse.findFirst({
-      where: { organizationId, name: 'Default Warehouse' }
-    });
-    if (!defaultWh) {
-      defaultWh = await this.prisma.warehouse.create({
-        data: {
-          organizationId,
-          name: 'Default Warehouse',
-          location: 'Primary Storage',
-        }
-      });
-    }
-
-    for (const item of deal.lineItems) {
-      const stockEntry = await this.prisma.stock.findUnique({
-        where: { productId_warehouseId: { productId: item.productId, warehouseId: defaultWh.id } }
-      });
-      const currentQty = stockEntry ? stockEntry.quantity : 0;
-      const nextQty = Math.max(0, currentQty - item.quantity);
-
-      await this.prisma.stock.upsert({
-        where: { productId_warehouseId: { productId: item.productId, warehouseId: defaultWh.id } },
-        create: {
-          organizationId,
+  private async publishClosedWonDealEvent(organizationId: string, deal: any, userId?: string) {
+    await eventBus.publish({
+      eventType: 'crm.deal.closed_won',
+      organizationId,
+      plugin: 'crm',
+      payload: {
+        dealId: deal.id,
+        dealTitle: deal.title,
+        userId,
+        lineItems: deal.lineItems.map((item: any) => ({
           productId: item.productId,
-          warehouseId: defaultWh.id,
-          quantity: nextQty
-        },
-        update: {
-          quantity: nextQty
-        }
-      });
-
-      await this.prisma.stockTransaction.create({
-        data: {
-          organizationId,
-          productId: item.productId,
-          warehouseId: defaultWh.id,
-          type: 'ISSUE',
-          quantity: -item.quantity,
-          reference: `Sales Deal Won: ${deal.title} (Ref: ${deal.id})`,
-          userId
-        }
-      });
-    }
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+        })),
+      },
+    });
   }
 }
