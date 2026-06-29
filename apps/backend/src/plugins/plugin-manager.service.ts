@@ -85,7 +85,7 @@ export class PluginManagerService implements OnModuleInit {
     return this.prisma.plugin.findMany();
   }
 
-  async installPlugin(id: string) {
+  async installPlugin(id: string, tier?: string) {
     const plugin = await this.prisma.plugin.findUnique({ where: { id } });
     if (!plugin) throw new Error('Plugin not found');
 
@@ -120,9 +120,17 @@ export class PluginManagerService implements OnModuleInit {
       details: { id, name: plugin.name },
     });
 
+    const currentConfig = (plugin.config as Record<string, any>) || {};
+    if (tier) {
+      currentConfig.tier = tier;
+    }
+
     return this.prisma.plugin.update({
       where: { id },
-      data: { status: 'ENABLED' },
+      data: {
+        status: 'ENABLED',
+        config: currentConfig,
+      },
     });
   }
 
@@ -169,4 +177,26 @@ export class PluginManagerService implements OnModuleInit {
       data: { status: 'DISABLED' },
     });
   }
+
+  async upgradePlugin(id: string, tier: string) {
+    const plugin = await this.prisma.plugin.findUnique({ where: { id } });
+    if (!plugin) throw new Error('Plugin not found');
+
+    const config = (plugin.config as Record<string, any>) || {};
+    const oldTier = config.tier || 'free';
+    config.tier = tier;
+
+    await this.auditService.createLog({
+      action: 'plugin.upgrade',
+      result: 'SUCCESS',
+      pluginId: id,
+      details: { id, oldTier, newTier: tier },
+    });
+
+    return this.prisma.plugin.update({
+      where: { id },
+      data: { config },
+    });
+  }
 }
+

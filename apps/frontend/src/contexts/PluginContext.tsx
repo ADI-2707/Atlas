@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PluginNavigationItem } from '@atlas/plugin-sdk';
-import { TokenStorage } from '@atlas/auth';
+import { api } from '@atlas/api';
+import { useAuth } from '@atlas/auth';
 
 import { mockPlugins } from '../plugins/mock-plugins';
 
 export interface PluginContextType {
   navigationItems: PluginNavigationItem[];
   installedPlugins: string[];
+  allPlugins: any[];
   isLoadingPlugins: boolean;
   installPlugin: (pluginId: string, tier?: string) => Promise<void>;
+  upgradePlugin: (pluginId: string, tier: string) => Promise<void>;
   uninstallPlugin: (pluginId: string) => Promise<void>;
   registerNavigationItem: (item: PluginNavigationItem) => void;
   removeNavigationItem: (path: string) => void;
@@ -17,7 +20,9 @@ export interface PluginContextType {
 const PluginContext = createContext<PluginContextType | undefined>(undefined);
 
 export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [installedPlugins, setInstalledPlugins] = useState<string[]>([]);
+  const [allPlugins, setAllPlugins] = useState<any[]>([]);
   const [isLoadingPlugins, setIsLoadingPlugins] = useState(true);
   const [navigationItems, setNavigationItems] = useState<PluginNavigationItem[]>([
     { title: 'Dashboard', path: '/', icon: 'dashboard' }
@@ -25,36 +30,27 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   useEffect(() => {
     const fetchPlugins = async () => {
-      const token = TokenStorage.getToken();
-      if (!token) return;
-
+      setIsLoadingPlugins(true);
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
-        const res = await fetch(`${apiUrl}/plugins`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
+        const json = await api.get<{ data: any[] }>('/plugins');
+        const plugins = json.data || [];
+
+        setAllPlugins(plugins);
+
+        const installedIds = plugins
+          .filter((p: any) => p.status === 'INSTALLED' || p.status === 'ENABLED')
+          .map((p: any) => p.id);
+
+        setInstalledPlugins(installedIds);
+
+        const navItems: PluginNavigationItem[] = [{ title: 'Dashboard', path: '/', icon: 'dashboard' }];
+        installedIds.forEach((pid: string) => {
+          const plugin = mockPlugins.find(p => p.id === pid);
+          if (plugin) {
+            navItems.push(...plugin.navigation);
           }
         });
-
-        if (res.ok) {
-          const json = await res.json();
-          const plugins = json.data || [];
-
-          const installedIds = plugins
-            .filter((p: any) => p.status === 'INSTALLED' || p.status === 'ENABLED')
-            .map((p: any) => p.id);
-
-          setInstalledPlugins(installedIds);
-
-          const navItems: PluginNavigationItem[] = [{ title: 'Dashboard', path: '/', icon: 'dashboard' }];
-          installedIds.forEach((pid: string) => {
-            const plugin = mockPlugins.find(p => p.id === pid);
-            if (plugin) {
-              navItems.push(...plugin.navigation);
-            }
-          });
-          setNavigationItems(navItems);
-        }
+        setNavigationItems(navItems);
       } catch (err) {
         console.error('Failed to fetch installed plugins from API', err);
       } finally {
@@ -62,14 +58,21 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       }
     };
 
-    fetchPlugins();
-  }, []);
+    if (isAuthLoading) {
+      return;
+    }
 
-  const installPlugin = async (pluginId: string, _tier?: string) => {
-    const token = TokenStorage.getToken();
-    if (!token) return;
+    if (isAuthenticated) {
+      fetchPlugins();
+    } else {
+      setInstalledPlugins([]);
+      setAllPlugins([]);
+      setNavigationItems([{ title: 'Dashboard', path: '/', icon: 'dashboard' }]);
+      setIsLoadingPlugins(false);
+    }
+  }, [isAuthenticated, isAuthLoading]);
 
-    // Optimistically update frontend state for mock plugins that don't exist in backend yet
+  const installPlugin = async (pluginId: string, tier?: string) => {
     setInstalledPlugins(prev => {
       const updated = prev.includes(pluginId) ? prev : [...prev, pluginId];
       return updated;
@@ -80,42 +83,44 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       plugin.navigation.forEach(registerNavigationItem);
     }
 
+    let backendTier = 'free';
+    if (tier === 'pro') backendTier = 'tier1';
+    else if (tier === 'business') backendTier = 'tier2';
+    else if (tier === 'enterprise') backendTier = 'tier3';
+
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
-      await fetch(`${apiUrl}/plugins/${pluginId}/install`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await api.post(`/plugins/${pluginId}/install`, { tier: backendTier });
     } catch (err) {
       console.error(`Failed to install plugin ${pluginId}`, err);
     }
   };
 
-  const uninstallPlugin = async (pluginId: string) => {
-    const token = TokenStorage.getToken();
-    if (!token) return;
+  const upgradePlugin = async (pluginId: string, tier: string) => {
+    let backendTier = 'free';
+    if (tier === 'pro') backendTier = 'tier1';
+    else if (tier === 'business') backendTier = 'tier2';
+    else if (tier === 'enterprise') backendTier = 'tier3';
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
-      const res = await fetch(`${apiUrl}/plugins/${pluginId}/disable`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      await api.post(`/plugins/${pluginId}/upgrade`, { tier: backendTier });
+    } catch (err) {
+      console.error(`Failed to upgrade plugin ${pluginId}`, err);
+      throw err;
+    }
+  };
+
+  const uninstallPlugin = async (pluginId: string) => {
+    try {
+      await api.post(`/plugins/${pluginId}/disable`);
+      
+      setInstalledPlugins(prev => {
+        const updated = prev.filter(id => id !== pluginId);
+        return updated;
       });
 
-      if (res.ok) {
-        setInstalledPlugins(prev => {
-          const updated = prev.filter(id => id !== pluginId);
-          return updated;
-        });
-
-        const plugin = mockPlugins.find(p => p.id === pluginId);
-        if (plugin) {
-          plugin.navigation.forEach(nav => removeNavigationItem(nav.path));
-        }
+      const plugin = mockPlugins.find(p => p.id === pluginId);
+      if (plugin) {
+        plugin.navigation.forEach(nav => removeNavigationItem(nav.path));
       }
     } catch (err) {
       console.error(`Failed to uninstall plugin ${pluginId}`, err);
@@ -134,7 +139,7 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   return (
-    <PluginContext.Provider value={{ navigationItems, installedPlugins, isLoadingPlugins, installPlugin, uninstallPlugin, registerNavigationItem, removeNavigationItem }}>
+    <PluginContext.Provider value={{ navigationItems, installedPlugins, allPlugins, isLoadingPlugins, installPlugin, upgradePlugin, uninstallPlugin, registerNavigationItem, removeNavigationItem }}>
       {children}
     </PluginContext.Provider>
   );

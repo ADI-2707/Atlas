@@ -224,6 +224,7 @@ export class AuthService {
           lastName: user.lastName,
           organizationId: user.organizationId,
           roles: user.roles.map((r) => r.name),
+          hasCompletedSetup: user.hasCompletedSetup,
         },
       },
     };
@@ -310,4 +311,13 @@ export class AuthService {
       data: null,
     };
   }
+
+  async completeSetup(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { hasCompletedSetup: true },
+    });
+    return { message: 'Setup completed', data: null };
+  }
 }
+

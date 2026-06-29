@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import './setupApi'
 import App from './App.tsx'
 import '@atlas/ui/src/design-tokens.css'
 

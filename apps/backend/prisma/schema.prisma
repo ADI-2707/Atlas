@@ -1,7 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["atlas_core"]
+  schemas  = ["atlas_core", "atlas_inventory"]
 }
 
 generator client {
@@ -26,16 +26,17 @@ model Organization {
 }
 
 model User {
-  id             String       @id @default(uuid())
-  email          String       @unique
-  passwordHash   String       @map("password_hash")
-  firstName      String       @map("first_name")
-  lastName       String       @map("last_name")
-  status         String       @default("ACTIVE") // ACTIVE, INACTIVE
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
-  organizationId String       @map("organization_id")
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                String       @id @default(uuid())
+  email             String       @unique
+  passwordHash      String       @map("password_hash")
+  firstName         String       @map("first_name")
+  lastName          String       @map("last_name")
+  status            String       @default("ACTIVE") // ACTIVE, INACTIVE
+  hasCompletedSetup Boolean      @default(false) @map("has_completed_setup")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+  organizationId    String       @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   roles     Role[]     @relation("UserRoles")
   sessions  Session[]
@@ -44,6 +45,7 @@ model User {
   @@map("users")
   @@schema("atlas_core")
 }
+
 
 model Role {
   id             String        @id @default(uuid())
@@ -123,4 +125,97 @@ model AuditLog {
 
   @@map("audit_logs")
   @@schema("atlas_core")
+}
+
+// -----------------------------------------
+// INVENTORY PLUGIN SCHEMA
+// -----------------------------------------
+
+model InventoryTable {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  fieldSchema    Json     @default("[]") // custom field definitions
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  products       Product[]
+
+  @@unique([organizationId, name])
+  @@map("inv_tables")
+  @@schema("atlas_inventory")
+}
+
+model Product {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  sku            String
+  basePrice      Float    @map("base_price")
+  customData     Json?    @default("{}") @map("custom_data")
+  tableId        String   @map("table_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  table          InventoryTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  stock Stock[]
+  transactions StockTransaction[]
+
+  @@unique([organizationId, sku])
+  @@map("inv_products")
+  @@schema("atlas_inventory")
+}
+
+model Warehouse {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  location       String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  stock Stock[]
+  transactionsFrom StockTransaction[] @relation("WarehouseFrom")
+  transactionsTo   StockTransaction[] @relation("WarehouseTo")
+
+  @@map("inv_warehouses")
+  @@schema("atlas_inventory")
+}
+
+model Stock {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  productId      String   @map("product_id")
+  warehouseId    String   @map("warehouse_id")
+  quantity       Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, warehouseId])
+  @@map("inv_stock")
+  @@schema("atlas_inventory")
+}
+
+model StockTransaction {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  productId      String   @map("product_id")
+  warehouseId    String?  @map("warehouse_id")
+  toWarehouseId  String?  @map("to_warehouse_id")
+  type           String   // RECEIPT, ISSUE, TRANSFER, ADJUSTMENT
+  quantity       Int      // The change quantity (e.g. +5, -10)
+  reference      String?
+  userId         String?  @map("user_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse     Warehouse? @relation("WarehouseFrom", fields: [warehouseId], references: [id], onDelete: Cascade)
+  toWarehouse   Warehouse? @relation("WarehouseTo", fields: [toWarehouseId], references: [id], onDelete: Cascade)
+
+  @@map("inv_stock_transactions")
+  @@schema("atlas_inventory")
 }

@@ -1,0 +1,277 @@
+.inventory-dashboard {
+  padding: 2rem;
+  padding-bottom: 80px;
+  color: var(--text-primary);
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  background-color: var(--bg-surface-secondary);
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.table-container {
+  background-color: var(--bg-surface-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.atlas-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.atlas-table th,
+.atlas-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.atlas-table th {
+  background-color: var(--bg-surface-secondary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.atlas-table tr:last-child td {
+  border-bottom: none;
+}
+
+.atlas-table tbody tr:hover {
+  background-color: var(--bg-surface-tertiary);
+}
+
+.excel-tabs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  background-color: var(--bg-surface-tertiary);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 1.5rem;
+  z-index: 10;
+  user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: auto;
+}
+
+.excel-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.excel-tab {
+  background-color: var(--bg-surface-secondary);
+  color: var(--text-secondary);
+  border: none;
+  border-right: 1px solid var(--border-color);
+  height: 32px;
+  padding: 0 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 400;
+  transition: background-color 0.15s, color 0.15s;
+  border-top: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  margin-right: 1px;
+}
+
+.excel-tab:hover {
+  background-color: var(--bg-surface-tertiary);
+  color: var(--text-primary);
+}
+
+.excel-tab.active {
+  background-color: var(--bg-surface-primary);
+  color: var(--color-accent-active);
+  font-weight: 600;
+  border-top: 2px solid var(--color-accent-active);
+}
+
+.excel-tab.locked {
+  background-color: var(--bg-surface-secondary);
+  color: var(--text-tertiary);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.excel-tab.locked:hover {
+  background-color: var(--bg-surface-secondary);
+  color: var(--text-tertiary);
+}
+
+.excel-tab-add {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background-color 0.15s;
+  border-radius: 50%;
+  margin-left: 8px;
+  margin-bottom: 2px;
+}
+
+.excel-tab-add:hover {
+  background-color: var(--bg-surface-tertiary);
+  color: var(--color-accent-active);
+}
+
+.column-modal {
+  max-width: 600px;
+}
+
+.current-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.column-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-surface-secondary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.column-item span {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.column-item small {
+  color: var(--text-tertiary);
+  margin-left: 0.5rem;
+}
+
+.btn-delete {
+  background: transparent;
+  border: none;
+  color: #ef5350;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-delete:hover {
+  color: #ff8a80;
+}
+
+.add-column-form {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.atlas-input {
+  flex: 1;
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.atlas-input:focus {
+  border-color: var(--color-accent-active);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: var(--bg-surface-primary);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 500px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.inventory-alert-banner {
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+}
+
+.inventory-alert-banner.locked-banner {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  color: #f87171;
+  animation: pulse-red-border 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-red-border {
+  0% {
+    border-color: #ef4444;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+  }
+  50% {
+    border-color: #f87171;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+  }
+  100% {
+    border-color: #ef4444;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+  }
+}

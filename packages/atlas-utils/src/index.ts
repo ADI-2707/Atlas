@@ -38,3 +38,34 @@ export function slugify(str: string): string {
 export function isObject(item: any): boolean {
   return item && typeof item === 'object' && !Array.isArray(item);
 }
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export function getPaginationParams(query: { page?: any; limit?: any }, defaultLimit = 20) {
+  const page = Math.max(1, parseInt(query.page, 10) || 1);
+  const limit = Math.max(1, parseInt(query.limit, 10) || defaultLimit);
+  const skip = (page - 1) * limit;
+  return { page, limit, skip };
+}
+
+export function buildPaginatedResult<T>(data: T[], total: number, page: number, limit: number): PaginatedResult<T> {
+  const totalPages = Math.ceil(total / limit);
+  return {
+    data,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages,
+    },
+  };
+}
+

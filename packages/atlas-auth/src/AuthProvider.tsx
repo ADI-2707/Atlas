@@ -14,7 +14,8 @@ export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  completeSetup: () => void;
+  completeSetup: () => Promise<void>;
+
   isLoading: boolean;
 }
 
@@ -57,25 +58,36 @@ export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = 
     const { accessToken, user: backendUser } = data;
 
     TokenStorage.setToken(accessToken);
-    
-    // Check if the user has completed setup. Since backend doesn't store this yet,
-    // we'll keep the mock logic or default to false for now.
+
+
     const userWithSetup = {
       id: backendUser.id,
       email: backendUser.email,
       name: `${backendUser.firstName} ${backendUser.lastName}`,
       role: backendUser.roles[0] || 'User',
-      hasCompletedSetup: false 
+      hasCompletedSetup: backendUser.hasCompletedSetup ?? false
     };
-    
-    // We still store user in localStorage for persistence across reloads until we add a /me endpoint
+
+
     localStorage.setItem('atlas_user', JSON.stringify(userWithSetup));
     setUser(userWithSetup);
     setIsAuthenticated(true);
   };
 
-  const completeSetup = () => {
+  const completeSetup = async () => {
     if (user) {
+      try {
+        const token = TokenStorage.getToken();
+        await fetch(`${apiUrl}/auth/complete-setup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
+        });
+      } catch (e) {
+        console.error('Failed to persist setup completion to server', e);
+      }
       const updatedUser = { ...user, hasCompletedSetup: true };
       localStorage.setItem('atlas_user', JSON.stringify(updatedUser));
       setUser(updatedUser);

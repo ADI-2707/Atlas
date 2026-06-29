@@ -1,5 +1,5 @@
 type RequestInterceptor = (config: RequestInit) => RequestInit | Promise<RequestInit>;
-type ResponseInterceptor = (response: Response) => Response | Promise<Response>;
+type ResponseInterceptor = (response: Response, retry: (newConfig?: RequestInit) => Promise<Response>, config: RequestInit) => Response | Promise<Response>;
 
 export class AtlasApi {
   private baseUrl: string;
@@ -7,6 +7,10 @@ export class AtlasApi {
   private responseInterceptors: ResponseInterceptor[] = [];
 
   constructor(baseUrl: string) {
+    this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  }
+
+  public setBaseUrl(baseUrl: string) {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
   }
 
@@ -27,8 +31,12 @@ export class AtlasApi {
     const fullUrl = url.startsWith('http') ? url : `${this.baseUrl}${url}`;
     let response = await fetch(fullUrl, currentConfig);
 
+    const retry = async (newConfig?: RequestInit) => {
+      return fetch(fullUrl, newConfig || currentConfig);
+    };
+
     for (const interceptor of this.responseInterceptors) {
-      response = await interceptor(response);
+      response = await interceptor(response, retry, currentConfig);
     }
 
     return response;
@@ -58,6 +66,20 @@ export class AtlasApi {
     const response = await this.executeRequest(url, {
       ...config,
       method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...config?.headers,
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  }
+
+  public async patch<T>(url: string, data?: any, config?: RequestInit): Promise<T> {
+    const response = await this.executeRequest(url, {
+      ...config,
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         ...config?.headers,

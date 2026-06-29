@@ -8,16 +8,16 @@ import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  
+
   app.setGlobalPrefix('api/v1');
 
-  
+
   app.enableCors({
     origin: process.env.FRONTEND_URL || /^http:\/\/localhost:\d+$/,
     credentials: true,
   });
 
-  
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -26,13 +26,13 @@ async function bootstrap() {
     }),
   );
 
-  
+
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  
+
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  
+
   const config = new DocumentBuilder()
     .setTitle('Atlas Enterprise API')
     .setDescription(
@@ -41,11 +41,11 @@ async function bootstrap() {
     .setVersion('2.0')
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  
+
   const port = process.env.APP_PORT || 3000;
   await app.listen(port);
   console.log(`Atlas core platform running on: http://localhost:${port}/api/v1`);
@@ -53,3 +53,4 @@ async function bootstrap() {
 }
 
 bootstrap();
+// Reload again to register fallback endpoint

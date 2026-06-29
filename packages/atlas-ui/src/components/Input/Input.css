@@ -31,11 +31,11 @@
 }
 
 .atlas-input--has-icon {
-  padding-left: 2.5rem;
+  padding-left: 2.75rem !important;
 }
 
 .atlas-input--has-trailing-icon {
-  padding-right: 2.5rem;
+  padding-right: 2.75rem !important;
 }
 
 .atlas-input-icon {

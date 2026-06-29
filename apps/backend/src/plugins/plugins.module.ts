@@ -32,7 +32,7 @@ export class PluginsModule {
                 const dbPlugin = await prisma.plugin.findUnique({
                   where: { id: manifest.id },
                 });
-                if (dbPlugin && dbPlugin.status === 'ENABLED') {
+                if (dbPlugin && (dbPlugin.status === 'ENABLED' || dbPlugin.status === 'INSTALLED')) {
                   let config: any;
                   try {
                     const pluginExport = require(`@atlas/plugin-${manifest.id}`);

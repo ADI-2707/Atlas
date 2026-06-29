@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
 import { useAuth } from '@atlas/auth';
 import { usePlugins } from '../../contexts/PluginContext';
 import { mockPlugins } from '../../plugins/mock-plugins';
+import { api } from '@atlas/api';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const { installedPlugins } = usePlugins();
   const navigate = useNavigate();
+  const [inventoryStats, setInventoryStats] = useState<any>(null);
+
+  useEffect(() => {
+    if (installedPlugins.includes('inventory')) {
+      api.get<any>('/inventory/stats')
+        .then(res => setInventoryStats(res.data))
+        .catch(err => console.error('Failed to load inventory stats', err));
+    }
+  }, [installedPlugins]);
 
   return (
     <div className="dashboard-active-state">
@@ -22,15 +32,80 @@ export const Dashboard: React.FC = () => {
         {installedPlugins.map(pid => {
           const plugin = mockPlugins.find(p => p.id === pid);
           if (!plugin) return null;
+
+          const isInventory = pid === 'inventory';
+          const stats = isInventory ? inventoryStats : null;
+          const productPct = stats ? (stats.productCount / stats.maxProducts) * 100 : 0;
+
+          let fillClass = 'fill-normal';
+          if (productPct >= 90) fillClass = 'fill-critical';
+          else if (productPct >= 80) fillClass = 'fill-warning';
+
+          const isCriticalPulsing = productPct >= 99.5;
+
           return (
-            <div key={pid} className="dashboard-widget-card">
+            <div key={pid} className={`dashboard-widget-card ${isCriticalPulsing ? 'pulsing-critical' : ''}`}>
               <div className="widget-header">
                 <h3>{plugin.name}</h3>
-                <span className="widget-badge">Active</span>
+                <span
+                  className="widget-badge"
+                  style={isCriticalPulsing ? { backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#f87171' } : {}}
+                >
+                  {isCriticalPulsing ? 'Locked' : 'Active'}
+                </span>
               </div>
               <div className="widget-body">
-                <p>Status: Healthy</p>
-                <p>Usage: Normal</p>
+                <p>Status: {isCriticalPulsing ? 'Critical (Locked)' : 'Healthy'}</p>
+
+                {isInventory && stats && (
+                  <div className="widget-limits-container">
+                    <div className="limit-item">
+                      <div className="limit-label">
+                        <span>Products Usage</span>
+                        <span>{stats.productCount} / {stats.maxProducts} ({productPct.toFixed(1)}%)</span>
+                      </div>
+                      <div className="limit-progress-bar">
+                        <div
+                          className={`limit-progress-fill ${fillClass}`}
+                          style={{ width: `${Math.min(productPct, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="limit-item">
+                      <div className="limit-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Tables</span>
+                        {stats.tableCount > stats.maxTables ? (
+                          <span>
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{stats.maxTables} Active</span>
+                            {', '}
+                            <span style={{ color: '#f87171', fontWeight: 600 }}>{stats.tableCount - stats.maxTables} Locked</span>
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginLeft: '6px' }}>
+                              (Upgrade to unlock)
+                            </span>
+                          </span>
+                        ) : (
+                          <span>
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{stats.tableCount}</span>
+                            {` / ${stats.maxTables}`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {isCriticalPulsing && (
+                      <div className="critical-message">
+                        ⚠️ Limit exceeded (&gt;=99.5%). Upgrade required to add or modify items.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!isInventory && (
+                  <>
+                    <p>Usage: Normal</p>
+                  </>
+                )}
               </div>
               <div className="widget-footer">
                 <Button variant="secondary" size="small" onClick={() => navigate(plugin.navigation[0]?.path || '/')}>
@@ -44,3 +119,4 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
+

@@ -1,5 +1,6 @@
 import { AtlasPlugin } from '@atlas/plugin-sdk';
 import { InventoryController } from './controllers/inventory.controller';
+import { InventoryService } from './services/inventory.service';
 
 const manifest = {
   id: 'inventory',
@@ -18,6 +19,7 @@ const manifest = {
 const config = AtlasPlugin({
   manifest,
   controllers: [InventoryController],
+  providers: [InventoryService],
   permissions: [
     {
       code: 'inventory.read',
