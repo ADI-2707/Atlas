@@ -203,6 +203,7 @@ export const InventoryDashboard: React.FC = () => {
   const customFields = activeTable?.fieldSchema || [];
 
   const isAddLocked = limitStats ? (limitStats.productCount / limitStats.maxProducts) >= 0.995 : false;
+  const isWarehouseLocked = limitStats ? limitStats.maxWarehouses === 0 : false;
 
   return (
     <div className="inventory-dashboard">
@@ -246,7 +247,7 @@ export const InventoryDashboard: React.FC = () => {
                 fontSize: '0.85rem'
               }}
             >
-              🏢 Warehouses
+              🏢 Warehouses {isWarehouseLocked && '🔒'}
             </button>
             <button
               type="button"
@@ -262,7 +263,7 @@ export const InventoryDashboard: React.FC = () => {
                 fontSize: '0.85rem'
               }}
             >
-              📜 Logs
+              📜 Logs {isWarehouseLocked && '🔒'}
             </button>
           </div>
         </div>
@@ -381,10 +382,46 @@ export const InventoryDashboard: React.FC = () => {
             <button className="excel-tab-add" onClick={handleCreateTable}>+</button>
           </div>
         </>
+      ) : isWarehouseLocked ? (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '4rem 2rem',
+          background: '#1a1a1a',
+          border: '1px solid #333',
+          borderRadius: '8px',
+          textAlign: 'center',
+          gap: '1.5rem',
+          marginTop: '1rem'
+        }}>
+          <span style={{ fontSize: '3.5rem' }}>🔒</span>
+          <h2 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>Warehouse Feature Locked</h2>
+          <p style={{ color: '#aaa', maxWidth: '500px', margin: '0 auto', fontSize: '0.95rem', lineHeight: '1.5' }}>
+            Multi-location warehouse tracking and audit logs are premium features available only on the **Business (Tier 2)** and **Enterprise (Tier 3)** plans.
+          </p>
+          <button 
+            type="button"
+            style={{
+              background: 'var(--color-accent-active)',
+              color: '#000',
+              border: 'none',
+              padding: '0.6rem 1.2rem',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: '600',
+            }}
+            onClick={() => alert('Redirecting to upgrade portal...')}
+          >
+            Upgrade Plan
+          </button>
+        </div>
       ) : activeView === 'warehouses' ? (
         <WarehouseManager
           products={products}
           onRefreshProducts={() => activeTableId && fetchProducts(activeTableId, page, limit, debouncedSearch)}
+          limitStats={limitStats}
         />
       ) : (
         <AdjustmentLogs />

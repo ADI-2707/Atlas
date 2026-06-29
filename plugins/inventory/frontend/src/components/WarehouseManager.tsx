@@ -11,12 +11,13 @@ interface Warehouse {
 interface WarehouseManagerProps {
   products: any[];
   onRefreshProducts: () => void;
+  limitStats: any;
 }
 
-export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, onRefreshProducts }) => {
+export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, onRefreshProducts, limitStats }) => {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(null);
-  
+
   const [isAddingWarehouse, setIsAddingWarehouse] = useState(false);
   const [whName, setWhName] = useState('');
   const [whLocation, setWhLocation] = useState('');
@@ -24,6 +25,8 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
 
   const [adjustingStockMap, setAdjustingStockMap] = useState<Record<string, number>>({});
   const [isSavingStock, setIsSavingStock] = useState<Record<string, boolean>>({});
+
+  const isLimitReached = limitStats ? limitStats.warehouseCount >= limitStats.maxWarehouses : false;
 
   useEffect(() => {
     fetchWarehouses();
@@ -125,12 +128,10 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
 
   return (
     <div className="warehouse-manager-container" style={{ display: 'flex', gap: '2rem', marginTop: '1rem', minHeight: '400px' }}>
-      
-      {/* Left Pane - Warehouses List */}
       <div className="warehouse-list-pane" style={{ flex: '1', background: '#1a1a1a', padding: '1.5rem', borderRadius: '8px', border: '1px solid #333', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Warehouses</h2>
-          <Button variant="primary" size="small" onClick={() => {
+          <h2 style={{ fontSize: '1.1rem', margin: 0 }}>Warehouses ({limitStats?.warehouseCount || 0}/{limitStats?.maxWarehouses || 0})</h2>
+          <Button variant="primary" size="small" disabled={isLimitReached} title={isLimitReached ? "Warehouse limit reached for your plan" : ""} onClick={() => {
             setIsAddingWarehouse(true);
             setEditingWhId(null);
             setWhName('');
@@ -207,7 +208,6 @@ export const WarehouseManager: React.FC<WarehouseManagerProps> = ({ products, on
         </div>
       </div>
 
-      {/* Right Pane - Selected Warehouse Stock List */}
       <div className="warehouse-stock-pane" style={{ flex: '2', background: '#1a1a1a', padding: '1.5rem', borderRadius: '8px', border: '1px solid #333' }}>
         {selectedWarehouse ? (
           <div>
