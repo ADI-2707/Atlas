@@ -21,6 +21,7 @@ export const InventoryDashboard: React.FC = () => {
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [newColumnLabel, setNewColumnLabel] = useState('');
   const [newColumnType, setNewColumnType] = useState('string');
@@ -101,6 +102,47 @@ export const InventoryDashboard: React.FC = () => {
     } catch (err) {
       console.error('Failed to create product', err);
     }
+  };
+
+  const handleExportCSV = async () => {
+    if (!activeTableId) return;
+    const activeTable = tables.find((t) => t.id === activeTableId);
+    if (!activeTable) return;
+    try {
+      const res = await api.get<{ csv: string }>(`/inventory/tables/${activeTableId}/export`);
+      const blob = new Blob([res.csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${activeTable.name.toLowerCase().replace(/\s+/g, '_')}_export.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Failed to export CSV', err);
+      alert('Failed to export CSV file');
+    }
+  };
+
+  const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeTableId) return;
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      const csvText = evt.target?.result as string;
+      if (!csvText) return;
+      try {
+        const res = await api.post<any>(`/inventory/tables/${activeTableId}/import`, { csv: csvText });
+        const importData = res.data || {};
+        alert(`Import completed!\nSuccessfully imported: ${importData.importedCount || 0}\nSkipped: ${importData.skippedCount || 0}\nTotal processed: ${importData.totalCount || 0}`);
+        fetchProducts(activeTableId, page, limit, debouncedSearch);
+        fetchLimitStats();
+      } catch (err: any) {
+        alert('Failed to import CSV file. Make sure column headers are: SKU, Name, Base Price');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleCreateTable = async () => {
@@ -227,6 +269,9 @@ export const InventoryDashboard: React.FC = () => {
         <div style={{ display: 'flex', gap: '1rem' }}>
           {activeView === 'products' && (
             <>
+              <Button variant="secondary" onClick={handleExportCSV}>Export CSV</Button>
+              <Button variant="secondary" onClick={() => fileInputRef.current?.click()}>Import CSV</Button>
+              <input type="file" ref={fileInputRef} accept=".csv" onChange={handleImportCSV} style={{ display: 'none' }} />
               <Button variant="secondary" onClick={() => setIsColumnModalOpen(true)}>Manage Columns</Button>
               <Button
                 variant="primary"

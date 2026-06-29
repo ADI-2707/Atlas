@@ -335,4 +335,175 @@ export class InventoryService {
 
     return buildPaginatedResult(data, total, page, limit);
   }
+
+  async exportProductsCsv(organizationId: string, tableId: string) {
+    const activeTable = await this.prisma.inventoryTable.findUnique({
+      where: { id: tableId, organizationId },
+    });
+    if (!activeTable) throw new Error('Table not found');
+
+    const customFields = (activeTable.fieldSchema as any[]) || [];
+
+    const plugin = await this.prisma.plugin.findUnique({
+      where: { id: 'inventory' },
+    });
+    const config: any = plugin?.config || {};
+    const tier = config.tier || 'free';
+
+    let maxProducts = 50;
+    if (tier === 'tier1') maxProducts = 1000;
+    else if (tier === 'tier2') maxProducts = 10000;
+    else if (tier === 'tier3') maxProducts = 100000;
+
+    const allowedProducts = await this.prisma.product.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'asc' },
+      take: maxProducts,
+      select: { id: true },
+    });
+    const allowedIds = allowedProducts.map((p) => p.id);
+
+    const products = await this.prisma.product.findMany({
+      where: {
+        organizationId,
+        tableId,
+        id: { in: allowedIds },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const headers = ['SKU', 'Name', 'Base Price', ...customFields.map((f) => f.label)];
+    const rows = products.map((p) => {
+      const row = [p.sku, p.name, p.basePrice, ...customFields.map((f) => (p.customData as any)?.[f.name] || '')];
+      return row.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    return { csv: csvContent };
+  }
+
+  async importProductsCsv(organizationId: string, tableId: string, csvContent: string) {
+    const activeTable = await this.prisma.inventoryTable.findUnique({
+      where: { id: tableId, organizationId },
+    });
+    if (!activeTable) throw new Error('Table not found');
+
+    const customFields = (activeTable.fieldSchema as any[]) || [];
+
+    const lines = csvContent.split(/\r?\n/).filter((line) => line.trim().length > 0);
+    if (lines.length < 2) throw new Error('CSV is empty or invalid');
+
+    const headers = lines[0].split(',').map((h) => h.replace(/^"|"$/g, '').trim());
+    const skuIdx = headers.indexOf('SKU');
+    const nameIdx = headers.indexOf('Name');
+    const priceIdx = headers.indexOf('Base Price');
+
+    if (skuIdx === -1 || nameIdx === -1 || priceIdx === -1) {
+      throw new Error('CSV must contain SKU, Name, and Base Price columns');
+    }
+
+    const imported = [];
+    let skipped = 0;
+
+    const plugin = await this.prisma.plugin.findUnique({
+      where: { id: 'inventory' },
+    });
+    const config: any = plugin?.config || {};
+    const tier = config.tier || 'free';
+
+    let maxProducts = 50;
+    if (tier === 'tier1') maxProducts = 1000;
+    else if (tier === 'tier2') maxProducts = 10000;
+    else if (tier === 'tier3') maxProducts = 100000;
+
+    const currentCount = await this.prisma.product.count({
+      where: { organizationId },
+    });
+
+    let spaceLeft = maxProducts - currentCount;
+
+    for (let i = 1; i < lines.length; i++) {
+      if (spaceLeft <= 0) break;
+
+      const row = [];
+      let current = '';
+      let inQuotes = false;
+      const line = lines[i];
+
+      for (let k = 0; k < line.length; k++) {
+        const char = line[k];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          row.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      row.push(current.trim());
+      const parsedRow = row.map((s) => s.replace(/^"|"$/g, '').replace(/""/g, '"'));
+
+      if (parsedRow.length < headers.length) {
+        skipped++;
+        continue;
+      }
+
+      const sku = parsedRow[skuIdx];
+      const name = parsedRow[nameIdx];
+      const basePrice = parseFloat(parsedRow[priceIdx]) || 0;
+
+      if (!sku || !name) {
+        skipped++;
+        continue;
+      }
+
+      const customData: any = {};
+      for (let j = 0; j < headers.length; j++) {
+        if (j !== skuIdx && j !== nameIdx && j !== priceIdx) {
+          const fieldLabel = headers[j];
+          const matchedField = customFields.find((f) => f.label === fieldLabel);
+          if (matchedField) {
+            customData[matchedField.name] = parsedRow[j] || '';
+          }
+        }
+      }
+
+      try {
+        await this.prisma.product.upsert({
+          where: {
+            organizationId_sku: {
+              organizationId,
+              sku,
+            },
+          },
+          update: {
+            name,
+            basePrice,
+            customData,
+            tableId,
+          },
+          create: {
+            organizationId,
+            tableId,
+            sku,
+            name,
+            basePrice,
+            customData,
+          },
+        });
+        imported.push(sku);
+        spaceLeft--;
+      } catch (err) {
+        skipped++;
+      }
+    }
+
+    return {
+      success: true,
+      importedCount: imported.length,
+      skippedCount: skipped,
+      totalCount: lines.length - 1,
+    };
+  }
 }

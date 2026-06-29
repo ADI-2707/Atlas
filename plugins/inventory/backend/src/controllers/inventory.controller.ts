@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Req, Query, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req, Query, Delete, Header } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { InventoryService } from '../services/inventory.service';
 
@@ -105,6 +105,21 @@ export class InventoryController {
       page,
       limit,
     });
+  }
+
+  @Get('tables/:id/export')
+  @ApiOperation({ summary: 'Export products as CSV' })
+  async exportCsv(@Req() req: any) {
+    return this.inventoryService.exportProductsCsv(req.user.organizationId, req.params.id);
+  }
+
+  @Post('tables/:id/import')
+  @ApiOperation({ summary: 'Import products from CSV' })
+  async importCsv(
+    @Req() req: any,
+    @Body() body: { csv: string },
+  ) {
+    return this.inventoryService.importProductsCsv(req.user.organizationId, req.params.id, body.csv);
   }
 }
 
