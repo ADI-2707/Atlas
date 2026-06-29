@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Req, Query, Delete, Header } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req, Query, Delete } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { InventoryService } from '../services/inventory.service';
 
