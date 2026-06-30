@@ -6,7 +6,9 @@
     "module": "commonjs",
     "target": "es2021",
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["backend/src/**/*", "shared/**/*", "frontend/src/**/*"],
   "exclude": ["node_modules", "dist"]
