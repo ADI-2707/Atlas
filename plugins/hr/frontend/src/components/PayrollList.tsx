@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
-
-interface PayrollRecord {
-  id: string;
-  employeeId: string;
-  amount: number;
-  currency: string;
-  periodStart: string;
-  periodEnd: string;
-  status: 'pending' | 'processed' | 'paid';
-}
+import { PayrollRecord } from '../../../shared';
 
 export const PayrollList: React.FC = () => {
   const [records, setRecords] = useState<PayrollRecord[]>([]);
@@ -23,7 +14,7 @@ export const PayrollList: React.FC = () => {
     try {
       setLoading(true);
       const res = await api.get<{ data: PayrollRecord[] }>('/hr/payroll');
-      
+
       if (!res.data || res.data.length === 0) {
         setRecords([
           { id: '1', employeeId: '1', amount: 5000, currency: 'USD', periodStart: '2026-06-01', periodEnd: '2026-06-30', status: 'paid' },
@@ -41,7 +32,7 @@ export const PayrollList: React.FC = () => {
   };
 
   const getStatusBadgeClass = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'paid': return 'badge-active';
       case 'pending': return 'badge-leave';
       case 'processed': return 'badge-active';

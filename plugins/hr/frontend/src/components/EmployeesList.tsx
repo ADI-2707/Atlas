@@ -1,16 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
-
-interface Employee {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  department: string;
-  role: string;
-  status: 'active' | 'leave' | 'terminated';
-  joinDate: string;
-}
+import { Employee } from '../../../shared';
 
 export const EmployeesList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -42,7 +32,7 @@ export const EmployeesList: React.FC = () => {
   };
 
   const getStatusBadgeClass = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'active': return 'badge-active';
       case 'leave': return 'badge-leave';
       case 'terminated': return 'badge-terminated';
