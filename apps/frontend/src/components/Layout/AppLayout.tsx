@@ -115,7 +115,9 @@ export const AppLayout: React.FC = () => {
           }
         />
         <div className="atlas-app-content">
-          <Outlet />
+          <div className="page-reveal" key={location.pathname} style={{ width: '100%', height: '100%' }}>
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

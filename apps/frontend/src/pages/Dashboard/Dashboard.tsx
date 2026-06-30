@@ -142,7 +142,7 @@ export const Dashboard: React.FC = () => {
                         <span>
                           {crmStats.limits.customers === -1 
                             ? `${crmStats.usage.customers} (Unlimited)`
-                            : `${crmStats.usage.customers} / ${crmStats.limits.customers} (${contactsPct.toFixed(1)}%) &mdash; ${Math.max(0, crmStats.limits.customers - crmStats.usage.customers)} left`}
+                            : `${crmStats.usage.customers} / ${crmStats.limits.customers} (${contactsPct.toFixed(1)}%)`}
                         </span>
                       </div>
                       <div className="limit-progress-bar">
@@ -152,33 +152,14 @@ export const Dashboard: React.FC = () => {
                         />
                       </div>
                     </div>
-
-                    <div className="crm-usage-grid">
-                      <div className="crm-usage-metric">
-                        <span>Leads</span>
-                        <strong>{crmStats.usage.customerStatuses?.lead || 0}</strong>
-                      </div>
-                      <div className="crm-usage-metric">
-                        <span>Prospects</span>
-                        <strong>{crmStats.usage.customerStatuses?.prospect || 0}</strong>
-                      </div>
-                      <div className="crm-usage-metric">
-                        <span>Customers</span>
-                        <strong>{crmStats.usage.customerStatuses?.customer || 0}</strong>
-                      </div>
-                      <div className="crm-usage-metric">
-                        <span>Churned</span>
-                        <strong>{crmStats.usage.customerStatuses?.churned || 0}</strong>
-                      </div>
-                    </div>
                     
-                    <div className="limit-item">
+                    <div className="limit-item" style={{ marginTop: '1.25rem' }}>
                       <div className="limit-label">
                         <span>Deals Pipeline</span>
                         <span>
                           {crmStats.limits.deals === -1 
                             ? `${crmStats.usage.deals} (Unlimited)`
-                            : `${crmStats.usage.deals} / ${crmStats.limits.deals} (${dealsPct.toFixed(1)}%) &mdash; ${Math.max(0, crmStats.limits.deals - crmStats.usage.deals)} left`}
+                            : `${crmStats.usage.deals} / ${crmStats.limits.deals} (${dealsPct.toFixed(1)}%)`}
                         </span>
                       </div>
                       <div className="limit-progress-bar">
@@ -189,34 +170,9 @@ export const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="crm-usage-grid">
-                      <div className="crm-usage-metric">
-                        <span>Qualification</span>
-                        <strong>{crmStats.usage.dealStages?.qualification || 0}</strong>
-                      </div>
-                      <div className="crm-usage-metric">
-                        <span>Proposal</span>
-                        <strong>{crmStats.usage.dealStages?.proposal || 0}</strong>
-                      </div>
-                      <div className="crm-usage-metric">
-                        <span>Negotiation</span>
-                        <strong>{crmStats.usage.dealStages?.negotiation || 0}</strong>
-                      </div>
-                      <div className="crm-usage-metric">
-                        <span>Won / Lost</span>
-                        <strong>{crmStats.usage.dealStages?.closedWon || 0} / {crmStats.usage.dealStages?.closedLost || 0}</strong>
-                      </div>
-                    </div>
-
-                    <div className="crm-value-summary">
-                      <div>
-                        <span>Total Pipeline</span>
-                        <strong>{formatCurrency(crmStats.usage.pipelineValue || 0)}</strong>
-                      </div>
-                      <div>
-                        <span>Closed Won</span>
-                        <strong>{formatCurrency(crmStats.usage.closedWonValue || 0)}</strong>
-                      </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      <span>Pipeline Value: <strong style={{ color: 'var(--text-primary)', marginLeft: '4px' }}>{formatCurrency(crmStats.usage.pipelineValue || 0)}</strong></span>
+                      <span>Closed Won: <strong style={{ color: 'var(--text-primary)', marginLeft: '4px' }}>{formatCurrency(crmStats.usage.closedWonValue || 0)}</strong></span>
                     </div>
 
                     {isCriticalPulsing && (
@@ -245,4 +201,3 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
-

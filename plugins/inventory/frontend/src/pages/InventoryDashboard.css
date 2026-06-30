@@ -1,6 +1,5 @@
 .inventory-dashboard {
-  padding: 2rem;
-  padding-bottom: 80px;
+  padding: var(--spacing-lg);
   color: var(--text-primary);
   height: 100%;
   overflow-y: auto;
@@ -8,26 +7,17 @@
   background-color: var(--bg-surface-secondary);
 }
 
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.dashboard-header h1 {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: var(--text-primary);
+.dashboard-header-container {
+  margin-bottom: 1.5rem;
 }
 
 .table-container {
   background-color: var(--bg-surface-primary);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  margin-top: 1rem;
 }
 
 .atlas-table {
@@ -38,18 +28,19 @@
 
 .atlas-table th,
 .atlas-table td {
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-primary);
+  font-size: 0.85rem;
 }
 
 .atlas-table th {
-  background-color: var(--bg-surface-secondary);
+  background-color: var(--bg-surface-tertiary);
   font-weight: 600;
   color: var(--text-secondary);
-  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-size: 0.75rem;
 }
 
 .atlas-table tr:last-child td {
@@ -60,89 +51,34 @@
   background-color: var(--bg-surface-tertiary);
 }
 
-.excel-tabs {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 40px;
-  background-color: var(--bg-surface-tertiary);
-  border-top: 1px solid var(--border-color);
+.clean-tabs-bar {
   display: flex;
-  align-items: flex-end;
-  padding: 0 1.5rem;
-  z-index: 10;
-  user-select: none;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  overflow-x: auto;
+  gap: 1.5rem;
 }
 
-.excel-tabs::-webkit-scrollbar {
-  display: none;
-}
-
-.excel-tab {
-  background-color: var(--bg-surface-secondary);
-  color: var(--text-secondary);
+.clean-tab-btn {
+  background: transparent;
   border: none;
-  border-right: 1px solid var(--border-color);
-  height: 32px;
-  padding: 0 16px;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  padding: 0.5rem 0;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 400;
-  transition: background-color 0.15s, color 0.15s;
-  border-top: 2px solid transparent;
+  font-weight: 500;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
-  margin-right: 1px;
 }
 
-.excel-tab:hover {
-  background-color: var(--bg-surface-tertiary);
+.clean-tab-btn:hover {
   color: var(--text-primary);
 }
 
-.excel-tab.active {
-  background-color: var(--bg-surface-primary);
+.clean-tab-btn.active {
   color: var(--color-accent-active);
   font-weight: 600;
-  border-top: 2px solid var(--color-accent-active);
-}
-
-.excel-tab.locked {
-  background-color: var(--bg-surface-secondary);
-  color: var(--text-tertiary);
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.excel-tab.locked:hover {
-  background-color: var(--bg-surface-secondary);
-  color: var(--text-tertiary);
-}
-
-.excel-tab-add {
-  background: transparent;
-  border: none;
-  color: var(--text-tertiary);
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  font-size: 20px;
-  font-weight: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.15s, background-color 0.15s;
-  border-radius: 50%;
-  margin-left: 8px;
-  margin-bottom: 2px;
-}
-
-.excel-tab-add:hover {
-  background-color: var(--bg-surface-tertiary);
-  color: var(--color-accent-active);
+  border-bottom: 2px solid var(--color-accent-active);
 }
 
 .column-modal {
