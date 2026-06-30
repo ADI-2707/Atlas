@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./",
+    "module": "commonjs",
+    "target": "es2021",
+    "declaration": true,
+    "sourceMap": true
+  },
+  "include": ["backend/src/**/*", "shared/**/*", "frontend/src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

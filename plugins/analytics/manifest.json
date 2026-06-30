@@ -1,0 +1,18 @@
+{
+  "id": "analytics",
+  "name": "Analytics Engine",
+  "version": "1.0.0",
+  "author": "Atlas Team",
+  "description": "Real-time data processing, visual insights, and AI forecasting for your business metrics.",
+  "atlasVersion": "1.0.0",
+  "dependencies": [],
+  "permissions": [
+    "analytics.read",
+    "analytics.reports",
+    "analytics.anomalies",
+    "analytics.forecasts"
+  ],
+  "events": [],
+  "routes": [],
+  "widgets": []
+}
