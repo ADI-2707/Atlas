@@ -2,10 +2,17 @@ import React, { useState } from 'react';
 import { Button } from '@atlas/ui';
 import { EmployeesList } from '../components/EmployeesList';
 import { PayrollList } from '../components/PayrollList';
+import { AddEmployeeModal } from '../components/AddEmployeeModal';
+import { RunPayrollModal } from '../components/RunPayrollModal';
 import './HrDashboard.css';
 
 export const HrDashboard: React.FC = () => {
   const [activeView, setActiveView] = useState<'employees' | 'payroll'>('employees');
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+  const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
+
+  const [refreshEmployees, setRefreshEmployees] = useState(0);
+  const [refreshPayroll, setRefreshPayroll] = useState(0);
 
   return (
     <div className="hr-dashboard">
@@ -18,11 +25,11 @@ export const HrDashboard: React.FC = () => {
             </p>
           </div>
           {activeView === 'employees' ? (
-            <Button variant="primary" size="small">
+            <Button variant="primary" size="small" onClick={() => setIsEmployeeModalOpen(true)}>
               Add Employee
             </Button>
           ) : (
-            <Button variant="primary" size="small">
+            <Button variant="primary" size="small" onClick={() => setIsPayrollModalOpen(true)}>
               Run Payroll
             </Button>
           )}
@@ -87,11 +94,23 @@ export const HrDashboard: React.FC = () => {
 
       <div className="page-reveal" key={activeView} style={{ marginTop: '1.5rem' }}>
         {activeView === 'employees' ? (
-          <EmployeesList />
+          <EmployeesList key={refreshEmployees} />
         ) : (
-          <PayrollList />
+          <PayrollList key={refreshPayroll} />
         )}
       </div>
+
+      <AddEmployeeModal
+        isOpen={isEmployeeModalOpen}
+        onClose={() => setIsEmployeeModalOpen(false)}
+        onSuccess={() => setRefreshEmployees(prev => prev + 1)}
+      />
+
+      <RunPayrollModal
+        isOpen={isPayrollModalOpen}
+        onClose={() => setIsPayrollModalOpen(false)}
+        onSuccess={() => setRefreshPayroll(prev => prev + 1)}
+      />
     </div>
   );
 };
