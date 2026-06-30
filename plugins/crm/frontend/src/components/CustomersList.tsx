@@ -10,6 +10,7 @@ interface Customer {
   phone: string | null;
   company: string | null;
   status: string;
+  customData?: Record<string, any>;
 }
 
 interface LimitStats {
@@ -38,6 +39,13 @@ export const CustomersList: React.FC = () => {
   const [formPhone, setFormPhone] = useState('');
   const [formCompany, setFormCompany] = useState('');
   const [formStatus, setFormStatus] = useState('LEAD');
+  const [customData, setCustomData] = useState<Record<string, any>>({});
+
+  const [customFields, setCustomFields] = useState<any[]>([]);
+  const [isColumnModalOpen, setIsColumnModalOpen] = useState(false);
+  const [newColumnLabel, setNewColumnLabel] = useState('');
+  const [newColumnType, setNewColumnType] = useState('string');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -51,7 +59,46 @@ export const CustomersList: React.FC = () => {
 
   useEffect(() => {
     fetchStats();
+    fetchContactSchema();
   }, []);
+
+  const fetchContactSchema = async () => {
+    try {
+      const res = await api.get<{ data: any[] }>('/crm/schema');
+      setCustomFields(res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch contact schema', err);
+    }
+  };
+
+  const handleAddColumn = async () => {
+    if (!newColumnLabel.trim()) return;
+    const name = newColumnLabel.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    if (customFields.some((f: any) => f.name === name)) {
+      setErrorMsg('Column already exists');
+      return;
+    }
+    const newField = { name, label: newColumnLabel.trim(), type: newColumnType };
+    const updated = [...customFields, newField];
+    try {
+      await api.post('/crm/schema', updated);
+      setCustomFields(updated);
+      setNewColumnLabel('');
+      setErrorMsg('');
+    } catch (err) {
+      setErrorMsg('Failed to add column');
+    }
+  };
+
+  const handleDeleteColumn = async (colName: string) => {
+    const updated = customFields.filter((f: any) => f.name !== colName);
+    try {
+      await api.post('/crm/schema', updated);
+      setCustomFields(updated);
+    } catch (err) {
+      alert('Failed to delete column');
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -93,6 +140,7 @@ export const CustomersList: React.FC = () => {
     setFormPhone('');
     setFormCompany('');
     setFormStatus('LEAD');
+    setCustomData({});
     setIsModalOpen(true);
   };
 
@@ -103,6 +151,7 @@ export const CustomersList: React.FC = () => {
     setFormPhone(cust.phone || '');
     setFormCompany(cust.company || '');
     setFormStatus(cust.status);
+    setCustomData(cust.customData || {});
     setIsModalOpen(true);
   };
 
@@ -113,7 +162,8 @@ export const CustomersList: React.FC = () => {
       email: formEmail,
       phone: formPhone || null,
       company: formCompany || null,
-      status: formStatus
+      status: formStatus,
+      customData
     };
 
     try {
@@ -185,14 +235,17 @@ export const CustomersList: React.FC = () => {
             </span>
           )}
         </div>
-        <Button
-          variant="primary"
-          disabled={isAddLocked}
-          onClick={handleOpenCreateModal}
-          title={isAddLocked ? "Contact limit reached. Upgrade plan to add contacts." : ""}
-        >
-          + Add Contact
-        </Button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Button variant="secondary" onClick={() => setIsColumnModalOpen(true)}>Columns</Button>
+          <Button
+            variant="primary"
+            disabled={isAddLocked}
+            onClick={handleOpenCreateModal}
+            title={isAddLocked ? "Contact limit reached. Upgrade plan to add contacts." : ""}
+          >
+            + Add Contact
+          </Button>
+        </div>
       </div>
 
       <div className="table-container">
@@ -203,6 +256,9 @@ export const CustomersList: React.FC = () => {
               <th>Email</th>
               <th>Phone</th>
               <th>Company</th>
+              {customFields.map((f: any) => (
+                <th key={f.name}>{f.label}</th>
+              ))}
               <th>Status</th>
               <th style={{ textAlign: 'right' }}>Actions</th>
             </tr>
@@ -210,11 +266,11 @@ export const CustomersList: React.FC = () => {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>Loading contacts...</td>
+                <td colSpan={6 + customFields.length} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>Loading contacts...</td>
               </tr>
             ) : customers.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>No contacts found. Add one to start.</td>
+                <td colSpan={6 + customFields.length} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>No contacts found. Add one to start.</td>
               </tr>
             ) : customers.map(cust => (
               <tr key={cust.id}>
@@ -222,6 +278,9 @@ export const CustomersList: React.FC = () => {
                 <td>{cust.email}</td>
                 <td>{cust.phone || '-'}</td>
                 <td>{cust.company || '-'}</td>
+                {customFields.map((f: any) => (
+                  <td key={f.name}>{cust.customData?.[f.name] || '-'}</td>
+                ))}
                 <td>
                   <span className={getStatusBadgeClass(cust.status)}>{cust.status}</span>
                 </td>
@@ -301,6 +360,21 @@ export const CustomersList: React.FC = () => {
                   className="atlas-input"
                 />
               </div>
+              {customFields.map((f: any) => (
+                <div key={f.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{f.label}</label>
+                  <input
+                    type={f.type === 'number' ? 'number' : 'text'}
+                    placeholder={`Enter ${f.label.toLowerCase()}`}
+                    value={customData[f.name] !== undefined ? customData[f.name] : ''}
+                    onChange={e => {
+                      const val = f.type === 'number' ? (parseFloat(e.target.value) || '') : e.target.value;
+                      setCustomData(prev => ({ ...prev, [f.name]: val }));
+                    }}
+                    className="atlas-input"
+                  />
+                </div>
+              ))}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                 <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Lifecycle Status</label>
                 <select
@@ -327,6 +401,46 @@ export const CustomersList: React.FC = () => {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {isColumnModalOpen && createPortal(
+        <div className="modal-overlay">
+          <div className="modal-content column-modal">
+            <h2>Manage Custom Contact Fields</h2>
+            <div className="current-columns" style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1.5rem' }}>
+              {customFields.map((f: any) => (
+                <div key={f.name} className="column-item">
+                  <span>{f.label} <small style={{ color: 'var(--text-tertiary)' }}>({f.type})</small></span>
+                  <button className="btn-delete" onClick={() => handleDeleteColumn(f.name)}>×</button>
+                </div>
+              ))}
+              {customFields.length === 0 && <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>No custom fields yet.</p>}
+            </div>
+
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>Add New Custom Field</h3>
+            <div className="add-column-form">
+              <input
+                type="text"
+                placeholder="Field Label (e.g. Lead Source)"
+                value={newColumnLabel}
+                onChange={e => setNewColumnLabel(e.target.value)}
+                className="atlas-input"
+                style={{ fontSize: '0.85rem' }}
+              />
+              <select value={newColumnType} onChange={e => setNewColumnType(e.target.value)} className="atlas-input" style={{ fontSize: '0.85rem' }}>
+                <option value="string">Text</option>
+                <option value="number">Number</option>
+              </select>
+              <Button variant="primary" size="small" onClick={handleAddColumn}>Add</Button>
+            </div>
+            {errorMsg && <p style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '0.5rem' }}>{errorMsg}</p>}
+
+            <div style={{ marginTop: '2rem', textAlign: 'right', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+              <Button variant="secondary" size="small" onClick={() => setIsColumnModalOpen(false)}>Close</Button>
+            </div>
           </div>
         </div>,
         document.body

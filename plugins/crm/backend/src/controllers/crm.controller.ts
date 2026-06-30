@@ -81,4 +81,16 @@ export class CrmController {
   async deleteDeal(@Req() req: any, @Param('id') id: string) {
     return this.crmService.deleteDeal(req.user.organizationId, id);
   }
+
+  @Get('schema')
+  @ApiOperation({ summary: 'Get CRM contact custom field schema' })
+  async getContactSchema() {
+    return this.crmService.getContactSchema();
+  }
+
+  @Post('schema')
+  @ApiOperation({ summary: 'Update CRM contact custom field schema' })
+  async updateContactSchema(@Body() schema: any) {
+    return this.crmService.updateContactSchema(schema);
+  }
 }

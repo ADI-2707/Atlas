@@ -233,6 +233,7 @@ model Customer {
   phone          String?
   company        String?
   status         String   @default("LEAD") // LEAD, PROSPECT, CUSTOMER, CHURNED
+  customData     Json?    @default("{}") @map("custom_data")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 

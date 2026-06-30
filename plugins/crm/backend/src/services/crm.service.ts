@@ -141,7 +141,8 @@ export class CrmService {
         email: data.email,
         phone: data.phone || null,
         company: data.company || null,
-        status: data.status || 'LEAD'
+        status: data.status || 'LEAD',
+        customData: data.customData || {},
       }
     });
   }
@@ -162,7 +163,8 @@ export class CrmService {
         email: data.email,
         phone: data.phone,
         company: data.company,
-        status: data.status
+        status: data.status,
+        customData: data.customData || {},
       }
     });
   }
@@ -306,5 +308,27 @@ export class CrmService {
         })),
       },
     });
+  }
+
+  async getContactSchema() {
+    const plugin = await this.prisma.plugin.findUnique({
+      where: { id: 'crm' }
+    });
+    const config = (plugin?.config as any) || {};
+    return config.contactFields || [];
+  }
+
+  async updateContactSchema(fieldSchema: any) {
+    const plugin = await this.prisma.plugin.findUnique({
+      where: { id: 'crm' }
+    });
+    const config = (plugin?.config as any) || {};
+    const updatedConfig = { ...config, contactFields: fieldSchema };
+
+    await this.prisma.plugin.update({
+      where: { id: 'crm' },
+      data: { config: updatedConfig }
+    });
+    return fieldSchema;
   }
 }
