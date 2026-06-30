@@ -5,10 +5,12 @@ import { api } from '@atlas/api';
 import { ProductForm } from '../components/ProductForm';
 import { WarehouseManager } from '../components/WarehouseManager';
 import { AdjustmentLogs } from '../components/AdjustmentLogs';
+import { usePlugins } from '../../../../../apps/frontend/src/contexts/PluginContext';
 import './InventoryDashboard.css';
 
 export const InventoryDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { setWorkspaceLock } = usePlugins();
   const [tables, setTables] = useState<any[]>([]);
   const [activeTableId, setActiveTableId] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
@@ -239,13 +241,62 @@ export const InventoryDashboard: React.FC = () => {
     }
   };
 
-  if (tables.length === 0) return <div style={{ padding: '2rem', color: '#fff' }}>Loading Inventory...</div>;
-
   const activeTable = tables.find(t => t.id === activeTableId) || tables[0];
   const customFields = activeTable?.fieldSchema || [];
 
   const isAddLocked = limitStats ? (limitStats.productCount / limitStats.maxProducts) >= 0.995 : false;
   const isWarehouseLocked = limitStats ? limitStats.maxWarehouses === 0 : false;
+
+  const activeTableIndex = tables.findIndex(t => t.id === activeTableId);
+  const isTableLocked = limitStats && activeTableIndex !== -1 ? activeTableIndex >= limitStats.maxTables : false;
+  const isStorageLocked = limitStats ? (limitStats.productCount / limitStats.maxProducts) >= 0.995 : false;
+
+  useEffect(() => {
+    if (limitStats) {
+      if (isStorageLocked || (activeView === 'warehouses' && isWarehouseLocked) || (activeView === 'products' && isTableLocked)) {
+        let title = "Inventory Storage Capacity Exceeded";
+        let description = "Your inventory workspace has exceeded its permitted plan capacity. Please upgrade your subscription plan to restore access.";
+        let secondaryActionLabel = "Go back to Products";
+        let onSecondaryAction = () => {
+          setActiveView('products');
+          setWorkspaceLock(null);
+        };
+
+        if (activeView === 'warehouses' && isWarehouseLocked) {
+          title = "Warehouses Feature Locked";
+          description = "Warehouse tracking is a premium feature not included in your current subscription plan. Please upgrade to a higher tier to manage warehouses.";
+        } else if (activeView === 'products' && isTableLocked) {
+          title = "Inventory Table Locked";
+          description = "This inventory table is locked under your current subscription plan. Please upgrade to a higher tier to view and edit this table.";
+          secondaryActionLabel = "Go back to Main Table";
+          onSecondaryAction = () => {
+            if (tables.length > 0) {
+              setActiveTableId(tables[0].id);
+            }
+            setWorkspaceLock(null);
+          };
+        }
+
+        setWorkspaceLock({
+          title,
+          description,
+          upgradePath: "/store",
+          secondaryAction: {
+            label: secondaryActionLabel,
+            onClick: onSecondaryAction
+          }
+        });
+      } else {
+        setWorkspaceLock(null);
+      }
+    }
+
+    return () => {
+      setWorkspaceLock(null);
+    };
+  }, [limitStats, isStorageLocked, activeView, isWarehouseLocked, isTableLocked, tables, setWorkspaceLock]);
+
+  if (tables.length === 0) return <div style={{ padding: '2rem', color: '#fff' }}>Loading Inventory...</div>;
 
   const LockIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: '6px' }}>
@@ -369,12 +420,6 @@ export const InventoryDashboard: React.FC = () => {
                     onChange={(e) => {
                       if (e.target.value === '__new__') {
                         handleCreateTable();
-                        return;
-                      }
-                      const tableIndex = tables.findIndex(t => t.id === e.target.value);
-                      const maxTables = limitStats?.maxTables || 1;
-                      if (tableIndex >= maxTables) {
-                        alert("This table is locked under your current subscription plan. Upgrade to unlock access.");
                         return;
                       }
                       setActiveTableId(e.target.value);

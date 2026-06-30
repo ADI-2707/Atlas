@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar, SidebarItem, Navbar, Button } from '@atlas/ui';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@atlas/auth';
+import { api } from '@atlas/api';
 import { usePlugins } from '../../contexts/PluginContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { FullScreenLock } from '../FullScreenLock/FullScreenLock';
 import './AppLayout.css';
 
 export const AppLayout: React.FC = () => {
@@ -11,10 +13,46 @@ export const AppLayout: React.FC = () => {
     return localStorage.getItem('atlas_sidebar_collapsed') === 'true';
   });
   const { logout, user } = useAuth();
-  const { navigationItems } = usePlugins();
+  const { navigationItems, workspaceLock, setWorkspaceLock } = usePlugins();
   const { toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    setWorkspaceLock(null);
+  }, [location.pathname]);
+
+  const [isInventoryLocked, setIsInventoryLocked] = useState(false);
+  const [isCrmLocked, setIsCrmLocked] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/inventory')) {
+      api.get<any>('/inventory/stats')
+        .then(res => {
+          const stats = res.data;
+          const isLocked = stats ? (stats.productCount / stats.maxProducts) >= 0.995 : false;
+          setIsInventoryLocked(isLocked);
+        })
+        .catch(() => setIsInventoryLocked(false));
+    } else {
+      setIsInventoryLocked(false);
+    }
+
+    if (location.pathname.startsWith('/crm')) {
+      api.get<any>('/crm/limits')
+        .then(res => {
+          const stats = res.data;
+          const isLocked = stats && (
+            (stats.limits.customers !== -1 && (stats.usage.customers / stats.limits.customers) >= 0.995) ||
+            (stats.limits.deals !== -1 && (stats.usage.deals / stats.limits.deals) >= 0.995)
+          );
+          setIsCrmLocked(isLocked);
+        })
+        .catch(() => setIsCrmLocked(false));
+    } else {
+      setIsCrmLocked(false);
+    }
+  }, [location.pathname]);
 
   const renderIcon = (name?: string) => {
     switch (name) {
@@ -69,6 +107,28 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="atlas-app-layout">
+      {workspaceLock && (
+        <FullScreenLock
+          title={workspaceLock.title}
+          description={workspaceLock.description}
+          upgradePath={workspaceLock.upgradePath}
+          secondaryAction={workspaceLock.secondaryAction}
+        />
+      )}
+      {isInventoryLocked && (
+        <FullScreenLock
+          title="Inventory Workspace Locked"
+          description="Your inventory workspace has exceeded its permitted plan capacity. Please upgrade your subscription plan to restore access."
+          upgradePath="/store"
+        />
+      )}
+      {isCrmLocked && (
+        <FullScreenLock
+          title="CRM Workspace Locked"
+          description="Your CRM contact database has exceeded its permitted plan capacity. Please upgrade your subscription plan to restore access."
+          upgradePath="/store"
+        />
+      )}
       <Sidebar 
         isCollapsed={isCollapsed} 
         onToggle={handleToggle}
