@@ -45,7 +45,7 @@ const STAGES = [
   { key: 'CLOSED_LOST', label: 'Closed Lost ❌' }
 ];
 
-export const DealsPipeline: React.FC = () => {
+export const DealsPipeline: React.FC<{ addTrigger?: number; onStatsChanged?: () => void }> = ({ addTrigger = 0, onStatsChanged }) => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -62,6 +62,12 @@ export const DealsPipeline: React.FC = () => {
   const [formCustomerId, setFormCustomerId] = useState('');
   const [formStage, setFormStage] = useState('QUALIFICATION');
   const [formItems, setFormItems] = useState<DealItem[]>([]);
+
+  useEffect(() => {
+    if (addTrigger > 0) {
+      handleOpenCreateModal();
+    }
+  }, [addTrigger]);
 
   useEffect(() => {
     fetchStats();
@@ -196,6 +202,7 @@ export const DealsPipeline: React.FC = () => {
       setIsModalOpen(false);
       await fetchDeals();
       await fetchStats();
+      onStatsChanged?.();
     } catch (err) {
       console.error('Failed to save deal', err);
       alert('Error saving sales deal');
@@ -208,6 +215,7 @@ export const DealsPipeline: React.FC = () => {
       await api.delete(`/crm/deals/${id}`);
       await fetchDeals();
       await fetchStats();
+      onStatsChanged?.();
     } catch (err) {
       console.error('Failed to delete deal', err);
       alert('Failed to delete opportunity');
@@ -229,28 +237,6 @@ export const DealsPipeline: React.FC = () => {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          {stats && stats.limits.deals !== -1 && (
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Usage: {stats.usage.deals} / {stats.limits.deals} Deals ({stats.tier.toUpperCase()} Plan)
-            </span>
-          )}
-          {stats && stats.limits.deals === -1 && (
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Usage: {stats.usage.deals} Deals (Unlimited Plan)
-            </span>
-          )}
-        </div>
-        <Button
-          variant="primary"
-          disabled={isAddLocked}
-          onClick={handleOpenCreateModal}
-          title={isAddLocked ? "Deal limit reached. Upgrade plan to add deals." : ""}
-        >
-          + New Deal
-        </Button>
-      </div>
 
       {isLoading ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>Loading pipeline...</div>

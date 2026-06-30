@@ -1,14 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '@atlas/api';
+import { Button } from '@atlas/ui';
 import { CustomersList } from '../components/CustomersList';
 import { DealsPipeline } from '../components/DealsPipeline';
 import './CrmDashboard.css';
 
+interface LimitStats {
+  tier: string;
+  usage: { customers: number; deals: number };
+  limits: { customers: number; deals: number };
+}
+
 export const CrmDashboard: React.FC = () => {
   const [activeView, setActiveView] = useState<'contacts' | 'pipeline'>('contacts');
+  const [stats, setStats] = useState<LimitStats | null>(null);
+  const [addContactTrigger, setAddContactTrigger] = useState(0);
+  const [addDealTrigger, setAddDealTrigger] = useState(0);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const res = await api.get<{ data: LimitStats }>('/crm/limits');
+      setStats(res.data);
+    } catch (err) {
+      console.error('Failed to fetch stats', err);
+    }
+  };
+
+  const handleRefreshStats = () => {
+    fetchStats();
+  };
+
+  const isContactLocked = stats && stats.limits.customers !== -1 ? stats.usage.customers >= stats.limits.customers : false;
+  const isDealLocked = stats && stats.limits.deals !== -1 ? stats.usage.deals >= stats.limits.deals : false;
 
   return (
     <div className="crm-dashboard">
       <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {stats && activeView === 'contacts' && (
+              <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
+                Capacity: {stats.usage.customers} / {stats.limits.customers === -1 ? 'Unlimited' : stats.limits.customers} Contacts Used
+              </span>
+            )}
+            {stats && activeView === 'pipeline' && (
+              <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
+                Capacity: {stats.usage.deals} / {stats.limits.deals === -1 ? 'Unlimited' : stats.limits.deals} Deals Used
+              </span>
+            )}
+          </div>
+          {activeView === 'contacts' && (
+            <Button
+              variant="primary"
+              size="small"
+              disabled={isContactLocked}
+              onClick={() => setAddContactTrigger(prev => prev + 1)}
+              title={isContactLocked ? "Contact limit reached. Upgrade plan to add contacts." : ""}
+            >
+              Add Contact
+            </Button>
+          )}
+          {activeView === 'pipeline' && (
+            <Button
+              variant="primary"
+              size="small"
+              disabled={isDealLocked}
+              onClick={() => setAddDealTrigger(prev => prev + 1)}
+              title={isDealLocked ? "Deal limit reached. Upgrade plan to add deals." : ""}
+            >
+              New Deal
+            </Button>
+          )}
+        </div>
 
         <div className="clean-tabs-bar" style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
           <button
@@ -54,9 +121,9 @@ export const CrmDashboard: React.FC = () => {
 
       <div className="page-reveal" key={activeView}>
         {activeView === 'contacts' ? (
-          <CustomersList />
+          <CustomersList addTrigger={addContactTrigger} onStatsChanged={handleRefreshStats} />
         ) : (
-          <DealsPipeline />
+          <DealsPipeline addTrigger={addDealTrigger} onStatsChanged={handleRefreshStats} />
         )}
       </div>
     </div>

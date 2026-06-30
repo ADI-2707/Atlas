@@ -19,7 +19,7 @@ interface LimitStats {
   limits: { customers: number; deals: number };
 }
 
-export const CustomersList: React.FC = () => {
+export const CustomersList: React.FC<{ addTrigger?: number; onStatsChanged?: () => void }> = ({ addTrigger = 0, onStatsChanged }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -56,6 +56,12 @@ export const CustomersList: React.FC = () => {
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (addTrigger > 0) {
+      handleOpenCreateModal();
+    }
+  }, [addTrigger]);
 
   useEffect(() => {
     fetchStats();
@@ -107,6 +113,49 @@ export const CustomersList: React.FC = () => {
     } catch (err) {
       console.error('Failed to fetch stats', err);
     }
+  };
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleExportCSV = async () => {
+    try {
+      const res = await api.get<{ data: { csv: string } }>('/crm/contacts/export');
+      const csvContent = res.data?.csv || '';
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `crm_contacts_${Date.now()}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Failed to export CSV', err);
+      alert('Failed to export CSV');
+    }
+  };
+
+  const handleImportCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      const text = evt.target?.result as string;
+      try {
+        const res = await api.post<{ data: { success: boolean; importedCount: number; skippedCount: number; totalCount: number } }>('/crm/contacts/import', { csv: text });
+        alert(`Import complete: ${res.data?.importedCount} imported, ${res.data?.skippedCount} skipped out of ${res.data?.totalCount} total lines.`);
+        await fetchCustomers();
+        await fetchStats();
+        onStatsChanged?.();
+      } catch (err) {
+        console.error('Failed to import CSV', err);
+        alert('Failed to import CSV');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   const fetchCustomers = async () => {
@@ -175,6 +224,7 @@ export const CustomersList: React.FC = () => {
       setIsModalOpen(false);
       await fetchCustomers();
       await fetchStats();
+      onStatsChanged?.();
     } catch (err) {
       console.error('Failed to save customer', err);
       alert('Error saving customer detail');
@@ -187,6 +237,7 @@ export const CustomersList: React.FC = () => {
       await api.delete(`/crm/customers/${id}`);
       await fetchCustomers();
       await fetchStats();
+      onStatsChanged?.();
     } catch (err) {
       console.error('Failed to delete customer', err);
       alert('Failed to delete contact');
@@ -224,27 +275,18 @@ export const CustomersList: React.FC = () => {
             className="atlas-input"
             style={{ maxWidth: '300px' }}
           />
-          {stats && stats.limits.customers !== -1 && (
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Usage: {stats.usage.customers} / {stats.limits.customers} Contacts ({stats.tier.toUpperCase()} Plan)
-            </span>
-          )}
-          {stats && stats.limits.customers === -1 && (
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Usage: {stats.usage.customers} Contacts (Unlimited Plan)
-            </span>
-          )}
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <Button variant="secondary" onClick={() => setIsColumnModalOpen(true)}>Columns</Button>
-          <Button
-            variant="primary"
-            disabled={isAddLocked}
-            onClick={handleOpenCreateModal}
-            title={isAddLocked ? "Contact limit reached. Upgrade plan to add contacts." : ""}
-          >
-            + Add Contact
-          </Button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <Button variant="secondary" size="small" onClick={handleExportCSV}>Export</Button>
+          <Button variant="secondary" size="small" onClick={() => fileInputRef.current?.click()}>Import</Button>
+          <input
+            type="file"
+            accept=".csv"
+            ref={fileInputRef}
+            onChange={handleImportCSV}
+            style={{ display: 'none' }}
+          />
+          <Button variant="secondary" size="small" onClick={() => setIsColumnModalOpen(true)}>Columns</Button>
         </div>
       </div>
 

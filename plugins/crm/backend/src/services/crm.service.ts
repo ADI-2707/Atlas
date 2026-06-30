@@ -331,4 +331,139 @@ export class CrmService {
     });
     return fieldSchema;
   }
+
+  async exportCustomersCsv(organizationId: string) {
+    const schema = await this.getContactSchema();
+    const customers = await this.prisma.customer.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const headers = ['Name', 'Email', 'Phone', 'Company', 'Status', ...schema.map((f: any) => f.label)];
+    const rows = customers.map((c: any) => {
+      const row = [
+        c.name,
+        c.email,
+        c.phone || '',
+        c.company || '',
+        c.status,
+        ...schema.map((f: any) => (c.customData as any)?.[f.name] || '')
+      ];
+      return row.map((val: any) => `"${String(val).replace(/"/g, '""')}"`).join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    return { csv: csvContent };
+  }
+
+  async importCustomersCsv(organizationId: string, csvContent: string) {
+    const schema = await this.getContactSchema();
+    const lines = csvContent.split(/\r?\n/).filter((line) => line.trim().length > 0);
+    if (lines.length < 2) throw new BadRequestException('CSV is empty or invalid');
+
+    const headers = lines[0].split(',').map((h) => h.replace(/^"|"$/g, '').trim());
+    const nameIdx = headers.indexOf('Name');
+    const emailIdx = headers.indexOf('Email');
+    const phoneIdx = headers.indexOf('Phone');
+    const companyIdx = headers.indexOf('Company');
+    const statusIdx = headers.indexOf('Status');
+
+    if (nameIdx === -1 || emailIdx === -1) {
+      throw new BadRequestException('CSV must contain Name and Email columns');
+    }
+
+    const imported = [];
+    let skipped = 0;
+
+    const stats = await this.getLimitStats(organizationId);
+    let spaceLeft = stats.limits.customers === -1 ? 999999 : (stats.limits.customers - stats.usage.customers);
+
+    for (let i = 1; i < lines.length; i++) {
+      if (spaceLeft <= 0) break;
+
+      const row = [];
+      let current = '';
+      let inQuotes = false;
+      const line = lines[i];
+
+      for (let k = 0; k < line.length; k++) {
+        const char = line[k];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          row.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      row.push(current.trim());
+      const parsedRow = row.map((s) => s.replace(/^"|"$/g, '').replace(/""/g, '"'));
+
+      if (parsedRow.length < headers.length) {
+        skipped++;
+        continue;
+      }
+
+      const name = parsedRow[nameIdx];
+      const email = parsedRow[emailIdx];
+      const phone = phoneIdx !== -1 ? parsedRow[phoneIdx] : '';
+      const company = companyIdx !== -1 ? parsedRow[companyIdx] : '';
+      const status = statusIdx !== -1 ? parsedRow[statusIdx] : 'LEAD';
+
+      if (!name || !email) {
+        skipped++;
+        continue;
+      }
+
+      const customData: any = {};
+      for (let j = 0; j < headers.length; j++) {
+        if (j !== nameIdx && j !== emailIdx && j !== phoneIdx && j !== companyIdx && j !== statusIdx) {
+          const fieldLabel = headers[j];
+          const matchedField = schema.find((f: any) => f.label === fieldLabel);
+          if (matchedField) {
+            customData[matchedField.name] = matchedField.type === 'number' ? (parseFloat(parsedRow[j]) || 0) : (parsedRow[j] || '');
+          }
+        }
+      }
+
+      try {
+        await this.prisma.customer.upsert({
+          where: {
+            organizationId_email: {
+              organizationId,
+              email,
+            },
+          },
+          update: {
+            name,
+            phone: phone || null,
+            company: company || null,
+            status: status || 'LEAD',
+            customData,
+          },
+          create: {
+            organizationId,
+            name,
+            email,
+            phone: phone || null,
+            company: company || null,
+            status: status || 'LEAD',
+            customData,
+          },
+        });
+        imported.push(email);
+        spaceLeft--;
+      } catch (err) {
+        skipped++;
+      }
+    }
+
+    return {
+      success: true,
+      importedCount: imported.length,
+      skippedCount: skipped,
+      totalCount: lines.length - 1,
+    };
+  }
 }

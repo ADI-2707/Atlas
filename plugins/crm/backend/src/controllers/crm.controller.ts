@@ -93,4 +93,16 @@ export class CrmController {
   async updateContactSchema(@Body() schema: any) {
     return this.crmService.updateContactSchema(schema);
   }
+
+  @Get('contacts/export')
+  @ApiOperation({ summary: 'Export CRM contacts as CSV' })
+  async exportContacts(@Req() req: any) {
+    return this.crmService.exportCustomersCsv(req.user.organizationId);
+  }
+
+  @Post('contacts/import')
+  @ApiOperation({ summary: 'Import CRM contacts from CSV' })
+  async importContacts(@Req() req: any, @Body() data: { csv: string }) {
+    return this.crmService.importCustomersCsv(req.user.organizationId, data.csv);
+  }
 }
