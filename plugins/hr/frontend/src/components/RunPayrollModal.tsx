@@ -13,6 +13,7 @@ export const RunPayrollModal: React.FC<RunPayrollModalProps> = ({ isOpen, onClos
     periodStart: '',
     periodEnd: '',
     departmentFilter: '',
+    currency: 'INR',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -20,7 +21,6 @@ export const RunPayrollModal: React.FC<RunPayrollModalProps> = ({ isOpen, onClos
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      // Fake payroll run endpoint or actual endpoint
       await api.post('/hr/payroll/run', formData);
       onSuccess();
       onClose();
@@ -36,7 +36,7 @@ export const RunPayrollModal: React.FC<RunPayrollModalProps> = ({ isOpen, onClos
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -50,8 +50,26 @@ export const RunPayrollModal: React.FC<RunPayrollModalProps> = ({ isOpen, onClos
           <Input label="Start Date" name="periodStart" type="date" value={formData.periodStart} onChange={handleChange} required style={{ flex: 1 }} />
           <Input label="End Date" name="periodEnd" type="date" value={formData.periodEnd} onChange={handleChange} required style={{ flex: 1 }} />
         </div>
-        <Input label="Department (Optional)" name="departmentFilter" value={formData.departmentFilter} onChange={handleChange} />
-        
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <Input label="Department (Optional)" name="departmentFilter" value={formData.departmentFilter} onChange={handleChange} style={{ flex: 2 }} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <label className="atlas-input-label" style={{ marginBottom: '0.25rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Currency</label>
+            <select
+              name="currency"
+              value={formData.currency}
+              onChange={handleChange}
+              className="atlas-input"
+              style={{ padding: '0.5rem', width: '100%', height: '36px' }}
+            >
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="JPY">JPY (¥)</option>
+            </select>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
           <Button variant="secondary" onClick={onClose} type="button" disabled={isSubmitting}>
             Cancel
