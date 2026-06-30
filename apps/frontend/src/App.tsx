@@ -14,6 +14,7 @@ import { Dashboard } from './pages/Dashboard/Dashboard';
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
 import CRM from '../../../plugins/crm/frontend/src';
 import HR from '../../../plugins/hr/frontend/src';
+import Analytics from '../../../plugins/analytics/frontend/src';
 
 const LayoutGuard: React.FC = () => {
   const { installedPlugins, isLoadingPlugins } = usePlugins();
@@ -87,6 +88,7 @@ export const App: React.FC = () => {
                 <Route path="inventory/*" element={<Inventory />} />
                 <Route path="crm/*" element={<CRM />} />
                 <Route path="hr/*" element={<HR />} />
+                <Route path="analytics/*" element={<Analytics />} />
               </Route>
             </Routes>
           </BrowserRouter>
