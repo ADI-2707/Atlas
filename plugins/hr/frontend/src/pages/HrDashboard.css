@@ -1,0 +1,116 @@
+.hr-dashboard {
+  padding: var(--spacing-lg);
+  color: var(--text-primary);
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--bg-surface-secondary);
+}
+
+.hr-header-container {
+  margin-bottom: 1.5rem;
+}
+
+.hr-table-container {
+  background-color: var(--bg-surface-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+}
+
+.hr-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.hr-table th,
+.hr-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.hr-table th {
+  background-color: var(--bg-surface-tertiary);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.hr-table tr:last-child td {
+  border-bottom: none;
+}
+
+.hr-table tbody tr:hover {
+  background-color: var(--bg-surface-tertiary);
+}
+
+.hr-input {
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.hr-input:focus {
+  border-color: var(--color-accent-core);
+}
+
+.hr-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-active { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+.badge-leave { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.badge-terminated { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+.hr-stats-cards {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.hr-stat-card {
+  flex: 1;
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hr-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent-core);
+}
+
+.hr-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hr-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}

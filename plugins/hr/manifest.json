@@ -1,0 +1,25 @@
+{
+  "id": "hr",
+  "name": "HR Management",
+  "version": "1.0.0",
+  "author": "Atlas Team",
+  "description": "Enterprise HR and Payroll management plugin.",
+  "atlasVersion": "1.0.0",
+  "dependencies": [],
+  "permissions": [
+    "hr.read",
+    "hr.create",
+    "hr.update",
+    "hr.delete",
+    "hr.payroll.read",
+    "hr.payroll.write"
+  ],
+  "events": [],
+  "routes": [
+    {
+      "path": "/hr/*",
+      "element": "HR"
+    }
+  ],
+  "widgets": []
+}

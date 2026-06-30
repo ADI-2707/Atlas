@@ -1,7 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["atlas_core", "atlas_inventory", "atlas_crm"]
+  schemas  = ["atlas_core", "atlas_inventory", "atlas_crm", "atlas_hr"]
 }
 
 generator client {
@@ -273,4 +273,109 @@ model DealItem {
 
   @@map("crm_deal_items")
   @@schema("atlas_crm")
+}
+
+// -----------------------------------------
+// HR PLUGIN SCHEMA
+// -----------------------------------------
+
+model Employee {
+  id              String    @id @default(uuid())
+  organizationId  String    @map("organization_id")
+  userId          String?   @unique @map("user_id")       // optional link to a platform login
+  employeeCode    String                                    // human-friendly ID, e.g. EMP-0001
+  firstName       String    @map("first_name")
+  lastName        String    @map("last_name")
+  email           String
+  phone           String?
+  jobTitle        String?   @map("job_title")
+  departmentId    String?   @map("department_id")
+  managerId       String?   @map("manager_id")
+  employmentType  String    @default("FULL_TIME")           // FULL_TIME, PART_TIME, CONTRACT, INTERN
+  status          String    @default("ACTIVE")               // ACTIVE, ON_LEAVE, TERMINATED
+  hireDate        DateTime  @map("hire_date")
+  terminationDate DateTime? @map("termination_date")
+  customData      Json?     @default("{}") @map("custom_data")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  department      Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  manager         Employee?      @relation("ManagerReports", fields: [managerId], references: [id], onDelete: SetNull)
+  reports         Employee[]     @relation("ManagerReports")
+  leaveRequests   LeaveRequest[]
+  leaveBalances   LeaveBalance[]
+  payrollRecords  PayrollRecord[]
+
+  @@unique([organizationId, employeeCode])
+  @@unique([organizationId, email])
+  @@map("hr_employees")
+  @@schema("atlas_hr")
+}
+
+model Department {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  headEmployeeId String?  @map("head_employee_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  employees      Employee[]
+
+  @@unique([organizationId, name])
+  @@map("hr_departments")
+  @@schema("atlas_hr")
+}
+
+model LeaveRequest {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  employeeId     String   @map("employee_id")
+  type           String                                  // VACATION, SICK, UNPAID, OTHER
+  startDate      DateTime @map("start_date")
+  endDate        DateTime @map("end_date")
+  status         String   @default("PENDING")              // PENDING, APPROVED, REJECTED, CANCELLED
+  reason         String?
+  approvedBy     String?  @map("approved_by")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("hr_leave_requests")
+  @@schema("atlas_hr")
+}
+
+model LeaveBalance {
+  id             String @id @default(uuid())
+  organizationId String @map("organization_id")
+  employeeId     String @map("employee_id")
+  leaveType      String @map("leave_type")
+  year           Int
+  allocatedDays  Float  @default(0) @map("allocated_days")
+  usedDays       Float  @default(0) @map("used_days")
+
+  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, leaveType, year])
+  @@map("hr_leave_balances")
+  @@schema("atlas_hr")
+}
+
+model PayrollRecord {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  employeeId     String   @map("employee_id")
+  periodStart    DateTime @map("period_start")
+  periodEnd      DateTime @map("period_end")
+  grossPay       Float    @map("gross_pay")
+  deductions     Float    @default(0)
+  netPay         Float    @map("net_pay")
+  status         String   @default("DRAFT")                // DRAFT, PROCESSED, PAID
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("hr_payroll_records")
+  @@schema("atlas_hr")
 }

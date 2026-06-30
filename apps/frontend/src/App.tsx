@@ -13,6 +13,7 @@ import { Dashboard } from './pages/Dashboard/Dashboard';
 
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
 import CRM from '../../../plugins/crm/frontend/src';
+import HR from '../../../plugins/hr/frontend/src';
 
 const LayoutGuard: React.FC = () => {
   const { installedPlugins, isLoadingPlugins } = usePlugins();
@@ -85,6 +86,7 @@ export const App: React.FC = () => {
                 <Route path="store/:pluginId" element={<PluginStore />} />
                 <Route path="inventory/*" element={<Inventory />} />
                 <Route path="crm/*" element={<CRM />} />
+                <Route path="hr/*" element={<HR />} />
               </Route>
             </Routes>
           </BrowserRouter>

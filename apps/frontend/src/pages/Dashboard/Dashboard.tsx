@@ -11,6 +11,7 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [inventoryStats, setInventoryStats] = useState<any>(null);
   const [crmStats, setCrmStats] = useState<any>(null);
+  const [hrStats, setHrStats] = useState<any>(null);
 
   const formatCurrency = (value: number) =>
     value.toLocaleString(undefined, {
@@ -30,6 +31,20 @@ export const Dashboard: React.FC = () => {
         .then(res => setCrmStats(res.data))
         .catch(err => console.error('Failed to load crm stats', err));
     }
+    if (installedPlugins.includes('hr')) {
+      Promise.all([
+        api.get<any>('/hr/employees'),
+        api.get<any>('/hr/payroll')
+      ]).then(([empRes, payRes]) => {
+        const emps = empRes.data?.data || [];
+        const pays = payRes.data?.data || [];
+        setHrStats({
+          employeeCount: emps.length,
+          leaveCount: emps.filter((e: any) => e.status === 'leave').length,
+          payrollTotal: pays.reduce((sum: number, p: any) => sum + (p.amount || 0), 0)
+        });
+      }).catch(err => console.error('Failed to load hr stats', err));
+    }
   }, [installedPlugins]);
 
   return (
@@ -42,6 +57,7 @@ export const Dashboard: React.FC = () => {
 
           const isInventory = pid === 'inventory';
           const isCrm = pid === 'crm';
+          const isHr = pid === 'hr';
           
           let fillClass = 'fill-normal';
           let contactsFillClass = 'fill-normal';
@@ -177,7 +193,31 @@ export const Dashboard: React.FC = () => {
                   </div>
                 )}
 
-                {!isInventory && !isCrm && (
+                {isHr && hrStats && (
+                  <div className="widget-limits-container">
+                    <div className="limit-item" style={{ marginBottom: '1rem' }}>
+                      <div className="limit-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Total Employees</span>
+                        <span style={{ fontWeight: 600 }}>{hrStats.employeeCount}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="limit-item" style={{ marginBottom: '1rem' }}>
+                      <div className="limit-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>On Leave</span>
+                        <span style={{ color: hrStats.leaveCount > 0 ? '#f87171' : 'var(--text-secondary)', fontWeight: 600 }}>
+                          {hrStats.leaveCount}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      <span>Monthly Payroll: <strong style={{ color: 'var(--text-primary)', marginLeft: '4px' }}>{formatCurrency(hrStats.payrollTotal)}</strong></span>
+                    </div>
+                  </div>
+                )}
+
+                {!isInventory && !isCrm && !isHr && (
                   <>
                     <p>Usage: Normal</p>
                   </>
