@@ -38,8 +38,12 @@ export class PluginsModule {
                   const shouldPreferSource = process.env.NODE_ENV !== 'production';
 
                   if (shouldPreferSource && existsSync(backendPath)) {
-                    const pluginExport = require(backendPath);
-                    config = pluginExport.default || pluginExport;
+                    try {
+                      const pluginExport = require(backendPath);
+                      config = pluginExport.default || pluginExport;
+                    } catch (srcErr) {
+                      console.warn(`Failed to require source file ${backendPath}, will try compiled package:`, srcErr);
+                    }
                   }
 
                   if (!config) {
@@ -47,10 +51,14 @@ export class PluginsModule {
                       const pluginExport = require(`@atlas/plugin-${manifest.id}`);
                       config = pluginExport.default || pluginExport;
                     } catch (pkgErr) {
-                    if (existsSync(backendPath)) {
-                      const pluginExport = require(backendPath);
-                      config = pluginExport.default || pluginExport;
-                    }
+                      if (existsSync(backendPath)) {
+                        try {
+                          const pluginExport = require(backendPath);
+                          config = pluginExport.default || pluginExport;
+                        } catch (srcErr) {
+                          console.error(`Failed to load plugin ${manifest.id} from source:`, srcErr);
+                        }
+                      }
                     }
                   }
                   if (config) {
