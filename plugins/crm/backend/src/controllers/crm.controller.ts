@@ -33,19 +33,19 @@ export class CrmController {
   @Post('customers')
   @ApiOperation({ summary: 'Create new customer or lead' })
   async createCustomer(@Req() req: any, @Body() data: any) {
-    return this.crmService.createCustomer(req.user.organizationId, data);
+    return this.crmService.createCustomer(req.user.organizationId, data, req.user.id);
   }
 
   @Put('customers/:id')
   @ApiOperation({ summary: 'Update customer details' })
   async updateCustomer(@Req() req: any, @Param('id') id: string, @Body() data: any) {
-    return this.crmService.updateCustomer(req.user.organizationId, id, data);
+    return this.crmService.updateCustomer(req.user.organizationId, id, data, req.user.id);
   }
 
   @Delete('customers/:id')
   @ApiOperation({ summary: 'Delete customer record' })
   async deleteCustomer(@Req() req: any, @Param('id') id: string) {
-    return this.crmService.deleteCustomer(req.user.organizationId, id);
+    return this.crmService.deleteCustomer(req.user.organizationId, id, req.user.id);
   }
 
   @Get('deals')
@@ -63,7 +63,7 @@ export class CrmController {
   @Post('deals')
   @ApiOperation({ summary: 'Create new sales deal opportunity' })
   async createDeal(@Req() req: any, @Body() data: any) {
-    return this.crmService.createDeal(req.user.organizationId, data);
+    return this.crmService.createDeal(req.user.organizationId, data, req.user.id);
   }
 
   @Put('deals/:id')
@@ -79,7 +79,7 @@ export class CrmController {
   @Delete('deals/:id')
   @ApiOperation({ summary: 'Delete sales deal opportunity' })
   async deleteDeal(@Req() req: any, @Param('id') id: string) {
-    return this.crmService.deleteDeal(req.user.organizationId, id);
+    return this.crmService.deleteDeal(req.user.organizationId, id, req.user.id);
   }
 
   @Get('schema')
@@ -104,5 +104,16 @@ export class CrmController {
   @ApiOperation({ summary: 'Import CRM contacts from CSV' })
   async importContacts(@Req() req: any, @Body() data: { csv: string }) {
     return this.crmService.importCustomersCsv(req.user.organizationId, data.csv);
+  }
+
+  @Get('audit-logs')
+  @ApiOperation({ summary: 'Get CRM plugin activity audit logs' })
+  async getAuditLogs(
+    @Req() req: any,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string
+  ) {
+    return this.crmService.getCrmAuditLogs(req.user.organizationId, { page, limit, search });
   }
 }

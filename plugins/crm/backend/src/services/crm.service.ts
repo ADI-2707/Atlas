@@ -123,7 +123,7 @@ export class CrmService {
     };
   }
 
-  async createCustomer(organizationId: string, data: any) {
+  async createCustomer(organizationId: string, data: any, userId?: string) {
     const stats = await this.getLimitStats(organizationId);
     if (stats.limits.customers !== -1) {
       if (stats.usage.customers / stats.limits.customers >= 0.995) {
@@ -134,7 +134,7 @@ export class CrmService {
       }
     }
 
-    return this.prisma.customer.create({
+    const customer = await this.prisma.customer.create({
       data: {
         organizationId,
         name: data.name,
@@ -145,9 +145,12 @@ export class CrmService {
         customData: data.customData || {},
       }
     });
+
+    await this.logAction(organizationId, 'crm.contact.created', 'SUCCESS', { contactId: customer.id, name: customer.name, email: customer.email }, userId);
+    return customer;
   }
 
-  async updateCustomer(organizationId: string, id: string, data: any) {
+  async updateCustomer(organizationId: string, id: string, data: any, userId?: string) {
     const exists = await this.getCustomer(organizationId, id);
     if (!exists) throw new Error('Customer not found or access denied');
 
@@ -156,7 +159,7 @@ export class CrmService {
       throw new BadRequestException(`Critical limit reached (>=99.5%). Upgrade your subscription plan to modify or add CRM contacts.`);
     }
 
-    return this.prisma.customer.update({
+    const customer = await this.prisma.customer.update({
       where: { id },
       data: {
         name: data.name,
@@ -167,15 +170,21 @@ export class CrmService {
         customData: data.customData || {},
       }
     });
+
+    await this.logAction(organizationId, 'crm.contact.updated', 'SUCCESS', { contactId: customer.id, name: customer.name, status: customer.status }, userId);
+    return customer;
   }
 
-  async deleteCustomer(organizationId: string, id: string) {
+  async deleteCustomer(organizationId: string, id: string, userId?: string) {
     const exists = await this.getCustomer(organizationId, id);
     if (!exists) throw new Error('Customer not found or access denied');
 
-    return this.prisma.customer.delete({
+    const customer = await this.prisma.customer.delete({
       where: { id }
     });
+
+    await this.logAction(organizationId, 'crm.contact.deleted', 'SUCCESS', { contactId: id, name: exists.name }, userId);
+    return customer;
   }
 
   async getDeals(organizationId: string) {
@@ -199,7 +208,7 @@ export class CrmService {
     });
   }
 
-  async createDeal(organizationId: string, data: any) {
+  async createDeal(organizationId: string, data: any, userId?: string) {
     const stats = await this.getLimitStats(organizationId);
     if (stats.limits.deals !== -1) {
       if (stats.usage.deals / stats.limits.deals >= 0.995) {
@@ -213,7 +222,7 @@ export class CrmService {
     const lineItems = data.lineItems || [];
     const calculatedValue = lineItems.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
 
-    return this.prisma.deal.create({
+    const deal = await this.prisma.deal.create({
       data: {
         organizationId,
         title: data.title,
@@ -233,6 +242,9 @@ export class CrmService {
         lineItems: true
       }
     });
+
+    await this.logAction(organizationId, 'crm.deal.created', 'SUCCESS', { dealId: deal.id, title: deal.title, stage: deal.stage, value: deal.value }, userId);
+    return deal;
   }
 
   async updateDeal(organizationId: string, id: string, data: any, userId?: string) {
@@ -249,7 +261,6 @@ export class CrmService {
     const lineItems = data.lineItems || [];
     const calculatedValue = lineItems.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
 
-    // Delete existing line items first
     await this.prisma.dealItem.deleteMany({
       where: { dealId: id }
     });
@@ -275,21 +286,24 @@ export class CrmService {
       }
     });
 
-    // If deal transitioned to CLOSED_WON, publish an event for interested plugins.
     if (data.stage === 'CLOSED_WON' && previousDeal.stage !== 'CLOSED_WON') {
       await this.publishClosedWonDealEvent(organizationId, updatedDeal, userId);
     }
 
+    await this.logAction(organizationId, 'crm.deal.updated', 'SUCCESS', { dealId: updatedDeal.id, title: updatedDeal.title, stage: updatedDeal.stage, value: updatedDeal.value, previousStage: previousDeal.stage }, userId);
     return updatedDeal;
   }
 
-  async deleteDeal(organizationId: string, id: string) {
+  async deleteDeal(organizationId: string, id: string, userId?: string) {
     const exists = await this.getDeal(organizationId, id);
     if (!exists) throw new Error('Deal not found or access denied');
 
-    return this.prisma.deal.delete({
+    const deal = await this.prisma.deal.delete({
       where: { id }
     });
+
+    await this.logAction(organizationId, 'crm.deal.deleted', 'SUCCESS', { dealId: id, title: exists.title }, userId);
+    return deal;
   }
 
   private async publishClosedWonDealEvent(organizationId: string, deal: any, userId?: string) {
@@ -465,5 +479,57 @@ export class CrmService {
       skippedCount: skipped,
       totalCount: lines.length - 1,
     };
+  }
+
+  async getCrmAuditLogs(organizationId: string, query: { page?: string; limit?: string; search?: string }) {
+    const { page, limit, skip } = getPaginationParams(query);
+    const whereCondition: any = { organizationId, pluginId: 'crm' };
+
+    if (query.search) {
+      whereCondition.action = { contains: query.search, mode: 'insensitive' };
+    }
+
+    const total = await this.prisma.auditLog.count({ where: whereCondition });
+    const data = await this.prisma.auditLog.findMany({
+      where: whereCondition,
+      orderBy: { timestamp: 'desc' },
+      skip,
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          }
+        }
+      }
+    });
+
+    return buildPaginatedResult(data, total, page, limit);
+  }
+
+  private async logAction(
+    organizationId: string,
+    action: string,
+    result: string,
+    details: any,
+    userId?: string
+  ) {
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          organizationId,
+          pluginId: 'crm',
+          action,
+          result,
+          userId: userId || null,
+          details: details || {},
+        }
+      });
+    } catch (err) {
+      console.error('Failed to write CRM audit log:', err);
+    }
   }
 }
