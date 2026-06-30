@@ -217,7 +217,7 @@ export const AppLayout: React.FC = () => {
                 />
               </div>
 
-              <Button variant="primary" size="small" onClick={() => navigate('/store')}>
+              <Button className="marketplace-btn" variant="primary" size="small" onClick={() => navigate('/store')}>
                 Plugin Marketplace
               </Button>
             </div>
