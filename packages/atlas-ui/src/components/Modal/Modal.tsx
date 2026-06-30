@@ -9,6 +9,8 @@ export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
   footer?: React.ReactNode;
 }
 
+import { createPortal } from 'react-dom';
+
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
@@ -20,7 +22,7 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="atlas-modal-overlay" onClick={onClose}>
       <div 
         className={`atlas-modal ${className}`} 
@@ -46,6 +48,7 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
