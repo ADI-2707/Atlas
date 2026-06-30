@@ -41,6 +41,14 @@ async function main() {
     { code: 'crm.create', name: 'Create CRM Items', description: 'Add new customers and leads', module: 'crm' },
     { code: 'crm.update', name: 'Update CRM Items', description: 'Edit customer and lead details', module: 'crm' },
     { code: 'crm.delete', name: 'Delete CRM Items', description: 'Remove customer and lead records', module: 'crm' },
+
+    // HR Plugin
+    { code: 'hr.read', name: 'Read Employees', description: 'View employees', module: 'hr' },
+    { code: 'hr.create', name: 'Add Employees/Departments', description: 'Create employees and departments', module: 'hr' },
+    { code: 'hr.update', name: 'Edit Employees, Approve/Reject Leave', description: 'Update employees and leave', module: 'hr' },
+    { code: 'hr.delete', name: 'Remove Employees/Departments', description: 'Delete employees and departments', module: 'hr' },
+    { code: 'hr.payroll.read', name: 'View Payroll Records', description: 'View payroll data', module: 'hr' },
+    { code: 'hr.payroll.write', name: 'Create/Process Payroll', description: 'Manage payroll runs', module: 'hr' },
   ];
 
   const dbPermissions = [];
@@ -104,7 +112,7 @@ async function main() {
       organizationId: org.id,
       permissions: {
         connect: dbPermissions
-          .filter(p => p.code.endsWith('.read'))
+          .filter(p => p.code.endsWith('.read') && !p.code.includes('payroll'))
           .map(p => ({ id: p.id })),
       },
     },
