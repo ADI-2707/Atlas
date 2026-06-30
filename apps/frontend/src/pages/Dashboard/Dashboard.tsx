@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
-import { useAuth } from '@atlas/auth';
 import { usePlugins } from '../../contexts/PluginContext';
 import { mockPlugins } from '../../plugins/mock-plugins';
 import { api } from '@atlas/api';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
-  const { user } = useAuth();
   const { installedPlugins } = usePlugins();
   const navigate = useNavigate();
   const [inventoryStats, setInventoryStats] = useState<any>(null);
@@ -36,10 +34,6 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-active-state">
-      <div className="dashboard-header">
-        <h1>Dashboard Overview</h1>
-        <p>Welcome back, {user?.name || 'User'}</p>
-      </div>
 
       <div className="dashboard-widgets-grid">
         {installedPlugins.map(pid => {

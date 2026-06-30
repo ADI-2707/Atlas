@@ -9,9 +9,6 @@ export const CrmDashboard: React.FC = () => {
   return (
     <div className="crm-dashboard">
       <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>CRM Management</h1>
-        </div>
 
         <div className="clean-tabs-bar" style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
           <button

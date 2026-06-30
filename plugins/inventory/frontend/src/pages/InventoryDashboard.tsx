@@ -318,10 +318,9 @@ export const InventoryDashboard: React.FC = () => {
       <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Inventory Management</h1>
             {limitStats && (
-              <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                {limitStats.productCount} / {limitStats.maxProducts} Items Used
+              <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
+                Capacity: {limitStats.productCount} / {limitStats.maxProducts} Items Used
               </span>
             )}
           </div>

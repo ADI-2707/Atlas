@@ -14,9 +14,21 @@ export const AppLayout: React.FC = () => {
   });
   const { logout, user } = useAuth();
   const { navigationItems, workspaceLock, setWorkspaceLock } = usePlugins();
-  const { toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
   const navigate = useNavigate();
   const location = useLocation();
+
+  const getPageName = () => {
+    const path = location.pathname;
+    if (path === '/') return 'Dashboard';
+    if (path.startsWith('/crm')) return 'CRM Management';
+    if (path.startsWith('/inventory')) return 'Inventory Management';
+    if (path.startsWith('/store')) return 'Plugin Marketplace';
+    const parts = path.split('/').filter(Boolean);
+    if (parts.length === 0) return 'Atlas';
+    return parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+  };
 
   useEffect(() => {
     setWorkspaceLock(null);
@@ -160,16 +172,53 @@ export const AppLayout: React.FC = () => {
 
       <main className="atlas-app-main">
         <Navbar 
+          leftContent={
+            <span style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', marginLeft: '0.5rem' }}>
+              {getPageName()}
+            </span>
+          }
           rightContent={
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
                 Welcome, {user?.name || 'User'}
               </span>
+              
+              <div 
+                className="theme-toggle-switch"
+                onClick={toggleTheme}
+                style={{
+                  width: '22px',
+                  height: '34px',
+                  borderRadius: '11px',
+                  backgroundColor: isDark ? 'var(--color-accent-active)' : '#b0bec5',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 1px rgba(0,0,0,0.15)'
+                }}
+                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                <div 
+                  className="theme-toggle-thumb"
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)',
+                    border: '1px solid #a0a0a0',
+                    position: 'absolute',
+                    left: '2px',
+                    top: isDark ? '2px' : '14px',
+                    transition: 'top 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.2)'
+                  }}
+                />
+              </div>
+
               <Button variant="primary" size="small" onClick={() => navigate('/store')}>
                 Plugin Marketplace
-              </Button>
-              <Button variant="secondary" size="small" onClick={toggleTheme}>
-                Toggle Theme
               </Button>
             </div>
           }
