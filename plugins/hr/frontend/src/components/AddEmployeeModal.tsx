@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Input, Button } from '@atlas/ui';
 import { api } from '@atlas/api';
-import { Employee } from '../../../shared';
 
 interface AddEmployeeModalProps {
   isOpen: boolean;

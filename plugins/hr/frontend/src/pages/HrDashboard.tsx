@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Button } from '@atlas/ui';
 import { EmployeesList } from '../components/EmployeesList';
 import { PayrollList } from '../components/PayrollList';
-import { AddEmployeeModal } from '../components/AddEmployeeModal';
-import { RunPayrollModal } from '../components/RunPayrollModal';
+import { AddEmployeeModal } from '../components/AddEmployeeModal.tsx';
+import { RunPayrollModal } from '../components/RunPayrollModal.tsx';
 import './HrDashboard.css';
 
 export const HrDashboard: React.FC = () => {
