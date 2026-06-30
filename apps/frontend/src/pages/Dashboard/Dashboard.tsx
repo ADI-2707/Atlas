@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
-import { useAuth } from '@atlas/auth';
 import { usePlugins } from '../../contexts/PluginContext';
 import { mockPlugins } from '../../plugins/mock-plugins';
 import { api } from '@atlas/api';
 import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
-  const { user } = useAuth();
   const { installedPlugins } = usePlugins();
   const navigate = useNavigate();
   const [inventoryStats, setInventoryStats] = useState<any>(null);
+  const [crmStats, setCrmStats] = useState<any>(null);
+
+  const formatCurrency = (value: number) =>
+    value.toLocaleString(undefined, {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    });
 
   useEffect(() => {
     if (installedPlugins.includes('inventory')) {
@@ -19,14 +25,15 @@ export const Dashboard: React.FC = () => {
         .then(res => setInventoryStats(res.data))
         .catch(err => console.error('Failed to load inventory stats', err));
     }
+    if (installedPlugins.includes('crm')) {
+      api.get<any>('/crm/limits')
+        .then(res => setCrmStats(res.data))
+        .catch(err => console.error('Failed to load crm stats', err));
+    }
   }, [installedPlugins]);
 
   return (
     <div className="dashboard-active-state">
-      <div className="dashboard-header">
-        <h1>Dashboard Overview</h1>
-        <p>Welcome back, {user?.name || 'User'}</p>
-      </div>
 
       <div className="dashboard-widgets-grid">
         {installedPlugins.map(pid => {
@@ -34,14 +41,34 @@ export const Dashboard: React.FC = () => {
           if (!plugin) return null;
 
           const isInventory = pid === 'inventory';
-          const stats = isInventory ? inventoryStats : null;
-          const productPct = stats ? (stats.productCount / stats.maxProducts) * 100 : 0;
-
+          const isCrm = pid === 'crm';
+          
           let fillClass = 'fill-normal';
-          if (productPct >= 90) fillClass = 'fill-critical';
-          else if (productPct >= 80) fillClass = 'fill-warning';
+          let contactsFillClass = 'fill-normal';
+          let dealsFillClass = 'fill-normal';
+          let isCriticalPulsing = false;
+          let productPct = 0;
+          let contactsPct = 0;
+          let dealsPct = 0;
 
-          const isCriticalPulsing = productPct >= 99.5;
+          if (isInventory && inventoryStats) {
+            productPct = (inventoryStats.productCount / inventoryStats.maxProducts) * 100;
+            if (productPct >= 90) fillClass = 'fill-critical';
+            else if (productPct >= 80) fillClass = 'fill-warning';
+            isCriticalPulsing = productPct >= 99.5;
+          } else if (isCrm && crmStats) {
+            contactsPct = crmStats.limits.customers === -1 ? 0 : (crmStats.usage.customers / crmStats.limits.customers) * 100;
+            dealsPct = crmStats.limits.deals === -1 ? 0 : (crmStats.usage.deals / crmStats.limits.deals) * 100;
+            
+            if (contactsPct >= 90) contactsFillClass = 'fill-critical';
+            else if (contactsPct >= 80) contactsFillClass = 'fill-warning';
+            
+            if (dealsPct >= 90) dealsFillClass = 'fill-critical';
+            else if (dealsPct >= 80) dealsFillClass = 'fill-warning';
+            
+            const maxPct = Math.max(contactsPct, dealsPct);
+            isCriticalPulsing = maxPct >= 99.5;
+          }
 
           return (
             <div key={pid} className={`dashboard-widget-card ${isCriticalPulsing ? 'pulsing-critical' : ''}`}>
@@ -57,12 +84,12 @@ export const Dashboard: React.FC = () => {
               <div className="widget-body">
                 <p>Status: {isCriticalPulsing ? 'Critical (Locked)' : 'Healthy'}</p>
 
-                {isInventory && stats && (
+                {isInventory && inventoryStats && (
                   <div className="widget-limits-container">
                     <div className="limit-item">
                       <div className="limit-label">
                         <span>Products Usage</span>
-                        <span>{stats.productCount} / {stats.maxProducts} ({productPct.toFixed(1)}%)</span>
+                        <span>{inventoryStats.productCount} / {inventoryStats.maxProducts} ({productPct.toFixed(1)}%) &mdash; {Math.max(0, inventoryStats.maxProducts - inventoryStats.productCount)} left</span>
                       </div>
                       <div className="limit-progress-bar">
                         <div
@@ -75,19 +102,19 @@ export const Dashboard: React.FC = () => {
                     <div className="limit-item">
                       <div className="limit-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>Tables</span>
-                        {stats.tableCount > stats.maxTables ? (
+                        {inventoryStats.tableCount > inventoryStats.maxTables ? (
                           <span>
-                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{stats.maxTables} Active</span>
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{inventoryStats.maxTables} Active</span>
                             {', '}
-                            <span style={{ color: '#f87171', fontWeight: 600 }}>{stats.tableCount - stats.maxTables} Locked</span>
+                            <span style={{ color: '#f87171', fontWeight: 600 }}>{inventoryStats.tableCount - inventoryStats.maxTables} Locked</span>
                             <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginLeft: '6px' }}>
                               (Upgrade to unlock)
                             </span>
                           </span>
                         ) : (
                           <span>
-                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{stats.tableCount}</span>
-                            {` / ${stats.maxTables}`}
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{inventoryStats.tableCount}</span>
+                            {` / ${inventoryStats.maxTables}`}
                           </span>
                         )}
                       </div>
@@ -101,7 +128,56 @@ export const Dashboard: React.FC = () => {
                   </div>
                 )}
 
-                {!isInventory && (
+                {isCrm && crmStats && (
+                  <div className="widget-limits-container">
+                    <div className="limit-item">
+                      <div className="limit-label">
+                        <span>Contacts Usage</span>
+                        <span>
+                          {crmStats.limits.customers === -1 
+                            ? `${crmStats.usage.customers} (Unlimited)`
+                            : `${crmStats.usage.customers} / ${crmStats.limits.customers} (${contactsPct.toFixed(1)}%)`}
+                        </span>
+                      </div>
+                      <div className="limit-progress-bar">
+                        <div
+                          className={`limit-progress-fill ${contactsFillClass}`}
+                          style={{ width: `${crmStats.limits.customers === -1 ? 0 : Math.min(contactsPct, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="limit-item" style={{ marginTop: '1.25rem' }}>
+                      <div className="limit-label">
+                        <span>Deals Pipeline</span>
+                        <span>
+                          {crmStats.limits.deals === -1 
+                            ? `${crmStats.usage.deals} (Unlimited)`
+                            : `${crmStats.usage.deals} / ${crmStats.limits.deals} (${dealsPct.toFixed(1)}%)`}
+                        </span>
+                      </div>
+                      <div className="limit-progress-bar">
+                        <div
+                          className={`limit-progress-fill ${dealsFillClass}`}
+                          style={{ width: `${crmStats.limits.deals === -1 ? 0 : Math.min(dealsPct, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      <span>Pipeline Value: <strong style={{ color: 'var(--text-primary)', marginLeft: '4px' }}>{formatCurrency(crmStats.usage.pipelineValue || 0)}</strong></span>
+                      <span>Closed Won: <strong style={{ color: 'var(--text-primary)', marginLeft: '4px' }}>{formatCurrency(crmStats.usage.closedWonValue || 0)}</strong></span>
+                    </div>
+
+                    {isCriticalPulsing && (
+                      <div className="critical-message">
+                        ⚠️ Limit exceeded (&gt;=99.5%). Upgrade required to add or modify CRM items.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!isInventory && !isCrm && (
                   <>
                     <p>Usage: Normal</p>
                   </>
@@ -119,4 +195,3 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
-

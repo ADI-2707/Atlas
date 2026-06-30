@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar, SidebarItem, Navbar, Button } from '@atlas/ui';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@atlas/auth';
+import { api } from '@atlas/api';
 import { usePlugins } from '../../contexts/PluginContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { FullScreenLock } from '../FullScreenLock/FullScreenLock';
 import './AppLayout.css';
 
 export const AppLayout: React.FC = () => {
@@ -11,10 +13,58 @@ export const AppLayout: React.FC = () => {
     return localStorage.getItem('atlas_sidebar_collapsed') === 'true';
   });
   const { logout, user } = useAuth();
-  const { navigationItems } = usePlugins();
-  const { toggleTheme } = useTheme();
+  const { navigationItems, workspaceLock, setWorkspaceLock } = usePlugins();
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
   const navigate = useNavigate();
   const location = useLocation();
+
+  const getPageName = () => {
+    const path = location.pathname;
+    if (path === '/') return 'Dashboard';
+    if (path.startsWith('/crm')) return 'CRM Management';
+    if (path.startsWith('/inventory')) return 'Inventory Management';
+    if (path.startsWith('/store')) return 'Plugin Marketplace';
+    const parts = path.split('/').filter(Boolean);
+    if (parts.length === 0) return 'Atlas';
+    return parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+  };
+
+  useEffect(() => {
+    setWorkspaceLock(null);
+  }, [location.pathname]);
+
+  const [isInventoryLocked, setIsInventoryLocked] = useState(false);
+  const [isCrmLocked, setIsCrmLocked] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/inventory')) {
+      api.get<any>('/inventory/stats')
+        .then(res => {
+          const stats = res.data;
+          const isLocked = stats ? (stats.productCount / stats.maxProducts) >= 0.995 : false;
+          setIsInventoryLocked(isLocked);
+        })
+        .catch(() => setIsInventoryLocked(false));
+    } else {
+      setIsInventoryLocked(false);
+    }
+
+    if (location.pathname.startsWith('/crm')) {
+      api.get<any>('/crm/limits')
+        .then(res => {
+          const stats = res.data;
+          const isLocked = stats && (
+            (stats.limits.customers !== -1 && (stats.usage.customers / stats.limits.customers) >= 0.995) ||
+            (stats.limits.deals !== -1 && (stats.usage.deals / stats.limits.deals) >= 0.995)
+          );
+          setIsCrmLocked(isLocked);
+        })
+        .catch(() => setIsCrmLocked(false));
+    } else {
+      setIsCrmLocked(false);
+    }
+  }, [location.pathname]);
 
   const renderIcon = (name?: string) => {
     switch (name) {
@@ -69,13 +119,35 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="atlas-app-layout">
+      {workspaceLock && (
+        <FullScreenLock
+          title={workspaceLock.title}
+          description={workspaceLock.description}
+          upgradePath={workspaceLock.upgradePath}
+          secondaryAction={workspaceLock.secondaryAction}
+        />
+      )}
+      {isInventoryLocked && (
+        <FullScreenLock
+          title="Inventory Workspace Locked"
+          description="Your inventory workspace has exceeded its permitted plan capacity. Please upgrade your subscription plan to restore access."
+          upgradePath="/store"
+        />
+      )}
+      {isCrmLocked && (
+        <FullScreenLock
+          title="CRM Workspace Locked"
+          description="Your CRM contact database has exceeded its permitted plan capacity. Please upgrade your subscription plan to restore access."
+          upgradePath="/store"
+        />
+      )}
       <Sidebar 
         isCollapsed={isCollapsed} 
         onToggle={handleToggle}
         logo="Atlas OS"
         footer={
           <div className={isCollapsed ? "atlas-sidebar-tooltip-wrapper" : ""} data-tooltip="Logout" style={{ position: isCollapsed ? 'relative' : 'static' }}>
-            <Button variant="danger" size="small" onClick={handleLogout} style={{ width: '100%', padding: isCollapsed ? '0.5rem 0' : undefined, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Button className="logout-btn" variant="danger" size="small" onClick={handleLogout} style={{ width: '100%', padding: isCollapsed ? '0.5rem 0' : undefined, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {isCollapsed ? (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -100,22 +172,61 @@ export const AppLayout: React.FC = () => {
 
       <main className="atlas-app-main">
         <Navbar 
+          leftContent={
+            <span style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', marginLeft: '0.5rem' }}>
+              {getPageName()}
+            </span>
+          }
           rightContent={
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
                 Welcome, {user?.name || 'User'}
               </span>
-              <Button variant="primary" size="small" onClick={() => navigate('/store')}>
+              
+              <div 
+                className="theme-toggle-switch"
+                onClick={toggleTheme}
+                style={{
+                  width: '22px',
+                  height: '34px',
+                  borderRadius: '11px',
+                  backgroundColor: isDark ? 'var(--color-accent-active)' : '#b0bec5',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 1px rgba(0,0,0,0.15)'
+                }}
+                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                <div 
+                  className="theme-toggle-thumb"
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%)',
+                    border: '1px solid #a0a0a0',
+                    position: 'absolute',
+                    left: '2px',
+                    top: isDark ? '2px' : '14px',
+                    transition: 'top 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.2)'
+                  }}
+                />
+              </div>
+
+              <Button className="marketplace-btn" variant="primary" size="small" onClick={() => navigate('/store')}>
                 Plugin Marketplace
-              </Button>
-              <Button variant="secondary" size="small" onClick={toggleTheme}>
-                Toggle Theme
               </Button>
             </div>
           }
         />
         <div className="atlas-app-content">
-          <Outlet />
+          <div className="page-reveal" key={location.pathname} style={{ width: '100%', height: '100%' }}>
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

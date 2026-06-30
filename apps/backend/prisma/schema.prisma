@@ -1,7 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["atlas_core", "atlas_inventory"]
+  schemas  = ["atlas_core", "atlas_inventory", "atlas_crm"]
 }
 
 generator client {
@@ -161,6 +161,7 @@ model Product {
 
   stock Stock[]
   transactions StockTransaction[]
+  dealItems DealItem[]
 
   @@unique([organizationId, sku])
   @@map("inv_products")
@@ -218,4 +219,58 @@ model StockTransaction {
 
   @@map("inv_stock_transactions")
   @@schema("atlas_inventory")
+}
+
+// -----------------------------------------
+// CRM PLUGIN SCHEMA
+// -----------------------------------------
+
+model Customer {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  email          String
+  phone          String?
+  company        String?
+  status         String   @default("LEAD") // LEAD, PROSPECT, CUSTOMER, CHURNED
+  customData     Json?    @default("{}") @map("custom_data")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  deals          Deal[]
+
+  @@unique([organizationId, email])
+  @@map("crm_customers")
+  @@schema("atlas_crm")
+}
+
+model Deal {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  title          String
+  customerId     String   @map("customer_id")
+  stage          String   @default("QUALIFICATION") // QUALIFICATION, PROPOSAL, NEGOTIATION, CLOSED_WON, CLOSED_LOST
+  value          Float    @default(0.0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  customer       Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  lineItems      DealItem[]
+
+  @@map("crm_deals")
+  @@schema("atlas_crm")
+}
+
+model DealItem {
+  id             String   @id @default(uuid())
+  dealId         String   @map("deal_id")
+  productId      String   @map("product_id")
+  quantity       Int      @default(1)
+  unitPrice      Float    @map("unit_price")
+
+  deal           Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("crm_deal_items")
+  @@schema("atlas_crm")
 }

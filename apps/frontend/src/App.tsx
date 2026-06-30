@@ -12,7 +12,7 @@ import { Welcome } from './pages/Welcome/Welcome';
 import { Dashboard } from './pages/Dashboard/Dashboard';
 
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
-const CRM = () => <div><h2>CRM Plugin</h2><p>Loaded from @atlas/plugin-crm</p></div>;
+import CRM from '../../../plugins/crm/frontend/src';
 
 const LayoutGuard: React.FC = () => {
   const { installedPlugins, isLoadingPlugins } = usePlugins();

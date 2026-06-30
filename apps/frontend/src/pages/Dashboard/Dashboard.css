@@ -146,3 +146,43 @@
   color: #f87171;
   font-weight: 500;
 }
+
+.crm-usage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.crm-usage-metric,
+.crm-value-summary > div {
+  background: var(--bg-surface-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.625rem;
+  min-width: 0;
+}
+
+.crm-usage-metric span,
+.crm-value-summary span {
+  display: block;
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.crm-usage-metric strong,
+.crm-value-summary strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  margin-top: 0.25rem;
+}
+
+.crm-value-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}

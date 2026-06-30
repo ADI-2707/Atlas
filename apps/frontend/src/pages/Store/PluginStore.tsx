@@ -73,9 +73,8 @@ export const PluginStore: React.FC = () => {
           &larr; Back to Plugins
         </Button>
         
-        <div className="store-header">
-          <h1>{plugin.name} Subscriptions</h1>
-          <p>{plugin.description}</p>
+        <div className="store-header" style={{ marginBottom: '2rem' }}>
+          <p style={{ margin: 0, fontSize: '1rem', color: 'var(--text-secondary)' }}>{plugin.description}</p>
         </div>
 
         <div className="tiers-grid">
@@ -121,9 +120,8 @@ export const PluginStore: React.FC = () => {
 
   return (
     <div className="store-container">
-      <div className="store-header">
-        <h1>Plugin Marketplace</h1>
-        <p>Enhance your Atlas workspace with powerful plugins.</p>
+      <div className="store-header" style={{ marginBottom: '2rem' }}>
+        <p style={{ margin: 0, fontSize: '1rem', color: 'var(--text-secondary)' }}>Enhance your Atlas workspace with powerful plugins.</p>
       </div>
 
       <div className="plugins-grid">

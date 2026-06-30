@@ -1,10 +1,15 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { getPaginationParams, buildPaginatedResult } from '@atlas/utils';
+import { AtlasEvent, eventBus } from '@atlas/events';
 
 @Injectable()
-export class InventoryService {
+export class InventoryService implements OnModuleInit {
   constructor(@Inject('PRISMA_SERVICE') private readonly prisma: PrismaClient) { }
+
+  onModuleInit() {
+    eventBus.subscribe('crm.deal.closed_won', this.handleCrmDealClosedWon.bind(this));
+  }
 
   async getLimitStats(organizationId: string) {
     const plugin = await this.prisma.plugin.findUnique({
@@ -159,7 +164,7 @@ export class InventoryService {
       take: maxProducts,
       select: { id: true }
     });
-    const allowedIds = allowedProducts.map(p => p.id);
+    const allowedIds = allowedProducts.map((p: any) => p.id);
 
     const whereCondition: any = {
       organizationId,
@@ -406,7 +411,7 @@ export class InventoryService {
       take: maxProducts,
       select: { id: true },
     });
-    const allowedIds = allowedProducts.map((p) => p.id);
+    const allowedIds = allowedProducts.map((p: any) => p.id);
 
     const products = await this.prisma.product.findMany({
       where: {
@@ -417,10 +422,10 @@ export class InventoryService {
       orderBy: { createdAt: 'asc' },
     });
 
-    const headers = ['SKU', 'Name', 'Base Price', ...customFields.map((f) => f.label)];
-    const rows = products.map((p) => {
-      const row = [p.sku, p.name, p.basePrice, ...customFields.map((f) => (p.customData as any)?.[f.name] || '')];
-      return row.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(',');
+    const headers = ['SKU', 'Name', 'Base Price', ...customFields.map((f: any) => f.label)];
+    const rows = products.map((p: any) => {
+      const row = [p.sku, p.name, p.basePrice, ...customFields.map((f: any) => (p.customData as any)?.[f.name] || '')];
+      return row.map((val: any) => `"${String(val).replace(/"/g, '""')}"`).join(',');
     });
 
     const csvContent = [headers.join(','), ...rows].join('\n');
@@ -550,5 +555,62 @@ export class InventoryService {
       skippedCount: skipped,
       totalCount: lines.length - 1,
     };
+  }
+
+  private async handleCrmDealClosedWon(event: AtlasEvent<{
+    dealId: string;
+    dealTitle: string;
+    userId?: string;
+    lineItems: Array<{
+      productId: string;
+      quantity: number;
+      unitPrice: number;
+    }>;
+  }>) {
+    const { organizationId, payload } = event;
+    const defaultWh = await this.getOrCreateDefaultWarehouse(organizationId);
+
+    for (const item of payload.lineItems) {
+      const stockEntry = await this.prisma.stock.findUnique({
+        where: {
+          productId_warehouseId: {
+            productId: item.productId,
+            warehouseId: defaultWh.id,
+          },
+        },
+      });
+      const currentQty = stockEntry ? stockEntry.quantity : 0;
+      const nextQty = Math.max(0, currentQty - item.quantity);
+
+      await this.prisma.stock.upsert({
+        where: {
+          productId_warehouseId: {
+            productId: item.productId,
+            warehouseId: defaultWh.id,
+          },
+        },
+        create: {
+          organizationId,
+          productId: item.productId,
+          warehouseId: defaultWh.id,
+          quantity: nextQty,
+        },
+        update: {
+          quantity: nextQty,
+        },
+      });
+
+      await this.prisma.stockTransaction.create({
+        data: {
+          organizationId,
+          productId: item.productId,
+          warehouseId: defaultWh.id,
+          type: 'ISSUE',
+          quantity: -item.quantity,
+          reference: `Sales Deal Won: ${payload.dealTitle} (Ref: ${payload.dealId})`,
+          userId: payload.userId || null,
+        },
+      });
+    }
   }
 }

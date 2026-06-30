@@ -34,7 +34,7 @@ export class AuthService {
     }
 
     
-    const result = await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx: any) => {
       
       const org = await tx.organization.create({
         data: {
@@ -55,7 +55,7 @@ export class AuthService {
           isSystem: true,
           organizationId: org.id,
           permissions: {
-            connect: allPermissions.map((p) => ({ id: p.id })),
+            connect: allPermissions.map((p: any) => ({ id: p.id })),
           },
         },
       });
@@ -69,8 +69,8 @@ export class AuthService {
           organizationId: org.id,
           permissions: {
             connect: allPermissions
-              .filter((p) => p.code !== 'platform.configure' && p.code !== 'plugins.write')
-              .map((p) => ({ id: p.id })),
+              .filter((p: any) => p.code !== 'platform.configure' && p.code !== 'plugins.write')
+              .map((p: any) => ({ id: p.id })),
           },
         },
       });
@@ -84,8 +84,8 @@ export class AuthService {
           organizationId: org.id,
           permissions: {
             connect: allPermissions
-              .filter((p) => p.code.endsWith('.read'))
-              .map((p) => ({ id: p.id })),
+              .filter((p: any) => p.code.endsWith('.read'))
+              .map((p: any) => ({ id: p.id })),
           },
         },
       });
@@ -177,7 +177,7 @@ export class AuthService {
       email: user.email,
       sub: user.id,
       orgId: user.organizationId,
-      roles: user.roles.map((r) => r.name),
+      roles: user.roles.map((r: any) => r.name),
       sessionId,
     };
 
@@ -223,7 +223,7 @@ export class AuthService {
           firstName: user.firstName,
           lastName: user.lastName,
           organizationId: user.organizationId,
-          roles: user.roles.map((r) => r.name),
+          roles: user.roles.map((r: any) => r.name),
           hasCompletedSetup: user.hasCompletedSetup,
         },
       },
@@ -259,7 +259,7 @@ export class AuthService {
       email: session.user.email,
       sub: session.user.id,
       orgId: session.user.organizationId,
-      roles: session.user.roles.map((r) => r.name),
+      roles: session.user.roles.map((r: any) => r.name),
       sessionId: session.id,
     };
 

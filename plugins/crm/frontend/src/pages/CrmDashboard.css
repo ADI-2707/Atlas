@@ -1,9 +1,8 @@
-.inventory-dashboard {
+.crm-dashboard {
   padding: var(--spacing-lg);
   color: var(--text-primary);
   height: 100%;
   overflow-y: auto;
-  position: relative;
   background-color: var(--bg-surface-secondary);
 }
 
@@ -17,7 +16,6 @@
   border: 1px solid var(--border-color);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  margin-top: 1rem;
 }
 
 .atlas-table {
@@ -51,88 +49,7 @@
   background-color: var(--bg-surface-tertiary);
 }
 
-.clean-tabs-bar {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.clean-tab-btn {
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-secondary);
-  padding: 0.5rem 0;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.9rem;
-  outline: none;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-}
-
-.clean-tab-btn:hover {
-  color: var(--text-primary);
-}
-
-.clean-tab-btn.active {
-  color: var(--color-accent-active);
-  font-weight: 600;
-  border-bottom: 2px solid var(--color-accent-active);
-}
-
-.column-modal {
-  max-width: 600px;
-}
-
-.current-columns {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.column-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--bg-surface-secondary);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-}
-
-.column-item span {
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-.column-item small {
-  color: var(--text-tertiary);
-  margin-left: 0.5rem;
-}
-
-.btn-delete {
-  background: transparent;
-  border: none;
-  color: #ef5350;
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-}
-
-.btn-delete:hover {
-  color: #ff8a80;
-}
-
-.add-column-form {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
 .atlas-input {
-  flex: 1;
   background-color: var(--bg-surface-primary);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
@@ -143,7 +60,7 @@
 }
 
 .atlas-input:focus {
-  border-color: var(--color-accent-active);
+  border-color: var(--color-accent-core);
 }
 
 .modal-overlay {
@@ -178,7 +95,99 @@
   color: var(--text-primary);
 }
 
-.inventory-alert-banner {
+/* Kanban Board Styling */
+.kanban-board {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  min-height: 500px;
+}
+
+.kanban-column {
+  flex: 1;
+  min-width: 250px;
+  background-color: var(--bg-surface-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.kanban-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.kanban-column-header h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.deal-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.deal-card {
+  background-color: var(--bg-surface-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.deal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent-core);
+}
+
+.deal-card-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.deal-card-customer {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.deal-card-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-accent-core);
+}
+
+.badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-lead { background-color: rgba(99, 102, 241, 0.1); color: #6366f1; }
+.badge-prospect { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.badge-customer { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+.badge-churned { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+.crm-alert-banner {
   background-color: rgba(245, 158, 11, 0.1);
   border: 1px solid #f59e0b;
   color: #fbbf24;
@@ -190,7 +199,7 @@
   align-items: center;
 }
 
-.inventory-alert-banner.locked-banner {
+.crm-alert-banner.locked-banner {
   background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid #ef4444;
   color: #f87171;

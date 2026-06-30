@@ -15,6 +15,8 @@ export interface PluginContextType {
   uninstallPlugin: (pluginId: string) => Promise<void>;
   registerNavigationItem: (item: PluginNavigationItem) => void;
   removeNavigationItem: (path: string) => void;
+  workspaceLock: { title: string; description: string; upgradePath: string; secondaryAction?: { label: string; onClick: () => void } } | null;
+  setWorkspaceLock: (lock: { title: string; description: string; upgradePath: string; secondaryAction?: { label: string; onClick: () => void } } | null) => void;
 }
 
 const PluginContext = createContext<PluginContextType | undefined>(undefined);
@@ -27,6 +29,7 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [navigationItems, setNavigationItems] = useState<PluginNavigationItem[]>([
     { title: 'Dashboard', path: '/', icon: 'dashboard' }
   ]);
+  const [workspaceLock, setWorkspaceLock] = useState<{ title: string; description: string; upgradePath: string; secondaryAction?: { label: string; onClick: () => void } } | null>(null);
 
   useEffect(() => {
     const fetchPlugins = async () => {
@@ -139,7 +142,19 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   return (
-    <PluginContext.Provider value={{ navigationItems, installedPlugins, allPlugins, isLoadingPlugins, installPlugin, upgradePlugin, uninstallPlugin, registerNavigationItem, removeNavigationItem }}>
+    <PluginContext.Provider value={{
+      navigationItems,
+      installedPlugins,
+      allPlugins,
+      isLoadingPlugins,
+      installPlugin,
+      upgradePlugin,
+      uninstallPlugin,
+      registerNavigationItem,
+      removeNavigationItem,
+      workspaceLock,
+      setWorkspaceLock
+    }}>
       {children}
     </PluginContext.Provider>
   );
