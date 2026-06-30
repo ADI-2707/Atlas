@@ -40,103 +40,104 @@ export const CrmDashboard: React.FC = () => {
 
   return (
     <div className="crm-dashboard">
-      <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0', marginBottom: '1.5rem' }}>
+      <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {stats && (
-              <>
-                <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
-                  Contacts: {stats.usage.customers} / {stats.limits.customers === -1 ? 'Unlimited' : stats.limits.customers}
-                </span>
-                <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
-                  Deals: {stats.usage.deals} / {stats.limits.deals === -1 ? 'Unlimited' : stats.limits.deals}
-                </span>
-              </>
+          <div className="clean-tabs-bar" style={{ display: 'flex', gap: '1.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setActiveView('contacts')}
+              className={`clean-tab-btn ${activeView === 'contacts' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'contacts' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
+                color: activeView === 'contacts' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'contacts' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Contacts & Leads
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('pipeline')}
+              className={`clean-tab-btn ${activeView === 'pipeline' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'pipeline' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
+                color: activeView === 'pipeline' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'pipeline' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Deals Pipeline
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('logs')}
+              className={`clean-tab-btn ${activeView === 'logs' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'logs' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
+                color: activeView === 'logs' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'logs' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Activity Logs
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {activeView === 'contacts' && (
+              <Button
+                variant="primary"
+                size="small"
+                disabled={isContactLocked}
+                onClick={() => setAddContactTrigger(prev => prev + 1)}
+                title={isContactLocked ? "Contact limit reached. Upgrade plan to add contacts." : ""}
+              >
+                Add Contact
+              </Button>
+            )}
+            {activeView === 'pipeline' && (
+              <Button
+                variant="primary"
+                size="small"
+                disabled={isDealLocked}
+                onClick={() => setAddDealTrigger(prev => prev + 1)}
+                title={isDealLocked ? "Deal limit reached. Upgrade plan to add deals." : ""}
+              >
+                New Deal
+              </Button>
             )}
           </div>
-          {activeView === 'contacts' && (
-            <Button
-              variant="primary"
-              size="small"
-              disabled={isContactLocked}
-              onClick={() => setAddContactTrigger(prev => prev + 1)}
-              title={isContactLocked ? "Contact limit reached. Upgrade plan to add contacts." : ""}
-            >
-              Add Contact
-            </Button>
-          )}
-          {activeView === 'pipeline' && (
-            <Button
-              variant="primary"
-              size="small"
-              disabled={isDealLocked}
-              onClick={() => setAddDealTrigger(prev => prev + 1)}
-              title={isDealLocked ? "Deal limit reached. Upgrade plan to add deals." : ""}
-            >
-              New Deal
-            </Button>
-          )}
         </div>
 
-        <div className="clean-tabs-bar" style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
-          <button
-            type="button"
-            onClick={() => setActiveView('contacts')}
-            className={`clean-tab-btn ${activeView === 'contacts' ? 'active' : ''}`}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeView === 'contacts' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
-              color: activeView === 'contacts' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              padding: '0.5rem 0',
-              cursor: 'pointer',
-              fontWeight: activeView === 'contacts' ? '600' : '500',
-              fontSize: '0.9rem',
-              outline: 'none',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            Contacts & Leads
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('pipeline')}
-            className={`clean-tab-btn ${activeView === 'pipeline' ? 'active' : ''}`}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeView === 'pipeline' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
-              color: activeView === 'pipeline' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              padding: '0.5rem 0',
-              cursor: 'pointer',
-              fontWeight: activeView === 'pipeline' ? '600' : '500',
-              fontSize: '0.9rem',
-              outline: 'none',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            Deals Pipeline
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('logs')}
-            className={`clean-tab-btn ${activeView === 'logs' ? 'active' : ''}`}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeView === 'logs' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
-              color: activeView === 'logs' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              padding: '0.5rem 0',
-              cursor: 'pointer',
-              fontWeight: activeView === 'logs' ? '600' : '500',
-              fontSize: '0.9rem',
-              outline: 'none',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            Activity Logs
-          </button>
-        </div>
+        {activeView === 'contacts' && stats && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
+            <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
+              Contacts: {stats.usage.customers} / {stats.limits.customers === -1 ? 'Unlimited' : stats.limits.customers}
+            </span>
+            <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
+              Deals: {stats.usage.deals} / {stats.limits.deals === -1 ? 'Unlimited' : stats.limits.deals}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="page-reveal" key={activeView}>

@@ -315,89 +315,92 @@ export const InventoryDashboard: React.FC = () => {
 
   return (
     <div className="inventory-dashboard">
-      <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0', marginBottom: '1.5rem' }}>
+      <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            {limitStats && (
-              <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
-                Capacity: {limitStats.productCount} / {limitStats.maxProducts} Items Used
-              </span>
+          <div className="clean-tabs-bar" style={{ display: 'flex', gap: '1.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setActiveView('products')}
+              className={`clean-tab-btn ${activeView === 'products' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'products' ? '2px solid var(--color-accent-active)' : '2px solid transparent',
+                color: activeView === 'products' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'products' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Products
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('warehouses')}
+              className={`clean-tab-btn ${activeView === 'warehouses' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'warehouses' ? '2px solid var(--color-accent-active)' : '2px solid transparent',
+                color: activeView === 'warehouses' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'warehouses' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              Warehouses {isWarehouseLocked && <LockIcon />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('logs')}
+              className={`clean-tab-btn ${activeView === 'logs' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'logs' ? '2px solid var(--color-accent-active)' : '2px solid transparent',
+                color: activeView === 'logs' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'logs' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Logs
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {activeView === 'products' && (
+              <Button
+                variant="primary"
+                size="small"
+                disabled={isAddLocked}
+                onClick={() => setIsProductModalOpen(true)}
+                title={isAddLocked ? "Storage limit reached. Upgrade plan to add products." : ""}
+              >
+                Add Product
+              </Button>
             )}
           </div>
-          {activeView === 'products' && (
-            <Button
-              variant="primary"
-              size="small"
-              disabled={isAddLocked}
-              onClick={() => setIsProductModalOpen(true)}
-              title={isAddLocked ? "Storage limit reached. Upgrade plan to add products." : ""}
-            >
-              Add Product
-            </Button>
-          )}
         </div>
 
-        <div className="clean-tabs-bar" style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
-          <button
-            type="button"
-            onClick={() => setActiveView('products')}
-            className={`clean-tab-btn ${activeView === 'products' ? 'active' : ''}`}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeView === 'products' ? '2px solid var(--color-accent-active)' : '2px solid transparent',
-              color: activeView === 'products' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              padding: '0.5rem 0',
-              cursor: 'pointer',
-              fontWeight: activeView === 'products' ? '600' : '500',
-              fontSize: '0.9rem',
-              outline: 'none',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            Products
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('warehouses')}
-            className={`clean-tab-btn ${activeView === 'warehouses' ? 'active' : ''}`}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeView === 'warehouses' ? '2px solid var(--color-accent-active)' : '2px solid transparent',
-              color: activeView === 'warehouses' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              padding: '0.5rem 0',
-              cursor: 'pointer',
-              fontWeight: activeView === 'warehouses' ? '600' : '500',
-              fontSize: '0.9rem',
-              outline: 'none',
-              transition: 'all 0.15s ease',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
-            Warehouses {isWarehouseLocked && <LockIcon />}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveView('logs')}
-            className={`clean-tab-btn ${activeView === 'logs' ? 'active' : ''}`}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              borderBottom: activeView === 'logs' ? '2px solid var(--color-accent-active)' : '2px solid transparent',
-              color: activeView === 'logs' ? 'var(--text-primary)' : 'var(--text-secondary)',
-              padding: '0.5rem 0',
-              cursor: 'pointer',
-              fontWeight: activeView === 'logs' ? '600' : '500',
-              fontSize: '0.9rem',
-              outline: 'none',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            Logs
-          </button>
-        </div>
+        {activeView === 'products' && limitStats && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem', marginBottom: '0.5rem' }}>
+            <span className="capacity-badge" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-surface-tertiary)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid var(--border-color)', fontWeight: 500 }}>
+              Capacity: {limitStats.productCount} / {limitStats.maxProducts} Items Used
+            </span>
+          </div>
+        )}
       </div>
 
       {limitStats && (limitStats.productCount / limitStats.maxProducts) >= 0.80 && (
