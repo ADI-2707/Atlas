@@ -18,3 +18,21 @@
   overflow-y: auto;
   padding: var(--spacing-xl);
 }
+
+/* Logout button hover/active effects */
+.logout-btn:hover:not(:disabled) {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: #ef4444 !important;
+}
+
+/* Make SVG turn white on hover */
+.logout-btn:hover:not(:disabled) svg {
+  stroke: #ffffff !important;
+}
+
+/* Scale down a bit on active state */
+.logout-btn:active:not(:disabled) {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s ease-in-out !important;
+}

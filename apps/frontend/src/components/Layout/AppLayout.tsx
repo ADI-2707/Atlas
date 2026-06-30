@@ -135,7 +135,7 @@ export const AppLayout: React.FC = () => {
         logo="Atlas OS"
         footer={
           <div className={isCollapsed ? "atlas-sidebar-tooltip-wrapper" : ""} data-tooltip="Logout" style={{ position: isCollapsed ? 'relative' : 'static' }}>
-            <Button variant="danger" size="small" onClick={handleLogout} style={{ width: '100%', padding: isCollapsed ? '0.5rem 0' : undefined, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Button className="logout-btn" variant="danger" size="small" onClick={handleLogout} style={{ width: '100%', padding: isCollapsed ? '0.5rem 0' : undefined, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {isCollapsed ? (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
