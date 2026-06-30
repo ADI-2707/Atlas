@@ -38,15 +38,15 @@ export const HrDashboard: React.FC = () => {
         <div className="hr-stats-cards">
           <div className="hr-stat-card">
             <span className="hr-stat-label">Total Employees</span>
-            <span className="hr-stat-value">124</span>
+            <span className="hr-stat-value">0</span>
           </div>
           <div className="hr-stat-card">
             <span className="hr-stat-label">On Leave</span>
-            <span className="hr-stat-value">12</span>
+            <span className="hr-stat-value">0</span>
           </div>
           <div className="hr-stat-card">
             <span className="hr-stat-label">Monthly Payroll</span>
-            <span className="hr-stat-value">$424,500</span>
+            <span className="hr-stat-value">$0</span>
           </div>
         </div>
 

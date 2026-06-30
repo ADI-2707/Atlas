@@ -16,11 +16,7 @@ export const PayrollList: React.FC = () => {
       const res = await api.get<{ data: PayrollRecord[] }>('/hr/payroll');
 
       if (!res.data || res.data.length === 0) {
-        setRecords([
-          { id: '1', employeeId: '1', amount: 5000, currency: 'USD', periodStart: '2026-06-01', periodEnd: '2026-06-30', status: 'paid' },
-          { id: '2', employeeId: '2', amount: 4200, currency: 'USD', periodStart: '2026-06-01', periodEnd: '2026-06-30', status: 'processed' },
-          { id: '3', employeeId: '3', amount: 3100, currency: 'USD', periodStart: '2026-06-01', periodEnd: '2026-06-30', status: 'pending' }
-        ]);
+        setRecords([]);
       } else {
         setRecords(res.data);
       }

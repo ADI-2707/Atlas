@@ -14,13 +14,8 @@ export const EmployeesList: React.FC = () => {
     try {
       setLoading(true);
       const res = await api.get<{ data: Employee[] }>('/hr/employees');
-      // Use mock data if API returns empty to show off the UI
       if (!res.data || res.data.length === 0) {
-        setEmployees([
-          { id: '1', firstName: 'Alice', lastName: 'Johnson', email: 'alice.j@example.com', department: 'Engineering', role: 'Senior Developer', status: 'active', joinDate: '2023-01-15' },
-          { id: '2', firstName: 'Bob', lastName: 'Smith', email: 'bob.smith@example.com', department: 'Marketing', role: 'Marketing Manager', status: 'leave', joinDate: '2022-11-01' },
-          { id: '3', firstName: 'Charlie', lastName: 'Davis', email: 'charlie.d@example.com', department: 'Sales', role: 'Sales Rep', status: 'active', joinDate: '2024-03-10' }
-        ]);
+        setEmployees([]);
       } else {
         setEmployees(res.data);
       }
