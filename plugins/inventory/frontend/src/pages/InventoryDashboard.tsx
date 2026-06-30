@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Button, Pagination, useDebounce } from '@atlas/ui';
 import { api } from '@atlas/api';
@@ -591,16 +592,17 @@ export const InventoryDashboard: React.FC = () => {
         )}
       </div>
 
-      {isProductModalOpen && (
+      {isProductModalOpen && createPortal(
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>Add Product to {activeTable.name}</h2>
             <ProductForm customFields={customFields} onSubmit={handleCreateProduct} onCancel={() => setIsProductModalOpen(false)} />
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {isColumnModalOpen && (
+      {isColumnModalOpen && createPortal(
         <div className="modal-overlay">
           <div className="modal-content column-modal">
             <h2>Manage Columns for {activeTable.name}</h2>
@@ -636,7 +638,8 @@ export const InventoryDashboard: React.FC = () => {
               <Button variant="secondary" size="small" onClick={() => setIsColumnModalOpen(false)}>Close</Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

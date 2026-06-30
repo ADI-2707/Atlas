@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '@atlas/api';
 import { Button } from '@atlas/ui';
 
@@ -290,7 +291,7 @@ export const DealsPipeline: React.FC = () => {
         </div>
       )}
 
-      {isModalOpen && (
+      {isModalOpen && createPortal(
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '650px' }}>
             <h2>{editingDeal ? 'Edit Deal Opportunity' : 'Create Deal Opportunity'}</h2>
@@ -421,7 +422,8 @@ export const DealsPipeline: React.FC = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

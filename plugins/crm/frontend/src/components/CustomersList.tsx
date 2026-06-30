@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '@atlas/api';
 import { Button, Pagination, useDebounce } from '@atlas/ui';
 
@@ -256,7 +257,7 @@ export const CustomersList: React.FC = () => {
         }}
       />
 
-      {isModalOpen && (
+      {isModalOpen && createPortal(
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>{editingCustomer ? 'Edit Contact' : 'Create Contact'}</h2>
@@ -327,7 +328,8 @@ export const CustomersList: React.FC = () => {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
