@@ -40,7 +40,7 @@ def nightly_ml_batch_job():
 
 @app.on_event("startup")
 def startup_event():
-    scheduler.add_job(nightly_ml_batch_job, CronTrigger(hour=2, minute=0))
+    scheduler.add_job(nightly_ml_batch_job, CronTrigger(hour=0, minute=0))
     scheduler.start()
     logger.info("Scheduler started.")
 
@@ -111,7 +111,7 @@ def get_timeseries(org_id: str):
     result = {}
     for metric in df['metric_name'].unique():
         metric_df = df[df['metric_name'] == metric]
-        result[metric] = metric_df[['timestamp', 'value']].to_dict('records')
+        result[metric] = metric_df[['timestamp', 'value']].to_dict(orient='records') # type: ignore
         
     return result
 
