@@ -10,7 +10,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from reportlab.pdfgen import canvas
 import logging
-import os
 
 app = FastAPI(
     title="Atlas Analytics Engine",
@@ -56,7 +55,8 @@ def health_check(db: Session = Depends(get_db)):
     return {"status": "healthy", "service": "analytics-engine", "db_status": db_status}
 
 @app.get("/dashboard")
-def get_dashboard(org_id: str, db: Session = Depends(get_db)):
+def get_dashboard(org_id: str):
+    logger.info(f"Dashboard requested for org: {org_id}")
     return {
         "overview": {"totalRevenue": 150000, "activeUsers": 1250},
         "sales": [{"date": "2023-01", "amount": 10000}],
@@ -65,7 +65,7 @@ def get_dashboard(org_id: str, db: Session = Depends(get_db)):
     }
 
 @app.get("/anomalies")
-def get_anomalies(org_id: str, db: Session = Depends(get_db)):
+def get_anomalies(org_id: str):
     df = pd.read_sql(
         text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
         engine,
@@ -80,7 +80,7 @@ def get_anomalies(org_id: str, db: Session = Depends(get_db)):
     return anomalies_traffic + anomalies_revenue
 
 @app.get("/forecast")
-def get_forecast(org_id: str, db: Session = Depends(get_db)):
+def get_forecast(org_id: str):
     df = pd.read_sql(
         text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
         engine,
@@ -95,7 +95,7 @@ def get_forecast(org_id: str, db: Session = Depends(get_db)):
     return forecast_traffic + forecast_revenue
 
 @app.post("/reports/generate")
-def generate_report(org_id: str, db: Session = Depends(get_db)):
+def generate_report(org_id: str):
     filename = f"report_{org_id}.pdf"
     c = canvas.Canvas(filename)
     c.drawString(100, 750, f"Analytics Report for Organization: {org_id}")

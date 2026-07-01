@@ -24,16 +24,16 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
         // In a real app, URL configuration and Auth tokens come from an API client
         const headers = { 'Content-Type': 'application/json' };
         
-        const dashRes = await fetch(`/api/analytics/dashboard`, { headers });
+        const dashRes = await fetch(`/api/analytics/dashboard?org_id=${organizationId}`, { headers });
         if (dashRes.ok) setOverviewData(await dashRes.json());
 
         if (canViewAnomalies) {
-          const anomRes = await fetch(`/api/analytics/anomalies`, { headers });
+          const anomRes = await fetch(`/api/analytics/anomalies?org_id=${organizationId}`, { headers });
           if (anomRes.ok) setAnomalies(await anomRes.json());
         }
 
         if (canViewForecasts) {
-          const foreRes = await fetch(`/api/analytics/forecasts`, { headers });
+          const foreRes = await fetch(`/api/analytics/forecasts?org_id=${organizationId}`, { headers });
           if (foreRes.ok) setForecasts(await foreRes.json());
         }
       } catch (e) {
@@ -43,11 +43,11 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
     };
 
     fetchData();
-  }, [tier, canViewAnomalies, canViewForecasts]);
+  }, [tier, canViewAnomalies, canViewForecasts, organizationId]);
 
   const handleGenerateReport = async () => {
     try {
-      const res = await fetch(`/api/analytics/reports/generate`, { method: 'POST' });
+      const res = await fetch(`/api/analytics/reports/generate?org_id=${organizationId}`, { method: 'POST' });
       if (res.ok) {
         alert('Report generated successfully and is ready for download!');
       } else {
