@@ -1,5 +1,4 @@
 .inventory-dashboard {
-  padding: var(--spacing-lg);
   color: var(--text-primary);
   height: 100%;
   overflow-y: auto;
