@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db, engine
 import uvicorn
+import pandas as pd
+from ml import detect_anomalies, forecast_metric
 
 app = FastAPI(
     title="Atlas Analytics Engine",
@@ -39,9 +41,33 @@ def get_dashboard(org_id: str, db: Session = Depends(get_db)):
 
 @app.get("/anomalies")
 def get_anomalies(org_id: str, db: Session = Depends(get_db)):
-    return [
-        {"id": 1, "type": "spike", "metric": "traffic", "severity": "high", "timestamp": "2023-10-25T10:00:00Z"}
-    ]
+    df = pd.read_sql(
+        text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
+        engine,
+        params={"org_id": org_id}
+    )
+    if df.empty:
+        return []
+    
+    anomalies_traffic = detect_anomalies(df, 'traffic')
+    anomalies_revenue = detect_anomalies(df, 'revenue')
+    
+    return anomalies_traffic + anomalies_revenue
+
+@app.get("/forecast")
+def get_forecast(org_id: str, db: Session = Depends(get_db)):
+    df = pd.read_sql(
+        text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
+        engine,
+        params={"org_id": org_id}
+    )
+    if df.empty:
+        return []
+        
+    forecast_traffic = forecast_metric(df, 'traffic')
+    forecast_revenue = forecast_metric(df, 'revenue')
+    
+    return forecast_traffic + forecast_revenue
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
