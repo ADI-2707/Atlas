@@ -25,9 +25,8 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
   const fetchData = async () => {
     setLoading(true);
     try {
-      // In a real app, URL configuration and Auth tokens come from an API client
       const headers = { 'Content-Type': 'application/json' };
-
+      
       const dashRes = await fetch(`/api/analytics/dashboard?org_id=${organizationId}`, { headers });
       if (dashRes.ok) setOverviewData(await dashRes.json());
 
@@ -84,81 +83,91 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
     setTimeout(() => setSyncMsg(''), 5000);
   };
 
-  const renderOverviewSubTabs = () => (
-    <div style={{ marginTop: '2rem' }}>
-      <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
-        <button
-          onClick={() => setSubTab('hr')}
-          style={{
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            color: subTab === 'hr' ? '#60a5fa' : 'var(--text-secondary)',
-            fontWeight: subTab === 'hr' ? 'bold' : 'normal'
-          }}
-        >HR Analytics</button>
-        <button
-          onClick={() => setSubTab('crm')}
-          style={{
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            color: subTab === 'crm' ? '#60a5fa' : 'var(--text-secondary)',
-            fontWeight: subTab === 'crm' ? 'bold' : 'normal'
-          }}
-        >CRM Analytics</button>
-        <button
-          onClick={() => setSubTab('inventory')}
-          style={{
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            color: subTab === 'inventory' ? '#60a5fa' : 'var(--text-secondary)',
-            fontWeight: subTab === 'inventory' ? 'bold' : 'normal'
-          }}
-        >Inventory Analytics</button>
-      </div>
+  const renderOverviewSubTabs = () => {
+    const hasData = timeseries && Object.keys(timeseries).length > 0;
+    
+    return (
+      <div style={{ marginTop: '2rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
+          <button
+            onClick={() => setSubTab('hr')}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: subTab === 'hr' ? 'var(--color-accent-core, #3b82f6)' : 'var(--text-secondary)',
+              fontWeight: subTab === 'hr' ? 'bold' : 'normal'
+            }}
+          >HR Analytics</button>
+          <button
+            onClick={() => setSubTab('crm')}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: subTab === 'crm' ? 'var(--color-accent-core, #3b82f6)' : 'var(--text-secondary)',
+              fontWeight: subTab === 'crm' ? 'bold' : 'normal'
+            }}
+          >CRM Analytics</button>
+          <button
+            onClick={() => setSubTab('inventory')}
+            style={{
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              color: subTab === 'inventory' ? 'var(--color-accent-core, #3b82f6)' : 'var(--text-secondary)',
+              fontWeight: subTab === 'inventory' ? 'bold' : 'normal'
+            }}
+          >Inventory Analytics</button>
+        </div>
 
-      <div style={{ height: '300px', width: '100%' }}>
-        {subTab === 'hr' && (
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={timeseries['hr_payroll'] || []}>
-              <defs>
-                <linearGradient id="colorPayroll" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis dataKey="timestamp" stroke="#a0a0a0" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-              <YAxis stroke="#a0a0a0" />
-              <RechartsTooltip contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#fff' }} />
-              <Legend />
-              <Area type="monotone" dataKey="value" name="Payroll Cost ($)" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorPayroll)" />
-            </AreaChart>
-          </ResponsiveContainer>
-        )}
-        {subTab === 'crm' && (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={timeseries['crm_deals_won'] || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis dataKey="timestamp" stroke="#a0a0a0" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-              <YAxis stroke="#a0a0a0" />
-              <RechartsTooltip contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#fff' }} />
-              <Legend />
-              <Bar dataKey="value" name="Deals Won Value ($)" fill="#10b981" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-        {subTab === 'inventory' && (
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={timeseries['inv_valuation'] || []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis dataKey="timestamp" stroke="#a0a0a0" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
-              <YAxis stroke="#a0a0a0" />
-              <RechartsTooltip contentStyle={{ backgroundColor: '#1f2937', borderColor: '#374151', color: '#fff' }} />
-              <Legend />
-              <Line type="stepAfter" dataKey="value" name="Inventory Valuation ($)" stroke="#f59e0b" strokeWidth={3} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
+        <div style={{ height: '300px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {!hasData ? (
+            <p style={{ color: 'var(--text-tertiary)' }}>No timeseries data available. Please add data or force sync.</p>
+          ) : (
+            <>
+              {subTab === 'hr' && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={timeseries['hr_payroll'] || []}>
+                    <defs>
+                      <linearGradient id="colorPayroll" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-accent-core, #8b5cf6)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="var(--color-accent-core, #8b5cf6)" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                    <XAxis dataKey="timestamp" stroke="var(--text-secondary)" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
+                    <YAxis stroke="var(--text-secondary)" />
+                    <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-surface-primary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
+                    <Legend />
+                    <Area type="monotone" dataKey="value" name="Payroll Cost ($)" stroke="var(--color-accent-core, #8b5cf6)" fillOpacity={1} fill="url(#colorPayroll)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+              {subTab === 'crm' && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={timeseries['crm_deals_won'] || []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                    <XAxis dataKey="timestamp" stroke="var(--text-secondary)" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
+                    <YAxis stroke="var(--text-secondary)" />
+                    <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-surface-primary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
+                    <Legend />
+                    <Bar dataKey="value" name="Deals Won Value ($)" fill="var(--color-accent-core, #10b981)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+              {subTab === 'inventory' && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={timeseries['inv_valuation'] || []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                    <XAxis dataKey="timestamp" stroke="var(--text-secondary)" tickFormatter={(v) => new Date(v).toLocaleDateString()} />
+                    <YAxis stroke="var(--text-secondary)" />
+                    <RechartsTooltip contentStyle={{ backgroundColor: 'var(--bg-surface-primary)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }} />
+                    <Legend />
+                    <Line type="stepAfter" dataKey="value" name="Inventory Valuation ($)" stroke="var(--color-accent-core, #f59e0b)" strokeWidth={3} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="analytics-dashboard">
@@ -172,7 +181,7 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
               style={{
                 background: 'transparent',
                 border: 'none',
-                borderBottom: activeTab === 'overview' ? '2px solid var(--color-accent-analytics, #3b82f6)' : '2px solid transparent',
+                borderBottom: activeTab === 'overview' ? '2px solid var(--color-accent-core, #3b82f6)' : '2px solid transparent',
                 color: activeTab === 'overview' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 padding: '0.5rem 0',
                 cursor: 'pointer',
@@ -184,7 +193,7 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
             >
               Overview
             </button>
-
+            
             {canViewAnomalies && (
               <button
                 type="button"
@@ -193,7 +202,7 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  borderBottom: activeTab === 'anomalies' ? '2px solid var(--color-accent-analytics, #3b82f6)' : '2px solid transparent',
+                  borderBottom: activeTab === 'anomalies' ? '2px solid var(--color-accent-core, #3b82f6)' : '2px solid transparent',
                   color: activeTab === 'anomalies' ? 'var(--text-primary)' : 'var(--text-secondary)',
                   padding: '0.5rem 0',
                   cursor: 'pointer',
@@ -215,7 +224,7 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  borderBottom: activeTab === 'forecasts' ? '2px solid var(--color-accent-analytics, #3b82f6)' : '2px solid transparent',
+                  borderBottom: activeTab === 'forecasts' ? '2px solid var(--color-accent-core, #3b82f6)' : '2px solid transparent',
                   color: activeTab === 'forecasts' ? 'var(--text-primary)' : 'var(--text-secondary)',
                   padding: '0.5rem 0',
                   cursor: 'pointer',
@@ -229,18 +238,18 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
               </button>
             )}
           </div>
-
+          
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            {syncMsg && <span style={{ color: '#10b981', fontSize: '0.85rem' }}>{syncMsg}</span>}
-            <button
+            {syncMsg && <span style={{ color: 'var(--color-accent-inventory, #10b981)', fontSize: '0.85rem' }}>{syncMsg}</span>}
+            <button 
               onClick={handleForceSync}
               disabled={syncing}
               style={{
                 padding: '0.5rem 1rem',
-                background: 'var(--color-surface, #1f2937)',
+                background: 'var(--bg-surface-tertiary)',
                 color: 'var(--text-primary)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-md, 6px)',
                 cursor: syncing ? 'not-allowed' : 'pointer',
                 fontWeight: '500',
                 opacity: syncing ? 0.7 : 1
@@ -249,19 +258,19 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
             </button>
 
             {canGenerateReports && (
-              <button
-                onClick={handleGenerateReport}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: 'var(--color-accent-analytics, #3b82f6)',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '600'
-                }}>
-                Export PDF Report
-              </button>
+               <button 
+                 onClick={handleGenerateReport}
+                 style={{
+                   padding: '0.5rem 1rem',
+                   background: 'var(--color-accent-core, #3b82f6)',
+                   color: '#fff',
+                   border: 'none',
+                   borderRadius: 'var(--radius-md, 6px)',
+                   cursor: 'pointer',
+                   fontWeight: '600'
+                 }}>
+                 Export PDF Report
+               </button>
             )}
           </div>
         </div>
@@ -275,54 +284,57 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
         ) : (
           <>
             {activeTab === 'overview' && (
-              <div className="glass-card" style={{ padding: '2rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <div className="glass-card" style={{ padding: '2rem', borderRadius: 'var(--radius-lg, 12px)', background: 'var(--bg-surface-primary)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: 'var(--text-primary)' }}>Overview</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '1rem' }}>
-                  <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', borderLeft: '4px solid #10b981' }}>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Deals Won Revenue</p>
-                    <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#10b981' }}>${overviewData?.overview?.totalRevenue?.toLocaleString() || 0}</p>
-                  </div>
-                  <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', borderLeft: '4px solid #8b5cf6' }}>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Total Payroll Expense</p>
-                    <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#8b5cf6' }}>${overviewData?.overview?.totalPayroll?.toLocaleString() || 0}</p>
-                  </div>
-                  <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', borderLeft: '4px solid #f59e0b' }}>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Inventory Valuation</p>
-                    <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#f59e0b' }}>${overviewData?.overview?.inventoryValuation?.toLocaleString() || 0}</p>
-                  </div>
-                  <div style={{ padding: '1.5rem', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', borderLeft: '4px solid #3b82f6' }}>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Active User Sessions</p>
-                    <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#3b82f6' }}>{overviewData?.overview?.activeUsers || 0}</p>
-                  </div>
+                   <div style={{ padding: '1.5rem', background: 'var(--bg-surface-secondary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md, 8px)', borderLeft: '4px solid var(--color-accent-inventory, #10b981)' }}>
+                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Deals Won Revenue</p>
+                     <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--color-accent-inventory, #10b981)' }}>${overviewData?.overview?.totalRevenue?.toLocaleString() || 0}</p>
+                   </div>
+                   <div style={{ padding: '1.5rem', background: 'var(--bg-surface-secondary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md, 8px)', borderLeft: '4px solid var(--color-accent-crm, #8b5cf6)' }}>
+                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Total Payroll Expense</p>
+                     <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--color-accent-crm, #8b5cf6)' }}>${overviewData?.overview?.totalPayroll?.toLocaleString() || 0}</p>
+                   </div>
+                   <div style={{ padding: '1.5rem', background: 'var(--bg-surface-secondary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md, 8px)', borderLeft: '4px solid var(--color-accent-inventory, #f59e0b)' }}>
+                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Inventory Valuation</p>
+                     <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--color-accent-inventory, #f59e0b)' }}>${overviewData?.overview?.inventoryValuation?.toLocaleString() || 0}</p>
+                   </div>
+                   <div style={{ padding: '1.5rem', background: 'var(--bg-surface-secondary)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md, 8px)', borderLeft: '4px solid var(--color-accent-core, #3b82f6)' }}>
+                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Active User Sessions</p>
+                     <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--color-accent-core, #3b82f6)' }}>{overviewData?.overview?.activeUsers || 0}</p>
+                   </div>
                 </div>
                 {renderOverviewSubTabs()}
               </div>
             )}
-
+            
             {activeTab === 'anomalies' && canViewAnomalies && (
-              <div className="glass-card" style={{ padding: '2rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <div className="glass-card" style={{ padding: '2rem', borderRadius: 'var(--radius-lg, 12px)', background: 'var(--bg-surface-primary)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: 'var(--text-primary)' }}>Anomaly Detection (Isolation Forest)</h2>
                 {anomalies.length === 0 ? (
-                  <p style={{ color: 'var(--text-secondary)' }}>No anomalies detected recently.</p>
+                  <div style={{ padding: '3rem', textAlign: 'center' }}>
+                    <p style={{ color: 'var(--text-tertiary)', fontSize: '1.1rem' }}>No data available to detect anomalies.</p>
+                    <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>Please sync data first from other plugins.</p>
+                  </div>
                 ) : (
                   <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                        <th style={{ padding: '0.5rem' }}>Metric</th>
-                        <th>Type</th>
-                        <th>Severity</th>
-                        <th>Timestamp</th>
-                        <th>Value</th>
+                      <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <th style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>Metric</th>
+                        <th style={{ color: 'var(--text-secondary)' }}>Type</th>
+                        <th style={{ color: 'var(--text-secondary)' }}>Severity</th>
+                        <th style={{ color: 'var(--text-secondary)' }}>Timestamp</th>
+                        <th style={{ color: 'var(--text-secondary)' }}>Value</th>
                       </tr>
                     </thead>
                     <tbody>
                       {anomalies.map((a, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                          <td style={{ padding: '0.5rem', textTransform: 'capitalize' }}>{a.metric.replace(/_/g, ' ')}</td>
-                          <td><span style={{ padding: '2px 6px', borderRadius: '4px', background: a.type === 'spike' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(239, 68, 68, 0.2)', color: a.type === 'spike' ? '#60a5fa' : '#f87171' }}>{a.type}</span></td>
-                          <td>{a.severity}</td>
-                          <td>{new Date(a.timestamp).toLocaleDateString()}</td>
-                          <td>{a.value.toFixed(2)}</td>
+                        <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '0.75rem 0.5rem', textTransform: 'capitalize', color: 'var(--text-primary)' }}>{a.metric.replace(/_/g, ' ')}</td>
+                          <td><span style={{ padding: '2px 6px', borderRadius: '4px', background: a.type === 'spike' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: a.type === 'spike' ? 'var(--color-accent-core, #3b82f6)' : '#ef4444' }}>{a.type}</span></td>
+                          <td style={{ color: 'var(--text-primary)' }}>{a.severity}</td>
+                          <td style={{ color: 'var(--text-primary)' }}>{new Date(a.timestamp).toLocaleDateString()}</td>
+                          <td style={{ color: 'var(--text-primary)' }}>{a.value.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -330,27 +342,30 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
                 )}
               </div>
             )}
-
+            
             {activeTab === 'forecasts' && canViewForecasts && (
-              <div className="glass-card" style={{ padding: '2rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <div className="glass-card" style={{ padding: '2rem', borderRadius: 'var(--radius-lg, 12px)', background: 'var(--bg-surface-primary)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', color: 'var(--text-primary)' }}>Predictive Forecasts (ARIMA)</h2>
                 {forecasts.length === 0 ? (
-                  <p style={{ color: 'var(--text-secondary)' }}>Not enough data for forecasting.</p>
+                  <div style={{ padding: '3rem', textAlign: 'center' }}>
+                    <p style={{ color: 'var(--text-tertiary)', fontSize: '1.1rem' }}>No data available for predictive forecasts.</p>
+                    <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem', marginTop: '0.5rem' }}>Please sync data first from other plugins.</p>
+                  </div>
                 ) : (
                   <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                        <th style={{ padding: '0.5rem' }}>Metric</th>
-                        <th>Forecast Date</th>
-                        <th>Predicted Value</th>
+                      <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
+                        <th style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>Metric</th>
+                        <th style={{ color: 'var(--text-secondary)' }}>Forecast Date</th>
+                        <th style={{ color: 'var(--text-secondary)' }}>Predicted Value</th>
                       </tr>
                     </thead>
                     <tbody>
                       {forecasts.map((f, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                          <td style={{ padding: '0.5rem', textTransform: 'capitalize' }}>{f.metric.replace(/_/g, ' ')}</td>
-                          <td>{new Date(f.timestamp).toLocaleDateString()}</td>
-                          <td>{f.forecast_value.toFixed(2)}</td>
+                        <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '0.75rem 0.5rem', textTransform: 'capitalize', color: 'var(--text-primary)' }}>{f.metric.replace(/_/g, ' ')}</td>
+                          <td style={{ color: 'var(--text-primary)' }}>{new Date(f.timestamp).toLocaleDateString()}</td>
+                          <td style={{ color: 'var(--text-primary)' }}>{f.forecast_value.toFixed(2)}</td>
                         </tr>
                       ))}
                     </tbody>
