@@ -12,6 +12,7 @@ export const Dashboard: React.FC = () => {
   const [inventoryStats, setInventoryStats] = useState<any>(null);
   const [crmStats, setCrmStats] = useState<any>(null);
   const [hrStats, setHrStats] = useState<any>(null);
+  const [analyticsStats, setAnalyticsStats] = useState<any>(null);
 
   const formatCurrency = (value: number) =>
     value.toLocaleString(undefined, {
@@ -45,6 +46,14 @@ export const Dashboard: React.FC = () => {
         });
       }).catch(err => console.error('Failed to load hr stats', err));
     }
+    if (installedPlugins.includes('analytics')) {
+      fetch('/api/analytics/dashboard?org_id=org_default_123', {
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => setAnalyticsStats(data.overview))
+      .catch(err => console.error('Failed to load analytics stats', err));
+    }
   }, [installedPlugins]);
 
   return (
@@ -58,6 +67,7 @@ export const Dashboard: React.FC = () => {
           const isInventory = pid === 'inventory';
           const isCrm = pid === 'crm';
           const isHr = pid === 'hr';
+          const isAnalytics = pid === 'analytics';
           
           let fillClass = 'fill-normal';
           let contactsFillClass = 'fill-normal';
@@ -217,7 +227,24 @@ export const Dashboard: React.FC = () => {
                   </div>
                 )}
 
-                {!isInventory && !isCrm && !isHr && (
+                {isAnalytics && analyticsStats && (
+                  <div className="widget-limits-container">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Deals Won Revenue</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-accent-inventory, #10b981)' }}>{formatCurrency(analyticsStats.totalRevenue || 0)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Total Payroll Expense</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-accent-crm, #8b5cf6)' }}>{formatCurrency(analyticsStats.totalPayroll || 0)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>Inventory Valuation</span>
+                      <span style={{ fontWeight: 600, color: 'var(--color-accent-inventory, #f59e0b)' }}>{formatCurrency(analyticsStats.inventoryValuation || 0)}</span>
+                    </div>
+                  </div>
+                )}
+
+                {!isInventory && !isCrm && !isHr && !isAnalytics && (
                   <>
                     <p>Usage: Normal</p>
                   </>
