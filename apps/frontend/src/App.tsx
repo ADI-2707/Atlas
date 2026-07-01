@@ -10,6 +10,7 @@ import { Setup } from './pages/Setup/Setup';
 import { PluginStore } from './pages/Store/PluginStore';
 import { Welcome } from './pages/Welcome/Welcome';
 import { Dashboard } from './pages/Dashboard/Dashboard';
+import { AuditLogs } from './pages/AuditLogs/AuditLogs';
 
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
 import CRM from '../../../plugins/crm/frontend/src';
@@ -24,7 +25,8 @@ const LayoutGuard: React.FC = () => {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#050505', color: '#fff' }}>Loading Atlas...</div>;
   }
 
-  if (installedPlugins.length === 0 && location.pathname === '/') {
+  // Allow access to welcome, dashboard, store, and logs even if no plugins are installed
+  if (installedPlugins.length === 0 && location.pathname !== '/' && location.pathname !== '/logs' && !location.pathname.startsWith('/store')) {
     return <Navigate to="/welcome" replace />;
   }
   return <AppLayout />;
@@ -96,6 +98,7 @@ export const App: React.FC = () => {
                 }
               >
                 <Route index element={<Dashboard />} />
+                <Route path="logs" element={<AuditLogs />} />
                 <Route path="store" element={<PluginStore />} />
                 <Route path="store/:pluginId" element={<PluginStore />} />
                 <Route path="inventory/*" element={<Inventory />} />
