@@ -1,0 +1,119 @@
+.pricing-section {
+  padding: 120px 5%;
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.pricing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pricing-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 60px;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+  align-items: center;
+}
+
+.pricing-card {
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.pricing-card.primary-tier {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 40px rgba(79, 70, 229, 0.1);
+  transform: scale(1.02);
+  z-index: 2;
+  background: rgba(25, 25, 30, 0.8);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-primary);
+  color: white;
+  padding: 4px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pricing-card h3 {
+  font-size: var(--font-xl);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.price-container {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.price {
+  font-size: var(--font-5xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.period {
+  color: var(--text-secondary);
+  font-size: var(--font-base);
+}
+
+.tier-desc {
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.tier-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+  flex: 1;
+}
+
+.tier-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: var(--font-sm);
+  color: var(--text-primary);
+}
+
+.check-icon {
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.border-btn {
+  border: 1px solid var(--glass-border);
+}
+
+.border-btn:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 968px) {
+  .pricing-card.primary-tier {
+    transform: none;
+  }
+}
