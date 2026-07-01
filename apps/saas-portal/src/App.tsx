@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Hero } from './components/Hero/Hero';
 import { About } from './components/About/About';
+import { Download } from './components/Download/Download';
+import { Contact } from './components/Contact/Contact';
 import './App.css';
 
 function App() {
@@ -35,6 +37,8 @@ function App() {
       <main className="main-content">
         <Hero />
         <About />
+        <Download />
+        <Contact />
       </main>
     </div>
   );
