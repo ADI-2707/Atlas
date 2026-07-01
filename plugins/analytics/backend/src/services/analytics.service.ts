@@ -53,4 +53,38 @@ export class AnalyticsService {
       return [];
     }
   }
+
+  async getForecasts(organizationId: string) {
+    try {
+      const cacheKey = `analytics:forecasts:${organizationId}`;
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+
+      const response = await fetch(`${this.ENGINE_URL}/forecast?org_id=${organizationId}`);
+      if (!response.ok) throw new Error('Failed to fetch forecasts');
+      
+      const data = await response.json();
+      await this.redis.set(cacheKey, JSON.stringify(data), 'EX', 300);
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to fetch forecasts: ${error}`);
+      return [];
+    }
+  }
+
+  async generateReport(organizationId: string) {
+    try {
+      const response = await fetch(`${this.ENGINE_URL}/reports/generate?org_id=${organizationId}`, {
+        method: 'POST'
+      });
+      if (!response.ok) throw new Error('Failed to generate report');
+      
+      return await response.json();
+    } catch (error) {
+      this.logger.error(`Failed to generate report: ${error}`);
+      throw error;
+    }
+  }
 }

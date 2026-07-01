@@ -1,4 +1,4 @@
-import { Controller, Get, Request, SetMetadata } from '@nestjs/common';
+import { Controller, Get, Post, Request, SetMetadata } from '@nestjs/common';
 import { AnalyticsService } from '../services/analytics.service';
 
 export const RequirePermissions = (...permissions: string[]) => SetMetadata('permissions', permissions);
@@ -23,5 +23,17 @@ export class AnalyticsController {
   @RequirePermissions('analytics.anomalies')
   async getAnomalies(@Request() req: AuthenticatedRequest) {
     return this.analyticsService.getAnomalies(req.user.organizationId);
+  }
+
+  @Get('forecasts')
+  @RequirePermissions('analytics.forecasts')
+  async getForecasts(@Request() req: AuthenticatedRequest) {
+    return this.analyticsService.getForecasts(req.user.organizationId);
+  }
+
+  @Post('reports/generate')
+  @RequirePermissions('analytics.reports')
+  async generateReport(@Request() req: AuthenticatedRequest) {
+    return this.analyticsService.generateReport(req.user.organizationId);
   }
 }
