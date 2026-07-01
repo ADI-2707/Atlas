@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Hero } from './components/Hero';
 import './App.css';
 
 function App() {
@@ -19,9 +20,9 @@ function App() {
           Atlas<span className="dot">.</span>
         </div>
         <div className="nav-links">
-          <a href="#about">About</a>
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
+          <a href="#hero">Overview</a>
+          <a href="#about">Platform</a>
+          <a href="#download">Download</a>
           <a href="#contact">Contact</a>
         </div>
         <div className="nav-cta">
@@ -31,7 +32,7 @@ function App() {
       </nav>
 
       <main className="main-content">
-        {/* Sections will be built here */}
+        <Hero />
       </main>
     </div>
   );
