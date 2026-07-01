@@ -33,7 +33,7 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
         }
 
         if (canViewForecasts) {
-          const foreRes = await fetch(`/api/analytics/forecasts?org_id=${organizationId}`, { headers });
+          const foreRes = await fetch(`/api/analytics/forecast?org_id=${organizationId}`, { headers });
           if (foreRes.ok) setForecasts(await foreRes.json());
         }
       } catch (e) {
