@@ -78,7 +78,7 @@ def get_dashboard(org_id: str):
     
     with engine.begin() as conn:
         df = pd.read_sql(
-            text("SELECT metric_name, SUM(value) as total FROM analytics_metrics WHERE org_id = :org_id GROUP BY metric_name"),
+            "SELECT metric_name, SUM(value) as total FROM analytics_metrics WHERE org_id = :org_id GROUP BY metric_name",
             conn,
             params={"org_id": org_id}
         )
@@ -100,33 +100,37 @@ def get_dashboard(org_id: str):
 def get_anomalies(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(
-            text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
+            "SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id",
             conn,
             params={"org_id": org_id}
         )
     if df.empty:
         return []
     
-    anomalies_traffic = detect_anomalies(df, 'traffic')
-    anomalies_revenue = detect_anomalies(df, 'revenue')
+    all_anomalies = []
+    metrics = df['metric_name'].unique()
+    for m in metrics:
+        all_anomalies.extend(detect_anomalies(df, m))
     
-    return anomalies_traffic + anomalies_revenue
+    return all_anomalies
 
 @app.get("/forecast")
 def get_forecast(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(
-            text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
+            "SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id",
             conn,
             params={"org_id": org_id}
         )
     if df.empty:
         return []
         
-    forecast_traffic = forecast_metric(df, 'traffic')
-    forecast_revenue = forecast_metric(df, 'revenue')
+    all_forecasts = []
+    metrics = df['metric_name'].unique()
+    for m in metrics:
+        all_forecasts.extend(forecast_metric(df, m))
     
-    return forecast_traffic + forecast_revenue
+    return all_forecasts
 
 @app.post("/reports/generate")
 def generate_report(org_id: str):

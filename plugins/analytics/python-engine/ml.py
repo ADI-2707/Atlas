@@ -6,20 +6,28 @@ import warnings
 from statsmodels.tools.sm_exceptions import ConvergenceWarning
 warnings.simplefilter('ignore', ConvergenceWarning)
 
-def detect_anomalies(df: pd.DataFrame, metric_name: str, contamination: float = 0.05):
+def detect_anomalies(df: pd.DataFrame, metric_name: str, base_contamination: float = 0.05):
     """
     Detects anomalies in time series data using Isolation Forest.
-    Expects df to have 'timestamp' and 'value' columns.
+    Uses dynamic contamination based on data volatility.
     """
     metric_df = df[df['metric_name'] == metric_name].copy()
-    if metric_df.empty or len(metric_df) < 10:
+    if metric_df.empty or len(metric_df) < 5:  # Reduced minimum requirement for faster insights
         return []
     
     metric_df = metric_df.sort_values(by='timestamp')  # type: ignore
     
     X = metric_df[['value']].values
     
-    model = IsolationForest(contamination=contamination, random_state=42)
+    # Calculate volatility (Coefficient of Variation) to dynamically adjust contamination
+    mean_val = metric_df['value'].mean()
+    std_val = metric_df['value'].std()
+    cv = std_val / mean_val if mean_val != 0 else 0
+    
+    # Dynamic contamination: more volatile -> more expected outliers
+    dynamic_contam = min(0.15, max(0.01, base_contamination * (1 + cv)))
+    
+    model = IsolationForest(contamination=dynamic_contam, random_state=42)
     metric_df['anomaly'] = model.fit_predict(X)
     
     anomalies = metric_df[metric_df['anomaly'] == -1]
@@ -42,10 +50,9 @@ def detect_anomalies(df: pd.DataFrame, metric_name: str, contamination: float = 
 def forecast_metric(df: pd.DataFrame, metric_name: str, periods: int = 7):
     """
     Forecasts future values for a metric using ARIMA.
-    Expects df to have 'timestamp' and 'value' columns.
     """
     metric_df = df[df['metric_name'] == metric_name].copy()
-    if metric_df.empty or len(metric_df) < 10:
+    if metric_df.empty or len(metric_df) < 5: # Reduced minimum requirement
         return []
 
     metric_df = metric_df.sort_values(by='timestamp')  # type: ignore
