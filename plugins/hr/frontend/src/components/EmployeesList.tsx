@@ -13,11 +13,12 @@ export const EmployeesList: React.FC = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const res = await api.get<{ data: Employee[] }>('/hr/employees');
-      if (!res.data || res.data.length === 0) {
+      const res = await api.get<any>('/hr/employees');
+      const employeesArray = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      if (employeesArray.length === 0) {
         setEmployees([]);
       } else {
-        setEmployees(res.data);
+        setEmployees(employeesArray);
       }
     } catch (err) {
       console.error('Failed to fetch employees', err);

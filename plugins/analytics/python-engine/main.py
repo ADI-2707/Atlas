@@ -1,0 +1,165 @@
+from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+from database import get_db, engine
+import uvicorn
+import pandas as pd
+from ml import detect_anomalies, forecast_metric
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+from reportlab.pdfgen import canvas
+import logging
+
+app = FastAPI(
+    title="Atlas Analytics Engine",
+    description="Python microservice for Atlas OS AI and data processing",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+scheduler = BackgroundScheduler()
+logger = logging.getLogger("analytics_engine")
+
+from etl import run_etl_pipeline
+from datetime import datetime, timedelta
+
+last_sync_times = {}
+
+def nightly_ml_batch_job():
+    logger.info("Running nightly ML batch job...")
+    run_etl_pipeline('org_default_123')
+    logger.info("Nightly batch job completed.")
+
+@app.on_event("startup")
+def startup_event():
+    scheduler.add_job(nightly_ml_batch_job, CronTrigger(hour=0, minute=0))
+    scheduler.start()
+    logger.info("Scheduler started.")
+
+@app.on_event("shutdown")
+def shutdown_event():
+    scheduler.shutdown()
+    logger.info("Scheduler shut down.")
+
+@app.get("/health")
+def health_check(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    return {"status": "healthy", "service": "analytics-engine", "db_status": db_status}
+
+@app.post("/sync")
+def force_sync(org_id: str):
+    logger.info(f"Force sync requested for org: {org_id}")
+    now = datetime.now()
+    
+    if org_id in last_sync_times:
+        last_sync = last_sync_times[org_id]
+        if now - last_sync < timedelta(days=1):
+            return {"status": "rate_limited", "message": "You can only force sync once per day."}
+            
+    run_etl_pipeline(org_id)
+    last_sync_times[org_id] = now
+    return {"status": "success", "message": "ETL pipeline completed successfully."}
+
+@app.get("/dashboard")
+def get_dashboard(org_id: str):
+    logger.info(f"Dashboard requested for org: {org_id}")
+    
+    with engine.begin() as conn:
+        df = pd.read_sql(
+            text("SELECT metric_name, SUM(value) as total FROM analytics_metrics WHERE org_id = :org_id GROUP BY metric_name"),
+            conn,
+            params={"org_id": org_id}
+        )
+    
+    metrics = {}
+    if not df.empty:
+        metrics = dict(zip(df['metric_name'], df['total']))
+        
+    return {
+        "overview": {
+            "totalRevenue": metrics.get('crm_deals_won', 0), 
+            "totalPayroll": metrics.get('hr_payroll', 0),
+            "inventoryValuation": metrics.get('inv_valuation', 0)
+        },
+        "metrics": metrics
+    }
+
+@app.get("/timeseries")
+def get_timeseries(org_id: str):
+    with engine.begin() as conn:
+        df = pd.read_sql(
+            text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id ORDER BY timestamp ASC"),
+            conn,
+            params={"org_id": org_id}
+        )
+    if df.empty:
+        return {}
+    
+    df['timestamp'] = df['timestamp'].astype(str)
+    result = {}
+    for metric in df['metric_name'].unique():
+        metric_df = df[df['metric_name'] == metric]
+        result[metric] = metric_df[['timestamp', 'value']].to_dict(orient='records') # type: ignore
+        
+    return result
+
+@app.get("/anomalies")
+def get_anomalies(org_id: str):
+    with engine.begin() as conn:
+        df = pd.read_sql(
+            text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
+            conn,
+            params={"org_id": org_id}
+        )
+    if df.empty:
+        return []
+    
+    all_anomalies = []
+    metrics = df['metric_name'].unique()
+    for m in metrics:
+        all_anomalies.extend(detect_anomalies(df, m))
+    
+    return all_anomalies
+
+@app.get("/forecast")
+def get_forecast(org_id: str):
+    with engine.begin() as conn:
+        df = pd.read_sql(
+            text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
+            conn,
+            params={"org_id": org_id}
+        )
+    if df.empty:
+        return []
+        
+    all_forecasts = []
+    metrics = df['metric_name'].unique()
+    for m in metrics:
+        all_forecasts.extend(forecast_metric(df, m))
+    
+    return all_forecasts
+
+@app.post("/reports/generate")
+def generate_report(org_id: str):
+    filename = f"report_{org_id}.pdf"
+    c = canvas.Canvas(filename)
+    c.drawString(100, 750, f"Analytics Report for Organization: {org_id}")
+    c.drawString(100, 730, "Generated by Atlas OS Analytics Plugin")
+    c.save()
+    
+    return {"status": "success", "file": filename, "message": "Report generated successfully"}
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

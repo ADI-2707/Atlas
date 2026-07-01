@@ -14,6 +14,7 @@ import { Dashboard } from './pages/Dashboard/Dashboard';
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
 import CRM from '../../../plugins/crm/frontend/src';
 import HR from '../../../plugins/hr/frontend/src';
+import Analytics from '../../../plugins/analytics/frontend/src';
 
 const LayoutGuard: React.FC = () => {
   const { installedPlugins, isLoadingPlugins } = usePlugins();
@@ -44,6 +45,19 @@ const SetupGuard: React.FC<{ children: React.ReactNode, requireSetup?: boolean }
   }
 
   return <>{children}</>;
+};
+
+const AnalyticsWrapper: React.FC = () => {
+  const { allPlugins } = usePlugins();
+  const analyticsPlugin = allPlugins.find(p => p.id === 'analytics');
+  const activeBackendTier = analyticsPlugin?.config?.tier || 'free';
+  
+  let tier: 'free' | 'pro' | 'business' | 'enterprise' = 'free';
+  if (activeBackendTier === 'tier1') tier = 'pro';
+  else if (activeBackendTier === 'tier2') tier = 'business';
+  else if (activeBackendTier === 'tier3') tier = 'enterprise';
+  
+  return <Analytics tier={tier} />;
 };
 
 export const App: React.FC = () => {
@@ -87,6 +101,7 @@ export const App: React.FC = () => {
                 <Route path="inventory/*" element={<Inventory />} />
                 <Route path="crm/*" element={<CRM />} />
                 <Route path="hr/*" element={<HR />} />
+                <Route path="analytics/*" element={<AnalyticsWrapper />} />
               </Route>
             </Routes>
           </BrowserRouter>

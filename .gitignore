@@ -57,3 +57,11 @@ docs/Atlas_2.docx
 
 # Local DB dumps
 apps/backend/all.sql
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env/

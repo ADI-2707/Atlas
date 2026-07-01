@@ -15,11 +15,8 @@ export const PayrollList: React.FC = () => {
       setLoading(true);
       const res = await api.get<{ data: PayrollRecord[] }>('/hr/payroll');
 
-      if (!res.data || res.data.length === 0) {
-        setRecords([]);
-      } else {
-        setRecords(res.data);
-      }
+      const payload = (res.data as any).data || res.data || [];
+      setRecords(Array.isArray(payload) ? payload : []);
     } catch (err) {
       console.error('Failed to fetch payroll', err);
     } finally {
