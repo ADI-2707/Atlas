@@ -45,4 +45,40 @@ export class AuditService {
       console.error('Failed to write audit log from event:', error);
     }
   }
+
+  async getLogs(organizationId: string, options: { skip: number, take: number, search?: string }) {
+    const where: any = { organizationId };
+    
+    if (options.search) {
+      where.OR = [
+        { action: { contains: options.search, mode: 'insensitive' } },
+        { result: { contains: options.search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.auditLog.findMany({
+        where,
+        orderBy: { timestamp: 'desc' },
+        skip: options.skip,
+        take: options.take,
+        include: {
+          user: {
+            select: { id: true, firstName: true, lastName: true, email: true }
+          }
+        }
+      }),
+      this.prisma.auditLog.count({ where }),
+    ]);
+
+    return {
+      items,
+      meta: {
+        total,
+        page: Math.floor(options.skip / options.take) + 1,
+        limit: options.take,
+        totalPages: Math.ceil(total / options.take),
+      },
+    };
+  }
 }

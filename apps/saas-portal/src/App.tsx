@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Hero } from './components/Hero/Hero';
 import { About } from './components/About/About';
 import { Pricing } from './components/Pricing/Pricing';
-import { Download } from './components/Download/Download';
+import { Solutions } from './components/Solutions/Solutions';
 import { Contact } from './components/Contact/Contact';
 import './App.css';
 
@@ -27,7 +27,7 @@ function App() {
           <a href="#hero">Overview</a>
           <a href="#about">Platform</a>
           <a href="#pricing">Pricing</a>
-          <a href="#download">Download</a>
+          <a href="#solutions">Solutions</a>
           <a href="#contact">Contact</a>
         </div>
         <div className="nav-cta">
@@ -40,7 +40,7 @@ function App() {
         <Hero />
         <About />
         <Pricing />
-        <Download />
+        <Solutions />
         <Contact />
       </main>
     </div>
