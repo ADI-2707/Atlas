@@ -78,7 +78,7 @@ def get_dashboard(org_id: str):
     
     with engine.begin() as conn:
         df = pd.read_sql(
-            "SELECT metric_name, SUM(value) as total FROM analytics_metrics WHERE org_id = :org_id GROUP BY metric_name",
+            text("SELECT metric_name, SUM(value) as total FROM analytics_metrics WHERE org_id = :org_id GROUP BY metric_name"),
             conn,
             params={"org_id": org_id}
         )
@@ -96,11 +96,30 @@ def get_dashboard(org_id: str):
         "metrics": metrics
     }
 
+@app.get("/timeseries")
+def get_timeseries(org_id: str):
+    with engine.begin() as conn:
+        df = pd.read_sql(
+            text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id ORDER BY timestamp ASC"),
+            conn,
+            params={"org_id": org_id}
+        )
+    if df.empty:
+        return {}
+    
+    df['timestamp'] = df['timestamp'].astype(str)
+    result = {}
+    for metric in df['metric_name'].unique():
+        metric_df = df[df['metric_name'] == metric]
+        result[metric] = metric_df[['timestamp', 'value']].to_dict('records')
+        
+    return result
+
 @app.get("/anomalies")
 def get_anomalies(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(
-            "SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id",
+            text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
             conn,
             params={"org_id": org_id}
         )
@@ -118,7 +137,7 @@ def get_anomalies(org_id: str):
 def get_forecast(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(
-            "SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id",
+            text("SELECT timestamp, metric_name, value FROM analytics_metrics WHERE org_id = :org_id"),
             conn,
             params={"org_id": org_id}
         )
