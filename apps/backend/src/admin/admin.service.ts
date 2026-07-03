@@ -25,6 +25,7 @@ export class AdminService {
       status: org.status,
       mrr: org.mrr,
       healthScore: org.healthScore,
+      createdAt: org.createdAt,
       usersCount: org._count.users,
       auditLogsCount: org._count.auditLogs,
       openTickets: org._count.supportTickets

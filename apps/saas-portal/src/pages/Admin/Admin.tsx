@@ -12,6 +12,8 @@ export const Admin = () => {
   const [metrics, setMetrics] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
+  const [clientPage, setClientPage] = useState(1);
+  const [clientFilter, setClientFilter] = useState('');
   const [token, setToken] = useState(localStorage.getItem('atlas_token') || '');
   const [isAuth, setIsAuth] = useState(!!token);
 
@@ -97,6 +99,13 @@ export const Admin = () => {
       setLoginError('Failed to connect to authentication server.');
     }
   };
+
+  const filteredClients = (metrics?.organizations || [])
+    .filter((org: any) => org.name.toLowerCase().includes(clientFilter.toLowerCase()) || org.slug.toLowerCase().includes(clientFilter.toLowerCase()))
+    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const totalClientPages = Math.ceil(filteredClients.length / 10) || 1;
+  const paginatedClients = filteredClients.slice((clientPage - 1) * 10, clientPage * 10);
 
   if (!isAuth) {
     return (
@@ -286,7 +295,19 @@ export const Admin = () => {
               </div>
             )}
 
-            <h2>All Clients & Health</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2>All Clients & Health</h2>
+              <input 
+                type="text" 
+                placeholder="Filter by name or slug..." 
+                value={clientFilter}
+                onChange={(e) => {
+                  setClientFilter(e.target.value);
+                  setClientPage(1); // Reset to first page on filter change
+                }}
+                style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', width: '250px', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
+              />
+            </div>
             <div className="card-table">
               <table>
                 <thead>
@@ -298,10 +319,11 @@ export const Admin = () => {
                     <th>Health Score</th>
                     <th>MRR</th>
                     <th>Status</th>
+                    <th>Joined</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {metrics?.organizations?.map((org: any) => (
+                  {paginatedClients.map((org: any) => (
                     <tr key={org.id}>
                       <td style={{ fontWeight: 'bold' }}>{org.name}</td>
                       <td>{org.slug}</td>
@@ -314,10 +336,35 @@ export const Admin = () => {
                       </td>
                       <td>${org.mrr.toFixed(2)}</td>
                       <td><span className="status-badge">{org.status}</span></td>
+                      <td>{new Date(org.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+              <span style={{ fontSize: 'var(--font-sm)', color: 'var(--text-secondary)' }}>
+                Showing {(clientPage - 1) * 10 + 1} to {Math.min(clientPage * 10, filteredClients.length)} of {filteredClients.length} clients
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  className="btn btn-secondary btn-sm"
+                  disabled={clientPage === 1}
+                  onClick={() => setClientPage(p => Math.max(1, p - 1))}
+                  style={{ padding: '0.25rem 0.75rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'var(--text-primary)', cursor: clientPage === 1 ? 'not-allowed' : 'pointer' }}
+                >
+                  Previous
+                </button>
+                <button 
+                  className="btn btn-secondary btn-sm"
+                  disabled={clientPage === totalClientPages}
+                  onClick={() => setClientPage(p => Math.min(totalClientPages, p + 1))}
+                  style={{ padding: '0.25rem 0.75rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'var(--text-primary)', cursor: clientPage === totalClientPages ? 'not-allowed' : 'pointer' }}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         )}
