@@ -58,4 +58,4 @@ async function bootstrap() {
 }
 
 bootstrap();
-// Reload to register crm endpoints
+// Reload to register inventory endpoints
