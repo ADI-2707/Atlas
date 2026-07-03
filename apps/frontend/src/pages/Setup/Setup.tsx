@@ -36,8 +36,6 @@ export const Setup: React.FC = () => {
   const { completeSetup } = useAuth();
   const { setTheme } = useTheme();
 
-  // Force light theme for the onboarding wizard — setup is a first-time screen
-  // and should always appear on a white background.
   useEffect(() => {
     setTheme('light');
   }, []);
@@ -75,15 +73,15 @@ export const Setup: React.FC = () => {
             <h1 className="setup-title">{steps[currentStep].title}</h1>
             <p className="setup-subtitle delay-1">{steps[currentStep].subtitle}</p>
           </div>
-          
+
           <div className="setup-body delay-2">
             <p>{steps[currentStep].content}</p>
 
             {currentStep === 3 && (
               <div className="setup-plugins-grid">
                 {mockPlugins.map(plugin => (
-                  <div 
-                    key={plugin.id} 
+                  <div
+                    key={plugin.id}
                     className="setup-plugin-card"
                     onClick={() => handlePluginSelect(plugin.id)}
                   >
@@ -112,8 +110,8 @@ export const Setup: React.FC = () => {
 
         <div className="setup-progress">
           {steps.map((_, idx) => (
-            <div 
-              key={idx} 
+            <div
+              key={idx}
               className={`setup-progress-dot ${idx === currentStep ? 'active' : ''} ${idx < currentStep ? 'completed' : ''}`}
             />
           ))}
