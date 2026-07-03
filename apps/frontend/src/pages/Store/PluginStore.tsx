@@ -6,12 +6,47 @@ import { usePlugins } from '../../contexts/PluginContext';
 import { mockPlugins } from '../../plugins/mock-plugins';
 import './PluginStore.css';
 
-const tiers = [
-  { id: 'free', name: 'Free', price: '$0', desc: 'Basic features for small teams.', features: ['Core Functionality', 'Community Support'] },
-  { id: 'pro', name: 'Professional', price: '$49', desc: 'Advanced features for growing teams.', features: ['Core Functionality', 'Priority Support', 'Advanced Analytics'] },
-  { id: 'business', name: 'Business', price: '$199', desc: 'High limits and integrations.', features: ['Everything in Pro', 'Custom Integrations', 'SLA Guarantee'] },
-  { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'Unlimited everything.', features: ['Everything in Business', 'Dedicated Account Manager', 'On-premise option'] },
-];
+const getPluginTiers = (pluginId: string) => {
+  if (pluginId === 'inventory') {
+    return [
+      { id: 'free', name: 'Free', price: '$0', desc: 'Basic limits for small catalogs.', features: ['2 Tables', '100 Products', '1 Warehouse'] },
+      { id: 'pro', name: 'Professional', price: '$49', desc: 'Increased limits for growing teams.', features: ['5 Tables', '1,000 Products', '1 Warehouse'] },
+      { id: 'business', name: 'Business', price: '$199', desc: 'Multi-warehouse support.', features: ['10 Tables', '10,000 Products', '5 Warehouses'] },
+      { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'Scale to the maximum.', features: ['25 Tables', '100,000 Products', '20 Warehouses'] },
+    ];
+  }
+  if (pluginId === 'crm') {
+    return [
+      { id: 'free', name: 'Free', price: '$0', desc: 'Basic CRM for individuals.', features: ['100 Customers', '50 Deals'] },
+      { id: 'pro', name: 'Professional', price: '$49', desc: 'For growing sales teams.', features: ['200 Customers', '100 Deals'] },
+      { id: 'business', name: 'Business', price: '$199', desc: 'High volume sales.', features: ['1,000 Customers', '500 Deals'] },
+      { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'No limits.', features: ['Unlimited Customers', 'Unlimited Deals'] },
+    ];
+  }
+  if (pluginId === 'hr') {
+    return [
+      { id: 'free', name: 'Free', price: '$0', desc: 'For very small teams.', features: ['10 Employees', '3 Departments'] },
+      { id: 'pro', name: 'Professional', price: '$49', desc: 'Standard HR limits.', features: ['50 Employees', 'Unlimited Departments'] },
+      { id: 'business', name: 'Business', price: '$199', desc: 'For medium businesses.', features: ['250 Employees', 'Unlimited Departments'] },
+      { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'For large enterprises.', features: ['Unlimited Employees', 'Unlimited Departments'] },
+    ];
+  }
+  if (pluginId === 'analytics') {
+    return [
+      { id: 'free', name: 'Free', price: '$0', desc: 'Basic metrics.', features: ['Basic Dashboard', 'Real-time Metrics'] },
+      { id: 'pro', name: 'Professional', price: '$49', desc: 'Advanced reporting.', features: ['Basic Dashboard', 'Report Generation'] },
+      { id: 'business', name: 'Business', price: '$199', desc: 'Intelligent insights.', features: ['Report Generation', 'Anomaly Detection'] },
+      { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'Predictive analytics.', features: ['Report Generation', 'Anomaly Detection', 'Forecasting Models'] },
+    ];
+  }
+  // Default fallback
+  return [
+    { id: 'free', name: 'Free', price: '$0', desc: 'Basic features.', features: ['Core Functionality'] },
+    { id: 'pro', name: 'Professional', price: '$49', desc: 'Advanced features.', features: ['Priority Support'] },
+    { id: 'business', name: 'Business', price: '$199', desc: 'High limits.', features: ['Custom Integrations'] },
+    { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'Unlimited.', features: ['Dedicated Account Manager'] },
+  ];
+};
 
 const tierOrder: Record<string, number> = {
   free: 0,
@@ -78,7 +113,7 @@ export const PluginStore: React.FC = () => {
         </div>
 
         <div className="tiers-grid">
-          {tiers.map(tier => {
+          {getPluginTiers(pluginId).map(tier => {
             const isActive = isInstalled && activeTierId === tier.id;
             
             return (
