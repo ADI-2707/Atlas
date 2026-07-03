@@ -93,7 +93,7 @@ export const Signup = () => {
   };
 
   const goToApp = () => {
-    window.location.href = `${APP_URL}/login?registered=true`;
+    window.open(`${APP_URL}/login?registered=true`, '_blank', 'noopener,noreferrer');
   };
 
   const pwdStrength = strength(form.password);
