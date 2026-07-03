@@ -18,20 +18,39 @@ export class AdminService {
 
     const totalMRR = orgs.reduce((sum, org) => sum + org.mrr, 0);
 
+    const organizations = orgs.map(org => ({
+      id: org.id,
+      name: org.name,
+      slug: org.slug,
+      status: org.status,
+      mrr: org.mrr,
+      healthScore: org.healthScore,
+      usersCount: org._count.users,
+      auditLogsCount: org._count.auditLogs,
+      openTickets: org._count.supportTickets
+    }));
+
+    // Calculate valueScore for Top 5 ranking
+    const highestMrr = Math.max(...organizations.map(o => o.mrr), 1);
+    const highestUsers = Math.max(...organizations.map(o => o.usersCount), 1);
+
+    const scoredOrgs = organizations.map(org => {
+      const mrrScore = (org.mrr / highestMrr) * 60;
+      const userScore = (org.usersCount / highestUsers) * 20;
+      const healthScore = (org.healthScore / 100) * 20;
+      const valueScore = Math.round(mrrScore + userScore + healthScore);
+      return { ...org, valueScore };
+    });
+
+    const topClients = [...scoredOrgs]
+      .sort((a, b) => b.valueScore - a.valueScore)
+      .slice(0, 5);
+
     return {
       totalOrganizations: orgs.length,
       monthlyRecurringRevenue: totalMRR,
-      organizations: orgs.map(org => ({
-        id: org.id,
-        name: org.name,
-        slug: org.slug,
-        status: org.status,
-        mrr: org.mrr,
-        healthScore: org.healthScore,
-        usersCount: org._count.users,
-        auditLogsCount: org._count.auditLogs,
-        openTickets: org._count.supportTickets
-      }))
+      organizations: scoredOrgs,
+      topClients
     };
   }
 

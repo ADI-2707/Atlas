@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import './Admin.css';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -215,7 +216,77 @@ export const Admin = () => {
               </div>
             </div>
 
-            <h2>Client Valuation & Health</h2>
+            <h2>Top 5 High-Value Clients</h2>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: 'var(--font-sm)' }}>
+              Ranking based on a blended Value Score: MRR (60%), User Adoption (20%), and Health (20%).
+            </p>
+            
+            {metrics?.topClients && metrics.topClients.length > 0 && (
+              <div className="top-clients-section">
+                <div className="chart-container" style={{ width: '100%', height: 350, backgroundColor: 'var(--bg-primary)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', marginBottom: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={metrics.topClients}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                      layout="vertical"
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                      <XAxis type="number" stroke="var(--text-tertiary)" />
+                      <YAxis dataKey="name" type="category" width={150} stroke="var(--text-secondary)" tick={{fontSize: 12}} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)', color: 'var(--text-primary)', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }}
+                      />
+                      <Legend />
+                      <Bar dataKey="mrr" name="MRR ($)" fill="var(--accent)" radius={[0, 4, 4, 0]} barSize={20} />
+                      <Bar dataKey="usersCount" name="Users" fill="#107c41" radius={[0, 4, 4, 0]} barSize={20} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="card-table" style={{ marginBottom: '3rem' }}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Rank</th>
+                        <th>Client</th>
+                        <th>MRR</th>
+                        <th>Users</th>
+                        <th>Health</th>
+                        <th>Value Score</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {metrics.topClients.map((client: any, index: number) => (
+                        <tr key={`top-${client.id}`}>
+                          <td style={{ fontWeight: 'bold', color: 'var(--accent)' }}>#{index + 1}</td>
+                          <td style={{ fontWeight: 'bold' }}>{client.name}</td>
+                          <td>${client.mrr.toFixed(2)}</td>
+                          <td>{client.usersCount}</td>
+                          <td>
+                            <span className={`health-badge ${client.healthScore < 50 ? 'danger' : 'good'}`}>
+                              {client.healthScore.toFixed(0)}%
+                            </span>
+                          </td>
+                          <td style={{ fontWeight: 'bold' }}>{client.valueScore}/100</td>
+                          <td>
+                            <button 
+                              className="btn btn-primary btn-sm"
+                              style={{ padding: '0.4rem 0.8rem', fontSize: 'var(--font-xs)', borderRadius: 'var(--radius-sm)' }}
+                              onClick={() => console.log(`Selected ${client.name} for marketing campaign. Email extraction to follow in phase 2.`)}
+                            >
+                              Add to Campaign
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            <h2>All Clients & Health</h2>
             <div className="card-table">
               <table>
                 <thead>
