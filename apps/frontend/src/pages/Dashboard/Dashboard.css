@@ -9,56 +9,58 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 4rem 2rem;
+  padding: var(--spacing-2xl) var(--spacing-xl);
   min-height: 60vh;
+  gap: 0;
 }
 
 .dashboard-empty-icon {
-  font-size: 3.5rem;
-  margin-bottom: 1.25rem;
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-lg);
   line-height: 1;
 }
 
 .dashboard-empty-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 var(--spacing-sm) 0;
   letter-spacing: -0.01em;
 }
 
 .dashboard-empty-sub {
-  font-size: 0.9375rem;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
   color: var(--text-secondary);
-  max-width: 420px;
+  max-width: 400px;
   line-height: 1.6;
-  margin: 0 0 2rem 0;
+  margin: 0 0 var(--spacing-xl) 0;
 }
 
 .dashboard-empty-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  background: var(--color-accent-primary);
-  color: #fff;
+  gap: var(--spacing-xs);
+  background-color: var(--color-accent-active);
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-md);
-  padding: 0.65rem 1.4rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   font-family: var(--font-family-base);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .dashboard-empty-btn:hover {
-  background: var(--color-accent-hover);
+  opacity: 0.88;
   transform: translateY(-1px);
 }
 
 .dashboard-empty-btn span {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   line-height: 1;
 }
 
