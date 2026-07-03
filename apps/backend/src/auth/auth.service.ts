@@ -344,7 +344,7 @@ export class AuthService {
 
     await this.auditService.createLog({
       userId,
-      organizationId: orgId,
+      organizationId,
       action: 'auth.logout',
       result: 'SUCCESS',
       ipAddress,
