@@ -14,6 +14,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    // Super Admins don't have database sessions, validate statelessly
+    if (payload?.roles?.includes('SYSTEM_ADMIN')) {
+      return {
+        id: payload.sub,
+        email: payload.email,
+        roles: payload.roles,
+        organizationId: null,
+      };
+    }
+
     if (!payload || !payload.sessionId) {
       throw new UnauthorizedException('Invalid token payload');
     }
