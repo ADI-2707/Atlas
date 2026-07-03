@@ -18,10 +18,9 @@ export class AuditService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2
-  ) {}
+  ) { }
 
   async createLog(params: AuditLogPayload) {
-    // Fire and forget via event emitter
     this.eventEmitter.emit('audit.log', params);
     return true;
   }
@@ -41,6 +40,19 @@ export class AuditService {
           details: payload.details || {},
         },
       });
+
+      await this.prisma.systemLog.create({
+        data: {
+          level: 'INFO',
+          source: 'AUDIT',
+          message: `User ${payload.userId || 'Unknown'} performed ${payload.action} with result ${payload.result} in Org ${payload.organizationId || 'None'}`,
+          metadata: {
+            pluginId: payload.pluginId,
+            ipAddress: payload.ipAddress,
+            details: payload.details,
+          },
+        },
+      });
     } catch (error) {
       console.error('Failed to write audit log from event:', error);
     }
@@ -48,7 +60,7 @@ export class AuditService {
 
   async getLogs(organizationId: string, options: { skip: number, take: number, search?: string }) {
     const where: any = { organizationId };
-    
+
     if (options.search) {
       where.OR = [
         { action: { contains: options.search, mode: 'insensitive' } },
@@ -80,5 +92,22 @@ export class AuditService {
         totalPages: Math.ceil(total / options.take),
       },
     };
+  }
+
+  async createSupportTicket(organizationId: string, subject: string, description: string) {
+    return this.prisma.supportTicket.create({
+      data: {
+        organizationId,
+        subject,
+        description,
+      }
+    });
+  }
+
+  async getOrganizationTickets(organizationId: string) {
+    return this.prisma.supportTicket.findMany({
+      where: { organizationId },
+      orderBy: { createdAt: 'desc' }
+    });
   }
 }
