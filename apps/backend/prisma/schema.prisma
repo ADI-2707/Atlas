@@ -1,7 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["atlas_core", "atlas_inventory", "atlas_crm", "atlas_hr"]
+  schemas  = ["atlas_core", "atlas_inventory", "atlas_crm", "atlas_hr", "atlas_pm"]
 }
 
 generator client {
@@ -407,4 +407,74 @@ model SupportTicket {
 
   @@map("support_tickets")
   @@schema("atlas_core")
+}
+
+// -----------------------------------------
+// PROJECT MANAGEMENT PLUGIN SCHEMA
+// -----------------------------------------
+
+model Project {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  key            String
+  description    String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  boards Board[]
+  issues Issue[]
+
+  @@unique([organizationId, key])
+  @@map("pm_projects")
+  @@schema("atlas_pm")
+}
+
+model Board {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  projectId      String   @map("project_id")
+  name           String
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("pm_boards")
+  @@schema("atlas_pm")
+}
+
+model Issue {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  projectId      String   @map("project_id")
+  reporterId     String?  @map("reporter_id")
+  assigneeId     String?  @map("assignee_id")
+  title          String
+  description    String?
+  status         String   @default("TODO") // TODO, IN_PROGRESS, DONE
+  priority       String   @default("MEDIUM") // LOW, MEDIUM, HIGH
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@map("pm_issues")
+  @@schema("atlas_pm")
+}
+
+model Comment {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  issueId        String   @map("issue_id")
+  authorId       String   @map("author_id")
+  text           String
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@map("pm_comments")
+  @@schema("atlas_pm")
 }
