@@ -53,7 +53,16 @@ export const Signup = () => {
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));
 
-  const nextStep = () => { setError(''); setStep(s => s + 1); };
+  const nextStep = () => {
+    if (step === 1) {
+      if (!form.orgName || !form.orgSlug || !form.firstName || !form.email || form.password.length < 8) {
+        setError('Please fill in all required fields before continuing.');
+        return;
+      }
+    }
+    setError('');
+    setStep(s => s + 1);
+  };
   const prevStep = () => { setError(''); setStep(s => s - 1); };
 
   const handleSubmit = async () => {
