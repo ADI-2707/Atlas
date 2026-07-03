@@ -46,7 +46,7 @@ export class PluginManagerService implements OnModuleInit {
                   name: manifest.name,
                   version: manifest.version,
                   description: manifest.description ?? '',
-                  status: 'INSTALLED',
+                  status: 'AVAILABLE',
                   config: {},
                 },
               });
