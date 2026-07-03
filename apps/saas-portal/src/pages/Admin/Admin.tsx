@@ -57,11 +57,29 @@ export const Admin = () => {
     } catch (e) { console.error(e); }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (token) {
-      localStorage.setItem('atlas_token', token);
-      setIsAuth(true);
+    setLoginError('');
+    try {
+      const res = await fetch(`${API_URL}/auth/super-admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (res.ok && data.data?.accessToken) {
+        localStorage.setItem('atlas_token', data.data.accessToken);
+        setToken(data.data.accessToken);
+        setIsAuth(true);
+      } else {
+        setLoginError(data.message || 'Invalid credentials');
+      }
+    } catch (err) {
+      setLoginError('Failed to connect to authentication server.');
     }
   };
 
@@ -70,15 +88,23 @@ export const Admin = () => {
       <div className="admin-login-container">
         <div className="admin-login-box">
           <h2>Super Admin Login</h2>
-          <p>Please enter your system admin JWT token to access the God View.</p>
+          <p>Please enter your system admin credentials to access the God View.</p>
           <form onSubmit={handleLogin}>
             <input 
-              type="text" 
-              placeholder="Paste JWT Token here..." 
-              value={token}
-              onChange={e => setToken(e.target.value)}
+              type="email" 
+              placeholder="Email Address" 
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               required
             />
+            <input 
+              type="password" 
+              placeholder="Password" 
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+            {loginError && <div style={{ color: '#a4262c', fontSize: '0.85rem' }}>{loginError}</div>}
             <button type="submit" className="btn btn-primary">Enter Dashboard</button>
           </form>
         </div>
