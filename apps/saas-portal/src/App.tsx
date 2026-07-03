@@ -9,6 +9,7 @@ import { Solutions } from './components/Solutions/Solutions';
 import { Testimonials } from './components/Testimonials/Testimonials';
 import { Contact } from './components/Contact/Contact';
 import { Signup } from './pages/Signup/Signup';
+import { Admin } from './pages/Admin/Admin';
 import './App.css';
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'http://localhost:5173';
@@ -93,6 +94,7 @@ function App() {
             <Signup />
           </>
         } />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );

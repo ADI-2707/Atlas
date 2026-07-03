@@ -6,6 +6,7 @@ import { api } from '@atlas/api';
 import { usePlugins } from '../../contexts/PluginContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { FullScreenLock } from '../FullScreenLock/FullScreenLock';
+import { SupportWidget } from '../SupportWidget/SupportWidget';
 import './AppLayout.css';
 
 export const AppLayout: React.FC = () => {
@@ -244,6 +245,7 @@ export const AppLayout: React.FC = () => {
           </div>
         </div>
       </main>
+      <SupportWidget />
     </div>
   );
 };

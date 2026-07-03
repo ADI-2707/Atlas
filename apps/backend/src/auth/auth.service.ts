@@ -148,7 +148,6 @@ export class AuthService {
       },
     });
 
-    
     if (!user || !(await bcrypt.compare(dto.password, user.passwordHash))) {
       await this.auditService.createLog({
         action: 'auth.login',
@@ -288,7 +287,53 @@ export class AuthService {
     };
   }
 
-  async logout(sessionId: string, userId: string, orgId: string, ipAddress?: string) {
+  async superAdminLogin(dto: LoginDto, ipAddress?: string) {
+    const adminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@atlas.com';
+    const adminPassword = process.env.SUPER_ADMIN_PASSWORD || 'Admin@123';
+
+    if (dto.email !== adminEmail || dto.password !== adminPassword) {
+      await this.auditService.createLog({
+        action: 'auth.super_admin_login',
+        result: 'FAILURE',
+        ipAddress,
+        details: { email: dto.email, reason: 'Invalid credentials' },
+      });
+      throw new UnauthorizedException('Invalid admin credentials');
+    }
+
+    const payload = {
+      email: adminEmail,
+      sub: 'SUPER_ADMIN_001',
+      orgId: null, // No organization
+      roles: ['SYSTEM_ADMIN'],
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '24h',
+    });
+
+    await this.auditService.createLog({
+      userId: 'SUPER_ADMIN_001',
+      action: 'auth.super_admin_login',
+      result: 'SUCCESS',
+      ipAddress,
+      details: { email: dto.email },
+    });
+
+    return {
+      message: 'Super Admin Login successful',
+      data: {
+        accessToken,
+        user: {
+          id: 'SUPER_ADMIN_001',
+          email: adminEmail,
+          roles: ['SYSTEM_ADMIN']
+        }
+      }
+    };
+  }
+
+  async logout(sessionId: string, userId: string, organizationId?: string, ipAddress?: string) {
     try {
       await this.prisma.session.delete({
         where: { id: sessionId },
@@ -299,7 +344,7 @@ export class AuthService {
 
     await this.auditService.createLog({
       userId,
-      organizationId: orgId,
+      organizationId,
       action: 'auth.logout',
       result: 'SUCCESS',
       ipAddress,

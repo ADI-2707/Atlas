@@ -26,7 +26,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (!user || !user.organizationId) {
+    const isSuperAdmin = user.roles && user.roles.includes('SYSTEM_ADMIN');
+
+    if (!isSuperAdmin && (!user || !user.organizationId)) {
       throw new UnauthorizedException('Tenant context (organizationId) is missing. Strict multi-tenancy enforced.');
     }
 

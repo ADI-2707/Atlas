@@ -17,9 +17,13 @@ model Organization {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  users     User[]
-  roles     Role[]
-  auditLogs AuditLog[]
+  users          User[]
+  roles          Role[]
+  auditLogs      AuditLog[]
+  supportTickets SupportTicket[]
+
+  healthScore Float @default(100.0) @map("health_score")
+  mrr         Float @default(0.0)
 
   @@map("organizations")
   @@schema("atlas_core")
@@ -45,7 +49,6 @@ model User {
   @@map("users")
   @@schema("atlas_core")
 }
-
 
 model Role {
   id             String        @id @default(uuid())
@@ -139,7 +142,7 @@ model InventoryTable {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  products       Product[]
+  products Product[]
 
   @@unique([organizationId, name])
   @@map("inv_tables")
@@ -157,11 +160,11 @@ model Product {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  table          InventoryTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  table InventoryTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
 
-  stock Stock[]
+  stock        Stock[]
   transactions StockTransaction[]
-  dealItems DealItem[]
+  dealItems    DealItem[]
 
   @@unique([organizationId, sku])
   @@map("inv_products")
@@ -176,7 +179,7 @@ model Warehouse {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  stock Stock[]
+  stock            Stock[]
   transactionsFrom StockTransaction[] @relation("WarehouseFrom")
   transactionsTo   StockTransaction[] @relation("WarehouseTo")
 
@@ -207,15 +210,15 @@ model StockTransaction {
   productId      String   @map("product_id")
   warehouseId    String?  @map("warehouse_id")
   toWarehouseId  String?  @map("to_warehouse_id")
-  type           String   // RECEIPT, ISSUE, TRANSFER, ADJUSTMENT
-  quantity       Int      // The change quantity (e.g. +5, -10)
+  type           String // RECEIPT, ISSUE, TRANSFER, ADJUSTMENT
+  quantity       Int // The change quantity (e.g. +5, -10)
   reference      String?
   userId         String?  @map("user_id")
   createdAt      DateTime @default(now()) @map("created_at")
 
-  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  warehouse     Warehouse? @relation("WarehouseFrom", fields: [warehouseId], references: [id], onDelete: Cascade)
-  toWarehouse   Warehouse? @relation("WarehouseTo", fields: [toWarehouseId], references: [id], onDelete: Cascade)
+  product     Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse? @relation("WarehouseFrom", fields: [warehouseId], references: [id], onDelete: Cascade)
+  toWarehouse Warehouse? @relation("WarehouseTo", fields: [toWarehouseId], references: [id], onDelete: Cascade)
 
   @@map("inv_stock_transactions")
   @@schema("atlas_inventory")
@@ -237,7 +240,7 @@ model Customer {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  deals          Deal[]
+  deals Deal[]
 
   @@unique([organizationId, email])
   @@map("crm_customers")
@@ -254,22 +257,22 @@ model Deal {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  customer       Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  lineItems      DealItem[]
+  customer  Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  lineItems DealItem[]
 
   @@map("crm_deals")
   @@schema("atlas_crm")
 }
 
 model DealItem {
-  id             String   @id @default(uuid())
-  dealId         String   @map("deal_id")
-  productId      String   @map("product_id")
-  quantity       Int      @default(1)
-  unitPrice      Float    @map("unit_price")
+  id        String @id @default(uuid())
+  dealId    String @map("deal_id")
+  productId String @map("product_id")
+  quantity  Int    @default(1)
+  unitPrice Float  @map("unit_price")
 
-  deal           Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  deal    Deal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("crm_deal_items")
   @@schema("atlas_crm")
@@ -282,8 +285,8 @@ model DealItem {
 model Employee {
   id              String    @id @default(uuid())
   organizationId  String    @map("organization_id")
-  userId          String?   @unique @map("user_id")       // optional link to a platform login
-  employeeCode    String                                    // human-friendly ID, e.g. EMP-0001
+  userId          String?   @unique @map("user_id") // optional link to a platform login
+  employeeCode    String // human-friendly ID, e.g. EMP-0001
   firstName       String    @map("first_name")
   lastName        String    @map("last_name")
   email           String
@@ -291,20 +294,20 @@ model Employee {
   jobTitle        String?   @map("job_title")
   departmentId    String?   @map("department_id")
   managerId       String?   @map("manager_id")
-  employmentType  String    @default("FULL_TIME")           // FULL_TIME, PART_TIME, CONTRACT, INTERN
-  status          String    @default("ACTIVE")               // ACTIVE, ON_LEAVE, TERMINATED
+  employmentType  String    @default("FULL_TIME") // FULL_TIME, PART_TIME, CONTRACT, INTERN
+  status          String    @default("ACTIVE") // ACTIVE, ON_LEAVE, TERMINATED
   hireDate        DateTime  @map("hire_date")
   terminationDate DateTime? @map("termination_date")
   customData      Json?     @default("{}") @map("custom_data")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  department      Department?    @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  manager         Employee?      @relation("ManagerReports", fields: [managerId], references: [id], onDelete: SetNull)
-  reports         Employee[]     @relation("ManagerReports")
-  leaveRequests   LeaveRequest[]
-  leaveBalances   LeaveBalance[]
-  payrollRecords  PayrollRecord[]
+  department     Department?     @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  manager        Employee?       @relation("ManagerReports", fields: [managerId], references: [id], onDelete: SetNull)
+  reports        Employee[]      @relation("ManagerReports")
+  leaveRequests  LeaveRequest[]
+  leaveBalances  LeaveBalance[]
+  payrollRecords PayrollRecord[]
 
   @@unique([organizationId, employeeCode])
   @@unique([organizationId, email])
@@ -320,7 +323,7 @@ model Department {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  employees      Employee[]
+  employees Employee[]
 
   @@unique([organizationId, name])
   @@map("hr_departments")
@@ -331,16 +334,16 @@ model LeaveRequest {
   id             String   @id @default(uuid())
   organizationId String   @map("organization_id")
   employeeId     String   @map("employee_id")
-  type           String                                  // VACATION, SICK, UNPAID, OTHER
+  type           String // VACATION, SICK, UNPAID, OTHER
   startDate      DateTime @map("start_date")
   endDate        DateTime @map("end_date")
-  status         String   @default("PENDING")              // PENDING, APPROVED, REJECTED, CANCELLED
+  status         String   @default("PENDING") // PENDING, APPROVED, REJECTED, CANCELLED
   reason         String?
   approvedBy     String?  @map("approved_by")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@map("hr_leave_requests")
   @@schema("atlas_hr")
@@ -355,7 +358,7 @@ model LeaveBalance {
   allocatedDays  Float  @default(0) @map("allocated_days")
   usedDays       Float  @default(0) @map("used_days")
 
-  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@unique([employeeId, leaveType, year])
   @@map("hr_leave_balances")
@@ -371,11 +374,37 @@ model PayrollRecord {
   grossPay       Float    @map("gross_pay")
   deductions     Float    @default(0)
   netPay         Float    @map("net_pay")
-  status         String   @default("DRAFT")                // DRAFT, PROCESSED, PAID
+  status         String   @default("DRAFT") // DRAFT, PROCESSED, PAID
   createdAt      DateTime @default(now()) @map("created_at")
 
-  employee       Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@map("hr_payroll_records")
   @@schema("atlas_hr")
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String
+  source    String
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("system_logs")
+  @@schema("atlas_core")
+}
+
+model SupportTicket {
+  id             String       @id @default(uuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  subject        String
+  description    String
+  status         String       @default("OPEN")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@map("support_tickets")
+  @@schema("atlas_core")
 }

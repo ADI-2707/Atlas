@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Req, UseGuards } from '@nestjs/common';
 import { AuditService } from './audit.service';
 
 @Controller('audit')
@@ -16,5 +16,15 @@ export class AuditController {
     const take = limit ? parseInt(limit) : 20;
 
     return this.auditService.getLogs(req.user.organizationId, { skip, take, search });
+  }
+
+  @Get('tickets')
+  async getTickets(@Req() req: any) {
+    return this.auditService.getOrganizationTickets(req.user.organizationId);
+  }
+
+  @Post('tickets')
+  async createTicket(@Req() req: any, @Body() body: { subject: string; description: string }) {
+    return this.auditService.createSupportTicket(req.user.organizationId, body.subject, body.description);
   }
 }

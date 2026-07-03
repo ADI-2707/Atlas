@@ -35,6 +35,17 @@ export class AuthController {
   }
 
   @Public()
+  @Post('super-admin/login')
+  @ApiOperation({ summary: 'Login Super Admin' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
+  async superAdminLogin(
+    @Body() dto: LoginDto,
+    @Ip() ip: string,
+  ) {
+    return this.authService.superAdminLogin(dto, ip);
+  }
+
+  @Public()
   @Post('refresh')
   @ApiOperation({ summary: 'Refresh access token using refresh token' })
   @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
