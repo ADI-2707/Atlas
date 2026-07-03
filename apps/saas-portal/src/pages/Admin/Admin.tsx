@@ -14,6 +14,7 @@ export const Admin = () => {
   const [tickets, setTickets] = useState<any[]>([]);
   const [clientPage, setClientPage] = useState(1);
   const [clientFilter, setClientFilter] = useState('');
+  const [debouncedClientFilter, setDebouncedClientFilter] = useState('');
   const [token, setToken] = useState(localStorage.getItem('atlas_token') || '');
   const [isAuth, setIsAuth] = useState(!!token);
 
@@ -24,6 +25,14 @@ export const Admin = () => {
       fetchTickets();
     }
   }, [isAuth]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedClientFilter(clientFilter);
+      setClientPage(1); // Reset page on new debounced search
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [clientFilter]);
 
   const headers = {
     'Authorization': `Bearer ${token}`
@@ -101,7 +110,7 @@ export const Admin = () => {
   };
 
   const filteredClients = (metrics?.organizations || [])
-    .filter((org: any) => org.name.toLowerCase().includes(clientFilter.toLowerCase()) || org.slug.toLowerCase().includes(clientFilter.toLowerCase()))
+    .filter((org: any) => org.name.toLowerCase().includes(debouncedClientFilter.toLowerCase()) || org.slug.toLowerCase().includes(debouncedClientFilter.toLowerCase()))
     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const totalClientPages = Math.ceil(filteredClients.length / 10) || 1;
@@ -301,10 +310,7 @@ export const Admin = () => {
                 type="text" 
                 placeholder="Filter by name or slug..." 
                 value={clientFilter}
-                onChange={(e) => {
-                  setClientFilter(e.target.value);
-                  setClientPage(1); // Reset to first page on filter change
-                }}
+                onChange={(e) => setClientFilter(e.target.value)}
                 style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', width: '250px', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
               />
             </div>
