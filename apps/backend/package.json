@@ -4,6 +4,7 @@
   "description": "Atlas Core Platform — NestJS Backend",
   "private": true,
   "scripts": {
+    "predev": "npx kill-port 3001 || exit 0",
     "dev": "nest start --watch",
     "start": "nest start",
     "build": "nest build",

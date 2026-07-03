@@ -1,63 +1,87 @@
 import { motion } from 'framer-motion';
 import './Solutions.css';
 
-export const Solutions = () => {
-  return (
-    <section id="solutions" className="solutions-section">
-      <div className="container">
-        <motion.div
-          className="solutions-content"
-          initial={{ opacity: 0, y: 50 }}
+const SOLUTIONS = [
+  {
+    icon: '🏭',
+    title: 'Manufacturing & Supply Chain',
+    desc: 'Track raw materials, manage suppliers, automate purchase orders, and keep production flowing without interruption.',
+  },
+  {
+    icon: '🏥',
+    title: 'Healthcare & Clinics',
+    desc: 'Staff scheduling, patient records integration, compliance tracking, and seamless HR for healthcare teams.',
+  },
+  {
+    icon: '🏬',
+    title: 'Retail & E-commerce',
+    desc: 'Multi-location inventory, customer CRM, seasonal analytics, and team management — from one login.',
+  },
+  {
+    icon: '🏗️',
+    title: 'Construction & Field Services',
+    desc: 'Project staffing, equipment inventory, contractor payroll, and real-time progress dashboards.',
+  },
+  {
+    icon: '💼',
+    title: 'Professional Services',
+    desc: 'Resource planning, client CRM, billable-hours tracking, and HR — built for agencies and consultancies.',
+  },
+  {
+    icon: '🎓',
+    title: 'Education & NGOs',
+    desc: 'Manage staff, donors/students, and assets with full audit trails and transparent reporting.',
+  },
+];
+
+export const Solutions = () => (
+  <section className="solutions-section" id="solutions">
+    <div className="section-container">
+      <div className="section-header">
+        <motion.span
+          className="label-chip"
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
         >
-          <div className="solutions-text">
-            <h2>Everything runs in the <span className="highlight">cloud</span>.</h2>
-            <p className="subtitle">
-              Atlas is a fully managed, browser-based ecosystem. Say goodbye to desktop installations and manual updates.
-            </p>
-
-            <ul className="features-list">
-              <li>
-                <div className="feature-icon">☁️</div>
-                <div>
-                  <h4>Zero Installation</h4>
-                  <p>Access your entire business operating system from any modern web browser securely.</p>
-                </div>
-              </li>
-              <li>
-                <div className="feature-icon">🔄</div>
-                <div>
-                  <h4>Real-Time Sync</h4>
-                  <p>Your CRM, HR, and Analytics modules sync instantaneously across all devices globally.</p>
-                </div>
-              </li>
-              <li>
-                <div className="feature-icon">🔒</div>
-                <div>
-                  <h4>Bank-Grade Security</h4>
-                  <p>Your organizational data is strictly isolated with enterprise-grade encryption and tenant boundary enforcement.</p>
-                </div>
-              </li>
-            </ul>
-
-            <div className="cta-group">
-              <button className="btn btn-primary">Start your web workspace</button>
-            </div>
-          </div>
-
-          <div className="solutions-visual">
-            <div className="cloud-graphic">
-              <div className="app-card crm">CRM Module</div>
-              <div className="app-card hr">HR Module</div>
-              <div className="app-card inventory">Inventory Module</div>
-              <div className="app-card analytics">Analytics Engine</div>
-              <div className="connection-lines"></div>
-            </div>
-          </div>
-        </motion.div>
+          Solutions
+        </motion.span>
+        <motion.h2
+          className="section-title"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.05 }}
+        >
+          Built for every industry.
+        </motion.h2>
+        <motion.p
+          className="section-subtitle"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+        >
+          Atlas adapts to the way your organisation works, not the other way around.
+        </motion.p>
       </div>
-    </section>
-  );
-};
+
+      <div className="solutions-grid">
+        {SOLUTIONS.map((s, i) => (
+          <motion.div
+            key={s.title}
+            className="solution-card"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="solution-card__icon">{s.icon}</span>
+            <h3 className="solution-card__title">{s.title}</h3>
+            <p className="solution-card__desc">{s.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+);

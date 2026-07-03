@@ -12,8 +12,13 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
 
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    process.env.SAAS_URL,
+  ].filter(Boolean) as string[];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || /^http:\/\/localhost:\d+$/,
+    origin: allowedOrigins.length > 0 ? allowedOrigins : /^http:\/\/localhost:\d+$/,
     credentials: true,
   });
 

@@ -1,119 +1,132 @@
 .pricing-section {
-  padding: 120px 5%;
+  padding: clamp(5rem, 10vw, 8rem) var(--page-padding);
   background: var(--bg-primary);
   position: relative;
-}
-
-.pricing-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.pricing-header {
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto 60px;
+  z-index: 1;
 }
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 32px;
-  align-items: center;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: start;
 }
 
 .pricing-card {
-  padding: 48px 32px;
+  position: relative;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  position: relative;
+  gap: 1.5rem;
+  transition: box-shadow var(--duration-base) ease, transform var(--duration-base) ease;
 }
 
-.pricing-card.primary-tier {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 40px rgba(79, 70, 229, 0.1);
-  transform: scale(1.02);
-  z-index: 2;
-  background: rgba(25, 25, 30, 0.8);
+.pricing-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
 }
 
-.popular-badge {
+.pricing-card--highlight {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-md);
+  background: linear-gradient(160deg, #f0f6ff 0%, #ffffff 60%);
+}
+
+.pricing-card--highlight:hover {
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-lg);
+}
+
+.pricing-card__badge {
   position: absolute;
-  top: -12px;
+  top: -13px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--accent-primary);
-  color: white;
-  padding: 4px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--font-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
 }
 
-.pricing-card h3 {
-  font-size: var(--font-xl);
-  font-weight: 600;
-  margin-bottom: 16px;
+.pricing-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.price-container {
+.pricing-card__name {
+  font-size: var(--font-base);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.pricing-card__price-row {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  margin-bottom: 16px;
 }
 
-.price {
-  font-size: var(--font-5xl);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+.pricing-card__price {
+  font-size: var(--font-4xl);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+  line-height: 1;
 }
 
-.period {
-  color: var(--text-secondary);
-  font-size: var(--font-base);
-}
-
-.tier-desc {
-  color: var(--text-secondary);
+.pricing-card__period {
   font-size: var(--font-sm);
-  margin-bottom: 32px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.pricing-card__desc {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
-.tier-features {
+.pricing-card__features {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 40px;
+  gap: 10px;
   flex: 1;
 }
 
-.tier-features li {
+.pricing-card__features li {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 9px;
   font-size: var(--font-sm);
-  color: var(--text-primary);
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
-.check-icon {
-  color: var(--accent-primary);
+.pricing-card__features li svg {
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.border-btn {
-  border: 1px solid var(--glass-border);
+.pricing-note {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: var(--font-sm);
+  color: var(--text-tertiary);
 }
 
-.border-btn:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-@media (max-width: 968px) {
-  .pricing-card.primary-tier {
-    transform: none;
+@media (max-width: 900px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto;
   }
 }

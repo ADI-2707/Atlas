@@ -1,86 +1,99 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, MessageSquare, Phone } from 'lucide-react';
 import './Contact.css';
 
 export const Contact = () => {
+  const [form, setForm] = useState({ name: '', email: '', company: '', message: '' });
+  const [sent, setSent] = useState(false);
+
+  const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('[Contact form submitted]', form);
+    setSent(true);
+  };
+
   return (
     <section className="contact-section" id="contact">
-      <div className="contact-container">
-        <motion.div 
-          className="contact-info"
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="section-title">Let's talk about your enterprise.</h2>
-          <p className="section-subtitle">
-            Need a custom deployment? Have questions about security or compliance? Our enterprise architects are ready to help you plan your migration to Atlas.
-          </p>
+      <div className="section-container">
+        <div className="contact-grid">
+          <motion.div
+            className="contact-info"
+            initial={{ opacity: 0, x: -24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className="label-chip">Contact Sales</span>
+            <h2 className="section-title">Let's talk about<br />your organisation.</h2>
+            <p className="section-subtitle" style={{ maxWidth: '100%' }}>
+              Whether you need a custom plan, a live demo, or just want to ask questions —
+              our team will get back to you within one business day.
+            </p>
+            <div className="contact-info__details">
+              <div className="contact-detail">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="var(--accent)" strokeWidth="2" />
+                  <polyline points="22,6 12,13 2,6" stroke="var(--accent)" strokeWidth="2" />
+                </svg>
+                <span>sales@atlas.io</span>
+              </div>
+              <div className="contact-detail">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="var(--accent)" strokeWidth="2" />
+                  <polyline points="12,6 12,12 16,14" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <span>Response within 24 hours</span>
+              </div>
+            </div>
+          </motion.div>
 
-          <div className="contact-methods">
-            <div className="contact-method">
-              <div className="method-icon"><Mail size={20} /></div>
-              <div>
-                <h4>Email Us</h4>
-                <p>enterprise@atlas-os.app</p>
+          <motion.div
+            className="contact-form-wrap"
+            initial={{ opacity: 0, x: 24 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {sent ? (
+              <div className="contact-success">
+                <div className="contact-success__icon">✓</div>
+                <h3>Message received!</h3>
+                <p>Our team will reach out to <strong>{form.email}</strong> within one business day.</p>
               </div>
-            </div>
-            <div className="contact-method">
-              <div className="method-icon"><Phone size={20} /></div>
-              <div>
-                <h4>Call Us</h4>
-                <p>+1 (800) 123-4567</p>
-              </div>
-            </div>
-            <div className="contact-method">
-              <div className="method-icon"><MessageSquare size={20} /></div>
-              <div>
-                <h4>Live Chat</h4>
-                <p>Available 24/7 for Enterprise customers</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          className="contact-form-wrapper glass-panel"
-          initial={{ opacity: 0, x: 30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <form className="contact-form" onSubmit={(e) => e.preventDefault()}>
-            <div className="form-group">
-              <label>Work Email</label>
-              <input type="email" placeholder="you@company.com" className="form-input" />
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>First Name</label>
-                <input type="text" placeholder="John" className="form-input" />
-              </div>
-              <div className="form-group">
-                <label>Last Name</label>
-                <input type="text" placeholder="Doe" className="form-input" />
-              </div>
-            </div>
-            <div className="form-group">
-              <label>Company Size</label>
-              <select className="form-input">
-                <option>1-50 employees</option>
-                <option>51-200 employees</option>
-                <option>201-1000 employees</option>
-                <option>1000+ employees</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>How can we help?</label>
-              <textarea placeholder="Tell us about your requirements..." className="form-input" rows={4}></textarea>
-            </div>
-            <button type="submit" className="btn btn-primary w-full">Contact Sales</button>
-          </form>
-        </motion.div>
+            ) : (
+              <form className="contact-form" onSubmit={submit}>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="name">Full Name</label>
+                    <input id="name" name="name" type="text" required placeholder="Jane Smith" value={form.name} onChange={handle} />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="email">Work Email</label>
+                    <input id="email" name="email" type="email" required placeholder="jane@company.com" value={form.email} onChange={handle} />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="company">Company</label>
+                  <input id="company" name="company" type="text" placeholder="Acme Inc." value={form.company} onChange={handle} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="message">Message</label>
+                  <textarea id="message" name="message" rows={4} required placeholder="Tell us about your team size and what you're looking for…" value={form.message} onChange={handle} />
+                </div>
+                <button type="submit" className="btn btn-primary w-full">
+                  Send Message
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <line x1="22" y1="2" x2="11" y2="13" stroke="currentColor" strokeWidth="2" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" stroke="currentColor" strokeWidth="2" fill="none" />
+                  </svg>
+                </button>
+              </form>
+            )}
+          </motion.div>
+        </div>
       </div>
     </section>
   );

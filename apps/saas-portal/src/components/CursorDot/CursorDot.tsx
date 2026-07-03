@@ -47,7 +47,8 @@ export const CursorDot = () => {
     };
 
     const onMouseLeave = (e: MouseEvent) => {
-      const btn = (e.target as HTMLElement).closest('.btn') as HTMLElement | null;
+      if (!(e.target instanceof HTMLElement)) return;
+      const btn = e.target.closest('.btn') as HTMLElement | null;
       if (btn) {
         btn.style.transform = '';
       }
