@@ -27,22 +27,32 @@ export const Admin = () => {
   const fetchMetrics = async () => {
     try {
       const res = await fetch(`${API_URL}/admin/metrics`, { headers });
-      if (res.ok) setMetrics(await res.json());
-      else if (res.status === 401) setIsAuth(false);
+      if (res.ok) {
+        const json = await res.json();
+        setMetrics(json.data);
+      } else if (res.status === 401) {
+        setIsAuth(false);
+      }
     } catch (e) { console.error(e); }
   };
 
   const fetchLogs = async () => {
     try {
       const res = await fetch(`${API_URL}/admin/logs`, { headers });
-      if (res.ok) setLogs(await res.json());
+      if (res.ok) {
+        const json = await res.json();
+        setLogs(json.data || []);
+      }
     } catch (e) { console.error(e); }
   };
 
   const fetchTickets = async () => {
     try {
       const res = await fetch(`${API_URL}/admin/tickets`, { headers });
-      if (res.ok) setTickets(await res.json());
+      if (res.ok) {
+        const json = await res.json();
+        setTickets(json.data || []);
+      }
     } catch (e) { console.error(e); }
   };
 

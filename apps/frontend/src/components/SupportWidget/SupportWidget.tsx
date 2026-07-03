@@ -32,8 +32,8 @@ export const SupportWidget: React.FC = () => {
         }
       });
       if (res.ok) {
-        const data = await res.json();
-        setTickets(data);
+        const json = await res.json();
+        setTickets(json.data || []);
       }
     } catch (e) {
       console.error('Failed to load tickets', e);
