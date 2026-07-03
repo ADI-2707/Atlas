@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Req, UseGuards } from '@nestjs/common';
 import { ProjectManagementService } from './project-management.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -46,9 +46,51 @@ export class ProjectManagementController {
     return this.pmService.getIssues(req.user.organizationId, projectId);
   }
 
+  @Put('projects/:id')
+  @ApiOperation({ summary: 'Update a project' })
+  async updateProject(@Req() req: any, @Param('id') id: string, @Body() data: { name?: string; description?: string }) {
+    return this.pmService.updateProject(id, req.user.organizationId, data);
+  }
+
+  @Delete('projects/:id')
+  @ApiOperation({ summary: 'Delete a project' })
+  async deleteProject(@Req() req: any, @Param('id') id: string) {
+    return this.pmService.deleteProject(id, req.user.organizationId);
+  }
+
+  @Put('boards/:id')
+  @ApiOperation({ summary: 'Update a board' })
+  async updateBoard(@Req() req: any, @Param('id') id: string, @Body() data: { name: string }) {
+    return this.pmService.updateBoard(id, req.user.organizationId, data);
+  }
+
+  @Delete('boards/:id')
+  @ApiOperation({ summary: 'Delete a board' })
+  async deleteBoard(@Req() req: any, @Param('id') id: string) {
+    return this.pmService.deleteBoard(id, req.user.organizationId);
+  }
+
   @Put('issues/:id')
   @ApiOperation({ summary: 'Update an issue' })
   async updateIssue(@Req() req: any, @Param('id') id: string, @Body() data: any) {
     return this.pmService.updateIssue(id, req.user.organizationId, data);
+  }
+
+  @Delete('issues/:id')
+  @ApiOperation({ summary: 'Delete an issue' })
+  async deleteIssue(@Req() req: any, @Param('id') id: string) {
+    return this.pmService.deleteIssue(id, req.user.organizationId);
+  }
+
+  @Post('issues/:issueId/comments')
+  @ApiOperation({ summary: 'Create a comment on an issue' })
+  async createComment(@Req() req: any, @Param('issueId') issueId: string, @Body() data: { text: string }) {
+    return this.pmService.createComment(req.user.organizationId, issueId, req.user.id, data.text);
+  }
+
+  @Delete('comments/:id')
+  @ApiOperation({ summary: 'Delete a comment' })
+  async deleteComment(@Req() req: any, @Param('id') id: string) {
+    return this.pmService.deleteComment(id, req.user.organizationId);
   }
 }
