@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
 import { useAuth } from '@atlas/auth';
+import { useTheme } from '../../contexts/ThemeContext';
 import { mockPlugins } from '../../plugins/mock-plugins';
 import './Setup.css';
 
@@ -33,6 +34,13 @@ export const Setup: React.FC = () => {
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const navigate = useNavigate();
   const { completeSetup } = useAuth();
+  const { setTheme } = useTheme();
+
+  // Force light theme for the onboarding wizard — setup is a first-time screen
+  // and should always appear on a white background.
+  useEffect(() => {
+    setTheme('light');
+  }, []);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1 && !isAnimatingOut) {
