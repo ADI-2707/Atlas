@@ -297,7 +297,7 @@ export const InventoryDashboard: React.FC = () => {
     };
   }, [limitStats, isStorageLocked, activeView, isWarehouseLocked, isTableLocked, tables, setWorkspaceLock]);
 
-  if (tables.length === 0) return <div style={{ padding: '2rem', color: '#fff' }}>Loading Inventory...</div>;
+  if (tables.length === 0) return <div style={{ padding: '2rem', color: 'var(--text-primary)' }}>Loading Inventory...</div>;
 
   const LockIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: '6px' }}>
