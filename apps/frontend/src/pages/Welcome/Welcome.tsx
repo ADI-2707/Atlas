@@ -9,6 +9,7 @@ export const Welcome: React.FC = () => {
   const { user } = useAuth();
   const { installedPlugins } = usePlugins();
   const navigate = useNavigate();
+  const firstName = user?.name?.split(' ')[0] || 'there';
 
   useEffect(() => {
     if (installedPlugins.length > 0) {
@@ -20,18 +21,25 @@ export const Welcome: React.FC = () => {
     navigate('/store');
   };
 
-
   return (
     <div className="welcome-landing-container">
       <div className="welcome-landing-content animate-fade-in-up">
-        <div className="welcome-landing-icon">👋</div>
-        <h1 className="welcome-landing-title">Welcome to Atlas, {user?.name || 'User'}!</h1>
-        <p className="welcome-landing-subtitle">
-          Your workspace is currently empty. To get started and unlock the power of Atlas, 
-          you need to install some enterprise plugins.
+        <div className="welcome-landing-icon">🎉</div>
+        <h1 className="welcome-landing-title">Welcome, {firstName}!</h1>
+        <p className="welcome-landing-org">
+          Your workspace is live and ready to go.
         </p>
+        <p className="welcome-landing-subtitle">
+          You're all set up. To unlock the power of Atlas, install your first
+          enterprise plugin from the marketplace — CRM, Inventory, HR, Analytics and more.
+        </p>
+        <div className="welcome-status-chips">
+          <span className="welcome-chip welcome-chip--done">✓ Account created</span>
+          <span className="welcome-chip welcome-chip--done">✓ Workspace ready</span>
+          <span className="welcome-chip welcome-chip--pending">○ Add first plugin</span>
+        </div>
         <Button onClick={handleAddPlugins} size="large" className="welcome-landing-button">
-          Add Plugins to Workspace
+          Browse Plugin Marketplace →
         </Button>
       </div>
     </div>

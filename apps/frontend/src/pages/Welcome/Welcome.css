@@ -15,7 +15,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 4rem 3rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
 .welcome-landing-icon {
@@ -25,16 +25,56 @@
 
 .welcome-landing-title {
   font-size: 2.5rem;
-  margin: 0 0 1rem 0;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
   color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
-.welcome-landing-subtitle {
+.welcome-landing-org {
   font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--color-accent-primary);
+  margin: 0 0 1rem 0;
+}
+
+.welcome-landing-subtitle {
+  font-size: 1rem;
   color: var(--text-secondary);
-  margin: 0 0 3rem 0;
+  margin: 0 0 2rem 0;
   line-height: 1.6;
+}
+
+/* Status chips */
+.welcome-status-chips {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.welcome-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid;
+}
+
+.welcome-chip--done {
+  color: #15803d;
+  background: rgba(21, 128, 61, 0.08);
+  border-color: rgba(21, 128, 61, 0.25);
+}
+
+.welcome-chip--pending {
+  color: var(--text-tertiary);
+  background: var(--bg-surface-tertiary);
+  border-color: var(--border-color);
 }
 
 .animate-fade-in-up {
@@ -53,3 +93,4 @@
     transform: translateY(0);
   }
 }
+
