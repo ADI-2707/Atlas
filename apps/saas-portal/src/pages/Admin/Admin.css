@@ -4,6 +4,21 @@
   width: 100vw;
   background-color: var(--bg-secondary);
   font-family: inherit;
+  transition: background-color var(--duration-base);
+}
+
+.saas-admin-dashboard.theme-dark {
+  --bg-primary: #121212;
+  --bg-secondary: #000000;
+  --bg-tertiary: #1e1e1e;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #606060;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.5);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.6);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.8);
 }
 
 .admin-sidebar {
@@ -13,6 +28,12 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
+  transition: width var(--duration-base) var(--ease-out-expo);
+  overflow-x: hidden;
+}
+
+.admin-sidebar.collapsed {
+  width: 80px;
 }
 
 .admin-brand {
@@ -21,6 +42,15 @@
   font-weight: 700;
   border-bottom: 1px solid var(--border);
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  white-space: nowrap;
+}
+
+.admin-sidebar.collapsed .admin-brand {
+  justify-content: center;
+  padding: 1.5rem 1rem;
 }
 
 .admin-sidebar nav {
@@ -39,6 +69,41 @@
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-out-expo);
   font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  white-space: nowrap;
+}
+
+.admin-sidebar.collapsed button {
+  padding: 1rem;
+  justify-content: center;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--duration-fast);
+}
+
+.collapse-btn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
 }
 
 .admin-sidebar button:hover {
@@ -51,6 +116,11 @@
   color: var(--accent);
   border-left: 4px solid var(--accent);
   font-weight: 500;
+}
+
+.admin-sidebar.collapsed button.active {
+  border-left-width: 0;
+  border-bottom: 2px solid var(--accent);
 }
 
 .admin-content {
