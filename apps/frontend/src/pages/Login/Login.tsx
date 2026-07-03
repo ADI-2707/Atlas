@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@atlas/auth';
 import { Input, Button, Checkbox } from '@atlas/ui';
 import './Login.css';
@@ -75,14 +75,16 @@ const AtlasLogo = () => (
 
 export const Login: React.FC = () => {
   const [animPhase, setAnimPhase] = useState(0);
-  const [email, setEmail] = useState('admin@atlas.com');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const justRegistered = searchParams.get('registered') === 'true';
 
   useEffect(() => {
     const t1 = setTimeout(() => setAnimPhase(1), 200);
@@ -140,6 +142,12 @@ export const Login: React.FC = () => {
                 <h2>Welcome back</h2>
                 <p>Sign in to your enterprise workspace</p>
               </div>
+
+              {justRegistered && (
+                <div className="atlas-login-registered-banner">
+                  ✅ Account created! Sign in with your new credentials.
+                </div>
+              )}
 
               <form onSubmit={handleLogin} className="atlas-login-form">
                 <div>
