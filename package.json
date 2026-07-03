@@ -4,7 +4,7 @@
   "description": "Atlas Enterprise Application Framework — A modular, event-driven platform for building enterprise software.",
   "private": true,
   "scripts": {
-    "dev": "pnpm --parallel --filter frontend --filter @atlas/backend dev",
+    "dev": "pnpm --parallel --filter frontend --filter saas-portal --filter @atlas/backend dev",
     "build": "pnpm -r build",
     "lint": "pnpm --parallel -r lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",

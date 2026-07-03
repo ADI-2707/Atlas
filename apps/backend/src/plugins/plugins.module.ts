@@ -39,6 +39,7 @@ export class PluginsModule {
 
                   if (shouldPreferSource && existsSync(backendPath)) {
                     try {
+                      // eslint-disable-next-line @typescript-eslint/no-require-imports
                       const pluginExport = require(backendPath);
                       config = pluginExport.default || pluginExport;
                     } catch (srcErr) {
@@ -48,11 +49,13 @@ export class PluginsModule {
 
                   if (!config) {
                     try {
+                      // eslint-disable-next-line @typescript-eslint/no-require-imports
                       const pluginExport = require(`@atlas/plugin-${manifest.id}`);
                       config = pluginExport.default || pluginExport;
                     } catch (pkgErr) {
                       if (existsSync(backendPath)) {
                         try {
+                          // eslint-disable-next-line @typescript-eslint/no-require-imports
                           const pluginExport = require(backendPath);
                           config = pluginExport.default || pluginExport;
                         } catch (srcErr) {

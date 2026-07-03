@@ -41,7 +41,7 @@ export const PluginProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setAllPlugins(plugins);
 
         const installedIds = plugins
-          .filter((p: any) => p.status === 'INSTALLED' || p.status === 'ENABLED')
+          .filter((p: any) => p.status === 'ENABLED')
           .map((p: any) => p.id);
 
         setInstalledPlugins(installedIds);

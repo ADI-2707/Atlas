@@ -15,9 +15,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('atlas_theme');
       if (stored === 'light' || stored === 'dark') return stored;
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
-      }
+      // No stored preference: always default to light on first visit.
+      // After the user explicitly changes the theme, their choice is
+      // persisted here and respected on every subsequent visit.
     }
     return 'light';
   });

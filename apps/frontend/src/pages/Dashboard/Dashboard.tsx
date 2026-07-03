@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
+import { useAuth } from '@atlas/auth';
 import { usePlugins } from '../../contexts/PluginContext';
 import { mockPlugins } from '../../plugins/mock-plugins';
 import { api } from '@atlas/api';
@@ -8,6 +9,7 @@ import './Dashboard.css';
 
 export const Dashboard: React.FC = () => {
   const { installedPlugins } = usePlugins();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [inventoryStats, setInventoryStats] = useState<any>(null);
   const [crmStats, setCrmStats] = useState<any>(null);
@@ -58,6 +60,25 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-active-state">
+
+      {installedPlugins.length === 0 && (
+        <div className="dashboard-empty-state">
+          <div className="dashboard-empty-icon">🧩</div>
+          <h2 className="dashboard-empty-title">
+            Welcome{user?.name ? `, ${user.name.split(' ')[0]}` : ''}! Your workspace is empty.
+          </h2>
+          <p className="dashboard-empty-sub">
+            You haven't added any plugins yet. Install your first plugin to start
+            using Atlas — CRM, Inventory, HR, Analytics and more.
+          </p>
+          <button
+            className="dashboard-empty-btn"
+            onClick={() => navigate('/store')}
+          >
+            <span>+</span> Add Plugin
+          </button>
+        </div>
+      )}
 
       <div className="dashboard-widgets-grid">
         {installedPlugins.map(pid => {
