@@ -11,7 +11,7 @@ import { RolesModule } from './roles/roles.module';
 import { PluginsModule } from './plugins/plugins.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AdminModule } from './admin/admin.module';
-import { ProjectManagementModule } from './plugins/project-management/project-management.module';
+
 
 @Module({
   imports: [
@@ -28,7 +28,6 @@ import { ProjectManagementModule } from './plugins/project-management/project-ma
     RolesModule,
     PluginsModule.register(),
     AdminModule,
-    ProjectManagementModule,
   ],
   providers: [
     {

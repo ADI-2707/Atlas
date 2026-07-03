@@ -34,8 +34,7 @@ export const KanbanBoard: React.FC = () => {
     setDraggedIssueId(id);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', id);
-    
-    // Add a slight delay to allow the drag image to be generated before adding 'dragging' class
+
     setTimeout(() => {
       const el = document.getElementById(`issue-${id}`);
       if (el) el.classList.add('dragging');
@@ -46,14 +45,14 @@ export const KanbanBoard: React.FC = () => {
     setDraggedIssueId(null);
     const el = document.getElementById(`issue-${id}`);
     if (el) el.classList.remove('dragging');
-    
+
     document.querySelectorAll('.kanban-column-content').forEach(el => el.classList.remove('drag-over'));
   };
 
   const handleDragOver = (e: React.DragEvent, columnId: string) => {
-    e.preventDefault(); // Necessary to allow dropping
+    e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
+
     if (dragOverColumnId.current !== columnId) {
       dragOverColumnId.current = columnId;
     }
@@ -78,8 +77,8 @@ export const KanbanBoard: React.FC = () => {
 
     const issueId = e.dataTransfer.getData('text/plain');
     if (issueId && draggedIssueId) {
-      setIssues(prev => 
-        prev.map(issue => 
+      setIssues(prev =>
+        prev.map(issue =>
           issue.id === issueId ? { ...issue, status: columnId } : issue
         )
       );
@@ -95,7 +94,7 @@ export const KanbanBoard: React.FC = () => {
             <span>{column.title}</span>
             <span className="kanban-card-badge">{issues.filter(i => i.status === column.id).length}</span>
           </div>
-          <div 
+          <div
             id={`column-${column.id}`}
             className="kanban-column-content"
             onDragOver={(e) => handleDragOver(e, column.id)}
@@ -104,7 +103,7 @@ export const KanbanBoard: React.FC = () => {
             onDrop={(e) => handleDrop(e, column.id)}
           >
             {issues.filter(i => i.status === column.id).map(issue => (
-              <div 
+              <div
                 key={issue.id}
                 id={`issue-${issue.id}`}
                 className="kanban-card"
@@ -115,9 +114,9 @@ export const KanbanBoard: React.FC = () => {
                 <div className="kanban-card-title">{issue.title}</div>
                 <div className="kanban-card-meta">
                   <span>{issue.id}</span>
-                  <span className="kanban-card-badge" style={{ 
-                    backgroundColor: issue.priority === 'HIGH' ? '#ef4444' : 
-                                     issue.priority === 'MEDIUM' ? '#f59e0b' : '#3b82f6' 
+                  <span className="kanban-card-badge" style={{
+                    backgroundColor: issue.priority === 'HIGH' ? '#ef4444' :
+                      issue.priority === 'MEDIUM' ? '#f59e0b' : '#3b82f6'
                   }}>
                     {issue.priority}
                   </span>

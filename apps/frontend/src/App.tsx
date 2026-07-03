@@ -13,7 +13,7 @@ import { Dashboard } from './pages/Dashboard/Dashboard';
 import { AuditLogs } from './pages/AuditLogs/AuditLogs';
 import { Admin } from './pages/Admin/Admin';
 import { Team } from './pages/Team/Team';
-import { ProjectManagement } from './pages/ProjectManagement/ProjectManagement';
+
 
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
 import CRM from '../../../plugins/crm/frontend/src';
@@ -102,7 +102,7 @@ export const App: React.FC = () => {
               >
                 <Route index element={<Dashboard />} />
                 <Route path="team" element={<Team />} />
-                <Route path="projects" element={<ProjectManagement />} />
+
                 <Route path="logs" element={<AuditLogs />} />
                 <Route path="admin" element={<Admin />} />
                 <Route path="store" element={<PluginStore />} />
