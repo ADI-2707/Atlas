@@ -3,6 +3,66 @@
   font-family: var(--font-family-base);
 }
 
+.dashboard-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  min-height: 60vh;
+}
+
+.dashboard-empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1.25rem;
+  line-height: 1;
+}
+
+.dashboard-empty-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.01em;
+}
+
+.dashboard-empty-sub {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  max-width: 420px;
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+}
+
+.dashboard-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--color-accent-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1.4rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  font-family: var(--font-family-base);
+}
+
+.dashboard-empty-btn:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+}
+
+.dashboard-empty-btn span {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+
 .dashboard-header {
   margin-bottom: 2rem;
 }
@@ -155,7 +215,7 @@
 }
 
 .crm-usage-metric,
-.crm-value-summary > div {
+.crm-value-summary>div {
   background: var(--bg-surface-tertiary);
   border: 1px solid var(--border-color);
   border-radius: 6px;
