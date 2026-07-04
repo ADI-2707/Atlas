@@ -39,5 +39,13 @@ export const mockPlugins: MockPlugin[] = [
     navigation: [
       { title: 'HR Portal', path: '/hr', icon: 'hr' }
     ]
+  },
+  {
+    id: 'project-management',
+    name: 'Project Management',
+    description: 'Enterprise project management and issue tracking plugin.',
+    navigation: [
+      { title: 'Projects', path: '/projects', icon: 'pm' }
+    ]
   }
 ];

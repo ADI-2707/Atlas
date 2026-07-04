@@ -30,6 +30,7 @@
   --color-accent-core: #6366f1;
   --color-accent-inventory: #10b981;
   --color-accent-crm: #8b5cf6;
+  --color-accent-pm: #eab308;
 
   --color-accent-active: var(--color-accent-core);
 
@@ -107,4 +108,8 @@ a:hover {
 
 .plugin-theme-core {
   --color-accent-active: var(--color-accent-core);
+}
+
+.plugin-theme-pm {
+  --color-accent-active: var(--color-accent-pm);
 }
