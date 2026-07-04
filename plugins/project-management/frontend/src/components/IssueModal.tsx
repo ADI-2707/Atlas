@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@atlas/ui';
 
 interface IssueModalProps {
@@ -17,7 +18,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ onClose, onSubmit }) => 
     onSubmit({ title, priority, description });
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <div className="modal-content" style={{ backgroundColor: 'var(--bg-surface-primary)', padding: '2rem', borderRadius: '8px', border: '1px solid var(--border-color)', width: '100%', maxWidth: '400px' }}>
         <h2 style={{ marginTop: 0, color: 'var(--text-primary)' }}>Create New Issue</h2>
@@ -63,6 +64,7 @@ export const IssueModal: React.FC<IssueModalProps> = ({ onClose, onSubmit }) => 
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
