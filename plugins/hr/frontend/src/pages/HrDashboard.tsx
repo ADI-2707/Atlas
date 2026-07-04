@@ -4,10 +4,11 @@ import { EmployeesList } from '../components/EmployeesList';
 import { PayrollList } from '../components/PayrollList';
 import { AddEmployeeModal } from '../components/AddEmployeeModal.tsx';
 import { RunPayrollModal } from '../components/RunPayrollModal.tsx';
+import { HrActivityLogs } from '../components/HrActivityLogs.tsx';
 import './HrDashboard.css';
 
 export const HrDashboard: React.FC = () => {
-  const [activeView, setActiveView] = useState<'employees' | 'payroll'>('employees');
+  const [activeView, setActiveView] = useState<'employees' | 'payroll' | 'logs'>('employees');
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [isPayrollModalOpen, setIsPayrollModalOpen] = useState(false);
 
@@ -57,6 +58,25 @@ export const HrDashboard: React.FC = () => {
             >
               Payroll
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('logs')}
+              className={`clean-tab-btn ${activeView === 'logs' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'logs' ? '2px solid var(--color-accent-core)' : '2px solid transparent',
+                color: activeView === 'logs' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'logs' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Logs
+            </button>
           </div>
 
           {activeView === 'employees' ? (
@@ -89,11 +109,9 @@ export const HrDashboard: React.FC = () => {
       </div>
 
       <div className="page-reveal" key={activeView} style={{ marginTop: '1.5rem' }}>
-        {activeView === 'employees' ? (
-          <EmployeesList key={refreshEmployees} />
-        ) : (
-          <PayrollList key={refreshPayroll} />
-        )}
+        {activeView === 'employees' && <EmployeesList key={refreshEmployees} />}
+        {activeView === 'payroll' && <PayrollList key={refreshPayroll} />}
+        {activeView === 'logs' && <HrActivityLogs />}
       </div>
 
       <AddEmployeeModal

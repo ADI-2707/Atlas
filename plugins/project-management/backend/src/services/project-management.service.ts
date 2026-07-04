@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { getPaginationParams, buildPaginatedResult } from '@atlas/utils';
 
 @Injectable()
 export class ProjectManagementService {
@@ -35,13 +36,55 @@ export class ProjectManagementService {
     };
   }
 
-  async createProject(organizationId: string, data: { name: string; key: string; description?: string }) {
-    return this.prisma.project.create({
+  async getAuditLogs(organizationId: string, query: { page?: string; limit?: string; search?: string }) {
+    const { page, limit, skip } = getPaginationParams(query);
+    const whereCondition: any = { organizationId, pluginId: 'project-management' };
+
+    if (query.search) {
+      whereCondition.action = { contains: query.search, mode: 'insensitive' };
+    }
+
+    const total = await this.prisma.auditLog.count({ where: whereCondition });
+    const data = await this.prisma.auditLog.findMany({
+      where: whereCondition,
+      orderBy: { timestamp: 'desc' },
+      skip,
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          }
+        }
+      }
+    });
+
+    return buildPaginatedResult(data, total, page, limit);
+  }
+
+  async createProject(organizationId: string, userId: string, data: { name: string; key: string; description?: string }) {
+    const project = await this.prisma.project.create({
       data: {
         organizationId,
         ...data,
       },
     });
+
+    await this.prisma.auditLog.create({
+      data: {
+        organizationId,
+        pluginId: 'project-management',
+        action: 'project.created',
+        userId,
+        result: 'success',
+        details: { projectId: project.id, name: project.name }
+      }
+    });
+
+    return project;
   }
 
   async getProjects(organizationId: string) {
@@ -70,13 +113,26 @@ export class ProjectManagementService {
     });
   }
 
-  async createIssue(organizationId: string, data: { projectId: string; title: string; description?: string; status?: string; priority?: string; assigneeId?: string }) {
-    return this.prisma.issue.create({
+  async createIssue(organizationId: string, userId: string, data: { projectId: string; title: string; description?: string; status?: string; priority?: string; assigneeId?: string }) {
+    const issue = await this.prisma.issue.create({
       data: {
         organizationId,
         ...data,
       },
     });
+
+    await this.prisma.auditLog.create({
+      data: {
+        organizationId,
+        pluginId: 'project-management',
+        action: 'issue.created',
+        userId,
+        result: 'success',
+        details: { issueId: issue.id, title: issue.title }
+      }
+    });
+
+    return issue;
   }
 
   async getIssues(organizationId: string, projectId: string) {
@@ -93,10 +149,24 @@ export class ProjectManagementService {
     return this.prisma.project.update({ where: { id }, data });
   }
 
-  async deleteProject(id: string, organizationId: string) {
+  async deleteProject(id: string, organizationId: string, userId: string) {
     const project = await this.prisma.project.findFirst({ where: { id, organizationId } });
     if (!project) throw new NotFoundException('Project not found');
-    return this.prisma.project.delete({ where: { id } });
+    
+    await this.prisma.project.delete({ where: { id } });
+
+    await this.prisma.auditLog.create({
+      data: {
+        organizationId,
+        pluginId: 'project-management',
+        action: 'project.deleted',
+        userId,
+        result: 'success',
+        details: { projectId: id, name: project.name }
+      }
+    });
+
+    return project;
   }
 
   async updateBoard(id: string, organizationId: string, data: { name: string }) {
@@ -121,10 +191,24 @@ export class ProjectManagementService {
     });
   }
 
-  async deleteIssue(id: string, organizationId: string) {
+  async deleteIssue(id: string, organizationId: string, userId: string) {
     const issue = await this.prisma.issue.findFirst({ where: { id, organizationId } });
     if (!issue) throw new NotFoundException('Issue not found');
-    return this.prisma.issue.delete({ where: { id } });
+    
+    await this.prisma.issue.delete({ where: { id } });
+
+    await this.prisma.auditLog.create({
+      data: {
+        organizationId,
+        pluginId: 'project-management',
+        action: 'issue.deleted',
+        userId,
+        result: 'success',
+        details: { issueId: id, title: issue.title }
+      }
+    });
+
+    return issue;
   }
 
   async createComment(organizationId: string, issueId: string, authorId: string, text: string) {

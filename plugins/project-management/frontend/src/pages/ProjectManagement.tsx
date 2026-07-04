@@ -4,6 +4,7 @@ import { Button } from '@atlas/ui';
 import { KanbanBoard, Issue } from '../components/KanbanBoard';
 import { ProjectModal } from '../components/ProjectModal';
 import { IssueModal } from '../components/IssueModal';
+import { ProjectActivityLogs } from '../components/ProjectActivityLogs';
 import { usePlugins } from '../../../../../apps/frontend/src/contexts/PluginContext';
 
 export const ProjectManagement: React.FC = () => {
@@ -11,7 +12,7 @@ export const ProjectManagement: React.FC = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [activeView, setActiveView] = useState<'board' | 'list'>('board');
+  const [activeView, setActiveView] = useState<'board' | 'list' | 'logs'>('board');
   
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
@@ -190,6 +191,25 @@ export const ProjectManagement: React.FC = () => {
             >
               List
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('logs')}
+              className={`clean-tab-btn ${activeView === 'logs' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'logs' ? '2px solid var(--color-accent-pm)' : '2px solid transparent',
+                color: activeView === 'logs' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'logs' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Logs
+            </button>
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -239,9 +259,10 @@ export const ProjectManagement: React.FC = () => {
       </div>
 
       <div style={{ flex: 1, padding: '0 2rem 2rem 2rem', overflowY: 'auto' }}>
-        {activeView === 'board' ? (
+        {activeView === 'board' && (
           <KanbanBoard issues={issues} onIssueMove={handleIssueMove} />
-        ) : (
+        )}
+        {activeView === 'list' && (
           <div className="table-container">
             <table className="atlas-table">
               <thead>
@@ -293,6 +314,9 @@ export const ProjectManagement: React.FC = () => {
               </tbody>
             </table>
           </div>
+        )}
+        {activeView === 'logs' && (
+          <ProjectActivityLogs />
         )}
       </div>
 

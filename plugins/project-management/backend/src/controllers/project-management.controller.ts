@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Req, Query } from '@nestjs/common';
 import { ProjectManagementService } from '../services/project-management.service';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -15,10 +15,21 @@ export class ProjectManagementController {
     return this.pmService.getLimitStats(req.user.organizationId);
   }
 
+  @Get('audit-logs')
+  @ApiOperation({ summary: 'Get Project Management plugin activity audit logs' })
+  async getAuditLogs(
+    @Req() req: any,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string
+  ) {
+    return this.pmService.getAuditLogs(req.user.organizationId, { page, limit, search });
+  }
+
   @Post('projects')
   @ApiOperation({ summary: 'Create a new project' })
   async createProject(@Req() req: any, @Body() data: { name: string; key: string; description?: string }) {
-    return this.pmService.createProject(req.user.organizationId, data);
+    return this.pmService.createProject(req.user.organizationId, req.user.id, data);
   }
 
   @Get('projects')
@@ -42,7 +53,7 @@ export class ProjectManagementController {
   @Post('issues')
   @ApiOperation({ summary: 'Create an issue' })
   async createIssue(@Req() req: any, @Body() data: { projectId: string; title: string; description?: string; status?: string; priority?: string; assigneeId?: string }) {
-    return this.pmService.createIssue(req.user.organizationId, data);
+    return this.pmService.createIssue(req.user.organizationId, req.user.id, data);
   }
 
   @Get('projects/:projectId/issues')
@@ -60,7 +71,7 @@ export class ProjectManagementController {
   @Delete('projects/:id')
   @ApiOperation({ summary: 'Delete a project' })
   async deleteProject(@Req() req: any, @Param('id') id: string) {
-    return this.pmService.deleteProject(id, req.user.organizationId);
+    return this.pmService.deleteProject(id, req.user.organizationId, req.user.id);
   }
 
   @Put('boards/:id')
@@ -84,7 +95,7 @@ export class ProjectManagementController {
   @Delete('issues/:id')
   @ApiOperation({ summary: 'Delete an issue' })
   async deleteIssue(@Req() req: any, @Param('id') id: string) {
-    return this.pmService.deleteIssue(id, req.user.organizationId);
+    return this.pmService.deleteIssue(id, req.user.organizationId, req.user.id);
   }
 
   @Post('issues/:issueId/comments')

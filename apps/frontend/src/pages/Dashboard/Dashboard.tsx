@@ -15,6 +15,7 @@ export const Dashboard: React.FC = () => {
   const [crmStats, setCrmStats] = useState<any>(null);
   const [hrStats, setHrStats] = useState<any>(null);
   const [analyticsStats, setAnalyticsStats] = useState<any>(null);
+  const [pmStats, setPmStats] = useState<any>(null);
 
   const formatCurrency = (value: number) =>
     value.toLocaleString(undefined, {
@@ -56,6 +57,11 @@ export const Dashboard: React.FC = () => {
       .then(data => setAnalyticsStats(data.overview))
       .catch(err => console.error('Failed to load analytics stats', err));
     }
+    if (installedPlugins.includes('project-management')) {
+      api.get<any>('/plugins/project-management/stats')
+        .then(res => setPmStats(res.data))
+        .catch(err => console.error('Failed to load pm stats', err));
+    }
   }, [installedPlugins]);
 
   return (
@@ -87,9 +93,10 @@ export const Dashboard: React.FC = () => {
 
           const isInventory = pid === 'inventory';
           const isCrm = pid === 'crm';
-          const isHr = pid === 'hr';
-          const isAnalytics = pid === 'analytics';
-          
+          const isHr = plugin.id === 'hr';
+          const isAnalytics = plugin.id === 'analytics';
+          const isProjectManagement = plugin.id === 'project-management';
+
           let fillClass = 'fill-normal';
           let contactsFillClass = 'fill-normal';
           let dealsFillClass = 'fill-normal';
@@ -265,7 +272,55 @@ export const Dashboard: React.FC = () => {
                   </div>
                 )}
 
-                {!isInventory && !isCrm && !isHr && !isAnalytics && (
+                {isProjectManagement && pmStats && (
+                  <div className="widget-limits-container">
+                    <div className="limit-item">
+                      <div className="limit-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Projects</span>
+                        {pmStats.maxProjects === -1 ? (
+                          <span style={{ fontWeight: 600 }}>{pmStats.projectCount} (Unlimited)</span>
+                        ) : pmStats.projectCount >= pmStats.maxProjects ? (
+                          <span>
+                            <span style={{ color: '#f87171', fontWeight: 600 }}>{pmStats.projectCount}</span>
+                            {` / ${pmStats.maxProjects}`}
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginLeft: '6px' }}>(Upgrade to unlock)</span>
+                          </span>
+                        ) : (
+                          <span>
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{pmStats.projectCount}</span>
+                            {` / ${pmStats.maxProjects}`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="limit-item" style={{ marginTop: '1.25rem' }}>
+                      <div className="limit-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>Issues</span>
+                        {pmStats.maxIssues === -1 ? (
+                          <span style={{ fontWeight: 600 }}>{pmStats.issueCount} (Unlimited)</span>
+                        ) : pmStats.issueCount >= pmStats.maxIssues ? (
+                          <span>
+                            <span style={{ color: '#f87171', fontWeight: 600 }}>{pmStats.issueCount}</span>
+                            {` / ${pmStats.maxIssues}`}
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginLeft: '6px' }}>(Upgrade to unlock)</span>
+                          </span>
+                        ) : (
+                          <span>
+                            <span style={{ color: '#4ade80', fontWeight: 600 }}>{pmStats.issueCount}</span>
+                            {` / ${pmStats.maxIssues}`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {(pmStats.maxProjects !== -1 && pmStats.projectCount >= pmStats.maxProjects) && (
+                      <div className="critical-message">
+                        ⚠️ Limit exceeded. Upgrade required to add more projects.
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!isInventory && !isCrm && !isHr && !isAnalytics && !isProjectManagement && (
                   <>
                     <p>Usage: Normal</p>
                   </>

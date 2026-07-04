@@ -33,9 +33,15 @@ export const AuditLogs: React.FC = () => {
         limit: '20',
         search: search || ''
       });
-      const data = await apiClient.get<any>(`/audit?${queryParams.toString()}`);
-      setLogs(data.items || []);
-      setTotalPages(data.meta?.totalPages || 1);
+      const response = await apiClient.get<any>(`/audit?${queryParams.toString()}`);
+      
+      if (response.success && response.data) {
+        setLogs(response.data.items || []);
+        setTotalPages(response.data.meta.totalPages || 1);
+      } else {
+        setLogs([]);
+        setTotalPages(1);
+      }
     } catch (error) {
       console.error('Failed to fetch audit logs:', error);
     } finally {
