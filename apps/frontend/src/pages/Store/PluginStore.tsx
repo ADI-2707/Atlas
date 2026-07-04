@@ -74,7 +74,12 @@ export const PluginStore: React.FC = () => {
     if (user && !user.hasCompletedSetup) {
       completeSetup();
     }
-    navigate(`/${pId}`);
+    const pluginMock = mockPlugins.find(p => p.id === pId);
+    if (pluginMock && pluginMock.navigation.length > 0) {
+      navigate(pluginMock.navigation[0].path);
+    } else {
+      navigate(`/${pId}`);
+    }
   };
 
   const handleUpgrade = async (pId: string, tier: string, activeTierId: string) => {
