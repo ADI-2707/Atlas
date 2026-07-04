@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import './KanbanBoard.css';
 
-interface Issue {
+export interface Issue {
   id: string;
   title: string;
   status: string;
@@ -13,20 +13,18 @@ interface Column {
   title: string;
 }
 
-const initialIssues: Issue[] = [
-  { id: '1', title: 'Setup database schema', status: 'TODO', priority: 'HIGH' },
-  { id: '2', title: 'Implement Auth APIs', status: 'IN_PROGRESS', priority: 'MEDIUM' },
-  { id: '3', title: 'Design landing page', status: 'DONE', priority: 'LOW' },
-];
-
 const columns: Column[] = [
   { id: 'TODO', title: 'To Do' },
   { id: 'IN_PROGRESS', title: 'In Progress' },
   { id: 'DONE', title: 'Done' },
 ];
 
-export const KanbanBoard: React.FC = () => {
-  const [issues, setIssues] = useState<Issue[]>(initialIssues);
+interface KanbanBoardProps {
+  issues: Issue[];
+  onIssueMove: (issueId: string, newStatus: string) => void;
+}
+
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, onIssueMove }) => {
   const [draggedIssueId, setDraggedIssueId] = useState<string | null>(null);
   const dragOverColumnId = useRef<string | null>(null);
 
@@ -77,11 +75,7 @@ export const KanbanBoard: React.FC = () => {
 
     const issueId = e.dataTransfer.getData('text/plain');
     if (issueId && draggedIssueId) {
-      setIssues(prev =>
-        prev.map(issue =>
-          issue.id === issueId ? { ...issue, status: columnId } : issue
-        )
-      );
+      onIssueMove(issueId, columnId);
     }
     setDraggedIssueId(null);
   };

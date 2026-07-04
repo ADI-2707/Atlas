@@ -5,6 +5,36 @@ import { PrismaClient } from '@prisma/client';
 export class ProjectManagementService {
   constructor(@Inject('PRISMA_SERVICE') private readonly prisma: PrismaClient) { }
 
+  async getLimitStats(organizationId: string) {
+    const plugin = await this.prisma.plugin.findUnique({
+      where: { id: 'project-management' }
+    });
+    const config: any = plugin?.config || {};
+    const tier = config.tier || 'free';
+
+    let maxProjects = 1;
+    let maxIssues = 100;
+
+    if (tier === 'tier1') { maxProjects = 5; maxIssues = -1; }
+    else if (tier === 'tier2') { maxProjects = 50; maxIssues = -1; }
+    else if (tier === 'tier3') { maxProjects = -1; maxIssues = -1; }
+
+    const projectCount = await this.prisma.project.count({
+      where: { organizationId }
+    });
+    const issueCount = await this.prisma.issue.count({
+      where: { organizationId }
+    });
+
+    return {
+      tier,
+      maxProjects,
+      maxIssues,
+      projectCount,
+      issueCount
+    };
+  }
+
   async createProject(organizationId: string, data: { name: string; key: string; description?: string }) {
     return this.prisma.project.create({
       data: {

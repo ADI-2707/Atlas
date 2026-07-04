@@ -9,6 +9,12 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 export class ProjectManagementController {
   constructor(private readonly pmService: ProjectManagementService) {}
 
+  @Get('stats')
+  @ApiOperation({ summary: 'Get PM limit stats' })
+  async getStats(@Req() req: any) {
+    return this.pmService.getLimitStats(req.user.organizationId);
+  }
+
   @Post('projects')
   @ApiOperation({ summary: 'Create a new project' })
   async createProject(@Req() req: any, @Body() data: { name: string; key: string; description?: string }) {
