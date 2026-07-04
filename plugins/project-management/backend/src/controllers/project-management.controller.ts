@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Req, UseGuards } from '@nestjs/common';
-import { ProjectManagementService } from './project-management.service';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { Controller, Get, Post, Put, Delete, Body, Param, Req } from '@nestjs/common';
+import { ProjectManagementService } from '../services/project-management.service';
+
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Project Management')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @Controller('plugins/pm')
 export class ProjectManagementController {
   constructor(private readonly pmService: ProjectManagementService) {}

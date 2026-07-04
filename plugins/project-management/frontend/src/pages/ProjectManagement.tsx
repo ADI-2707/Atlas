@@ -1,5 +1,5 @@
 import React from 'react';
-import { KanbanBoard } from './KanbanBoard';
+import { KanbanBoard } from '../components/KanbanBoard';
 
 export const ProjectManagement: React.FC = () => {
   return (

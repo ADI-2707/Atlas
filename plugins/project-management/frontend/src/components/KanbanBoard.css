@@ -1,55 +1,60 @@
 .kanban-board {
   display: flex;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
   overflow-x: auto;
   height: calc(100vh - 100px);
-  background-color: var(--background-secondary, #121212);
+  background-color: var(--bg-surface-secondary);
 }
 
 .kanban-column {
   flex: 0 0 350px;
-  background-color: var(--background-primary, #1e1e1e);
-  border-radius: 8px;
+  background-color: var(--bg-surface-primary);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 1px solid var(--border-color, #333);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .kanban-column-header {
-  padding: 1rem;
-  font-weight: 600;
-  font-size: 1.1rem;
-  border-bottom: 1px solid var(--border-color, #333);
+  padding: var(--spacing-md);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-lg);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: var(--text-primary, #fff);
+  color: var(--text-primary);
 }
 
 .kanban-column-content {
   flex: 1;
-  padding: 1rem;
+  padding: var(--spacing-md);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--spacing-sm);
 }
 
 .kanban-column-content.drag-over {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-surface-tertiary);
 }
 
 .kanban-card {
-  background-color: var(--background-secondary, #2a2a2a);
-  border: 1px solid var(--border-color, #444);
-  border-radius: 6px;
-  padding: 1rem;
+  background-color: var(--bg-surface-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
   cursor: grab;
-  color: var(--text-primary, #fff);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.kanban-card:hover {
+  border-color: var(--border-color-hover);
 }
 
 .kanban-card:active {
@@ -62,21 +67,21 @@
 }
 
 .kanban-card-title {
-  font-weight: 500;
-  margin-bottom: 0.5rem;
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-sm);
 }
 
 .kanban-card-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
-  color: var(--text-secondary, #aaa);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .kanban-card-badge {
   padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  background-color: var(--primary-color, #3b82f6);
-  color: white;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  background-color: var(--color-accent-active);
+  color: #fff;
 }
