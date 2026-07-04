@@ -45,7 +45,7 @@ export const mockPlugins: MockPlugin[] = [
     name: 'Project Management',
     description: 'Enterprise project management and issue tracking plugin.',
     navigation: [
-      { title: 'Projects', path: '/projects', icon: 'pm' }
+      { title: 'Projects', path: '/project-management', icon: 'pm' }
     ]
   }
 ];

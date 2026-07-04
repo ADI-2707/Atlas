@@ -9,7 +9,7 @@
   "permissions": [],
   "events": [],
   "routes": [
-    "/projects"
+    "/project-management"
   ],
   "widgets": []
 }

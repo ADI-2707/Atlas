@@ -112,7 +112,7 @@ export const App: React.FC = () => {
                 <Route path="crm/*" element={<CRM />} />
                 <Route path="hr/*" element={<HR />} />
                 <Route path="analytics/*" element={<AnalyticsWrapper />} />
-                <Route path="projects/*" element={<ProjectManagement />} />
+                <Route path="project-management/*" element={<ProjectManagement />} />
               </Route>
             </Routes>
           </BrowserRouter>

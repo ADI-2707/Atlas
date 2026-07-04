@@ -5,7 +5,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 
 @ApiTags('Project Management')
 @ApiBearerAuth()
-@Controller('plugins/pm')
+@Controller('plugins/project-management')
 export class ProjectManagementController {
   constructor(private readonly pmService: ProjectManagementService) {}
 
