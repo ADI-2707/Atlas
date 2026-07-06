@@ -109,4 +109,55 @@ export class ProjectManagementController {
   async deleteComment(@Req() req: any, @Param('id') id: string) {
     return this.pmService.deleteComment(id, req.user.organizationId);
   }
+
+  // --- STEPS ---
+  @Post('issues/:issueId/steps')
+  @ApiOperation({ summary: 'Create a step for an issue' })
+  async createStep(@Req() req: any, @Param('issueId') issueId: string, @Body() data: { title: string; order?: number }) {
+    return this.pmService.createStep(req.user.organizationId, issueId, data);
+  }
+
+  @Put('steps/:id')
+  @ApiOperation({ summary: 'Update a step' })
+  async updateStep(@Req() req: any, @Param('id') id: string, @Body() data: { title?: string; isCompleted?: boolean; order?: number }) {
+    return this.pmService.updateStep(id, req.user.organizationId, data);
+  }
+
+  @Delete('steps/:id')
+  @ApiOperation({ summary: 'Delete a step' })
+  async deleteStep(@Req() req: any, @Param('id') id: string) {
+    return this.pmService.deleteStep(id, req.user.organizationId);
+  }
+
+  // --- LINEUPS ---
+  @Post('projects/:projectId/lineups')
+  @ApiOperation({ summary: 'Create a lineup (custom stage) for a project' })
+  async createLineup(@Req() req: any, @Param('projectId') projectId: string, @Body() data: { name: string; order?: number; allocatedUserId?: string }) {
+    return this.pmService.createLineup(req.user.organizationId, projectId, data);
+  }
+
+  @Put('lineups/:id')
+  @ApiOperation({ summary: 'Update a lineup' })
+  async updateLineup(@Req() req: any, @Param('id') id: string, @Body() data: { name?: string; order?: number; allocatedUserId?: string }) {
+    return this.pmService.updateLineup(id, req.user.organizationId, data);
+  }
+
+  @Delete('lineups/:id')
+  @ApiOperation({ summary: 'Delete a lineup' })
+  async deleteLineup(@Req() req: any, @Param('id') id: string) {
+    return this.pmService.deleteLineup(id, req.user.organizationId);
+  }
+
+  // --- ERROR LOGS ---
+  @Post('projects/:projectId/error-logs')
+  @ApiOperation({ summary: 'Create an error log for a project' })
+  async createErrorLog(@Req() req: any, @Param('projectId') projectId: string, @Body() data: { message: string; stackTrace?: string; source?: string; status?: string }) {
+    return this.pmService.createErrorLog(req.user.organizationId, projectId, data);
+  }
+
+  @Get('projects/:projectId/error-logs')
+  @ApiOperation({ summary: 'Get error logs for a project' })
+  async getErrorLogs(@Req() req: any, @Param('projectId') projectId: string) {
+    return this.pmService.getErrorLogs(req.user.organizationId, projectId);
+  }
 }
