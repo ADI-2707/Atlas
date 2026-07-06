@@ -6,13 +6,16 @@ import { ProjectModal } from '../components/ProjectModal';
 import { IssueModal } from '../components/IssueModal';
 import { ProjectActivityLogs } from '../components/ProjectActivityLogs';
 import { usePlugins } from '../../../../../apps/frontend/src/contexts/PluginContext';
+import { TimelineView } from '../components/TimelineView';
+import { ErrorTrackingView } from '../components/ErrorTrackingView';
+import { LineupView } from '../components/LineupView';
 
 export const ProjectManagement: React.FC = () => {
   const { setWorkspaceLock } = usePlugins();
   const [projects, setProjects] = useState<any[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [issues, setIssues] = useState<Issue[]>([]);
-  const [activeView, setActiveView] = useState<'board' | 'list' | 'logs'>('board');
+  const [activeView, setActiveView] = useState<'board' | 'list' | 'logs' | 'timeline' | 'lineups' | 'errors'>('board');
   
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isIssueModalOpen, setIsIssueModalOpen] = useState(false);
@@ -210,6 +213,63 @@ export const ProjectManagement: React.FC = () => {
             >
               Logs
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('timeline')}
+              className={`clean-tab-btn ${activeView === 'timeline' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'timeline' ? '2px solid var(--color-accent-pm)' : '2px solid transparent',
+                color: activeView === 'timeline' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'timeline' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Timeline {limitStats?.hasTimelines ? '' : '🔒'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('lineups')}
+              className={`clean-tab-btn ${activeView === 'lineups' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'lineups' ? '2px solid var(--color-accent-pm)' : '2px solid transparent',
+                color: activeView === 'lineups' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'lineups' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Lineups {limitStats?.hasCustomLineups ? '' : '🔒'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView('errors')}
+              className={`clean-tab-btn ${activeView === 'errors' ? 'active' : ''}`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                borderBottom: activeView === 'errors' ? '2px solid var(--color-accent-pm)' : '2px solid transparent',
+                color: activeView === 'errors' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                padding: '0.5rem 0',
+                cursor: 'pointer',
+                fontWeight: activeView === 'errors' ? '600' : '500',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              Errors {limitStats?.hasErrorTracking ? '' : '🔒'}
+            </button>
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
@@ -317,6 +377,30 @@ export const ProjectManagement: React.FC = () => {
         )}
         {activeView === 'logs' && (
           <ProjectActivityLogs />
+        )}
+        {activeView === 'timeline' && activeProjectId && (
+          limitStats?.hasTimelines ? <TimelineView issues={issues} /> : (
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+              <h3>Timeline Locked</h3>
+              <p>Please upgrade to a Pro tier or higher to access timeline views.</p>
+            </div>
+          )
+        )}
+        {activeView === 'lineups' && activeProjectId && (
+          limitStats?.hasCustomLineups ? <LineupView projectId={activeProjectId} /> : (
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+              <h3>Lineups Locked</h3>
+              <p>Please upgrade to a Business tier or higher to create custom workflow stages and allocate resources.</p>
+            </div>
+          )
+        )}
+        {activeView === 'errors' && activeProjectId && (
+          limitStats?.hasErrorTracking ? <ErrorTrackingView projectId={activeProjectId} /> : (
+            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+              <h3>Error Tracking Locked</h3>
+              <p>Please upgrade to an Enterprise tier to access automated error tracking ingestion.</p>
+            </div>
+          )
         )}
       </div>
 
