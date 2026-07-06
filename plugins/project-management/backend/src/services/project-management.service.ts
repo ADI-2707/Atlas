@@ -23,16 +23,16 @@ export class ProjectManagementService {
     let hasCustomLineups = false;
     let hasErrorTracking = false;
 
-    if (tier === 'pro') {
+    if (tier === 'tier1') {
       maxProjects = 5; maxIssues = -1;
       hasTimelines = true; hasSteps = true;
     }
-    else if (tier === 'business') {
+    else if (tier === 'tier2') {
       maxProjects = 50; maxIssues = -1;
       hasTimelines = true; hasSteps = true;
       hasSubProjects = true; hasCustomLineups = true;
     }
-    else if (tier === 'enterprise') {
+    else if (tier === 'tier3') {
       maxProjects = -1; maxIssues = -1;
       hasTimelines = true; hasSteps = true;
       hasSubProjects = true; hasCustomLineups = true;
