@@ -49,6 +49,10 @@ export const ProjectManagement: React.FC = () => {
       const activeIdx = projects.findIndex(p => p.id === activeProjectId);
       const isProjectLocked = limitStats.maxProjects !== -1 && activeIdx >= limitStats.maxProjects;
       
+      const viewLocked = (activeView === 'timeline' && !limitStats.hasTimelines) ||
+                         (activeView === 'lineups' && !limitStats.hasCustomLineups) ||
+                         (activeView === 'errors' && !limitStats.hasErrorTracking);
+      
       if (isProjectLocked) {
         setWorkspaceLock({
           title: "Project Locked",
@@ -62,12 +66,39 @@ export const ProjectManagement: React.FC = () => {
             }
           }
         });
+      } else if (viewLocked) {
+        let title = "Feature Locked";
+        let description = "This feature is not included in your current subscription plan. Please upgrade to a higher tier to access it.";
+        
+        if (activeView === 'timeline') {
+          title = "Timeline Locked";
+          description = "Please upgrade to a Professional tier or higher to access timeline views.";
+        } else if (activeView === 'lineups') {
+          title = "Lineups Locked";
+          description = "Please upgrade to a Business tier or higher to create custom workflow stages and allocate resources.";
+        } else if (activeView === 'errors') {
+          title = "Error Tracking Locked";
+          description = "Please upgrade to an Enterprise tier to access automated error tracking ingestion.";
+        }
+
+        setWorkspaceLock({
+          title,
+          description,
+          upgradePath: "/store/project-management",
+          secondaryAction: {
+            label: "Go back to Board",
+            onClick: () => {
+              setActiveView('board');
+              setWorkspaceLock(null);
+            }
+          }
+        });
       } else {
         setWorkspaceLock(null);
       }
     }
     return () => setWorkspaceLock(null);
-  }, [limitStats, activeProjectId, projects, setWorkspaceLock]);
+  }, [limitStats, activeProjectId, projects, setWorkspaceLock, activeView]);
 
   const fetchStats = async () => {
     try {
@@ -230,7 +261,7 @@ export const ProjectManagement: React.FC = () => {
                 transition: 'all 0.15s ease'
               }}
             >
-              Timeline {limitStats?.hasTimelines ? '' : '🔒'}
+              Timeline
             </button>
             <button
               type="button"
@@ -249,7 +280,7 @@ export const ProjectManagement: React.FC = () => {
                 transition: 'all 0.15s ease'
               }}
             >
-              Lineups {limitStats?.hasCustomLineups ? '' : '🔒'}
+              Lineups
             </button>
             <button
               type="button"
@@ -268,7 +299,7 @@ export const ProjectManagement: React.FC = () => {
                 transition: 'all 0.15s ease'
               }}
             >
-              Errors {limitStats?.hasErrorTracking ? '' : '🔒'}
+              Errors
             </button>
           </div>
 
@@ -379,28 +410,13 @@ export const ProjectManagement: React.FC = () => {
           <ProjectActivityLogs />
         )}
         {activeView === 'timeline' && activeProjectId && (
-          limitStats?.hasTimelines ? <TimelineView issues={issues} /> : (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-              <h3>Timeline Locked</h3>
-              <p>Please upgrade to a Pro tier or higher to access timeline views.</p>
-            </div>
-          )
+          limitStats?.hasTimelines && <TimelineView issues={issues} />
         )}
         {activeView === 'lineups' && activeProjectId && (
-          limitStats?.hasCustomLineups ? <LineupView projectId={activeProjectId} /> : (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-              <h3>Lineups Locked</h3>
-              <p>Please upgrade to a Business tier or higher to create custom workflow stages and allocate resources.</p>
-            </div>
-          )
+          limitStats?.hasCustomLineups && <LineupView projectId={activeProjectId} />
         )}
         {activeView === 'errors' && activeProjectId && (
-          limitStats?.hasErrorTracking ? <ErrorTrackingView projectId={activeProjectId} /> : (
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-              <h3>Error Tracking Locked</h3>
-              <p>Please upgrade to an Enterprise tier to access automated error tracking ingestion.</p>
-            </div>
-          )
+          limitStats?.hasErrorTracking && <ErrorTrackingView projectId={activeProjectId} />
         )}
       </div>
 
