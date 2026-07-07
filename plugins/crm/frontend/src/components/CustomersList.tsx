@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from '@atlas/api';
-import { Button, Pagination, useDebounce } from '@atlas/ui';
+import { Button, useDebounce } from '@atlas/ui';
 import { DataGrid } from '@atlas/grid';
 
 interface Customer {

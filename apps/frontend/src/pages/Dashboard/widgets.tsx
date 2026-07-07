@@ -1,0 +1,176 @@
+import React, { useEffect, useState } from 'react';
+import { api } from '@atlas/api';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@atlas/ui';
+
+const formatCurrency = (value: number) =>
+  value.toLocaleString(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+
+export const InventoryWidget: React.FC = () => {
+  const [stats, setStats] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get<any>('/inventory/stats')
+      .then(res => setStats(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  if (!stats) return <div>Loading...</div>;
+
+  const productPct = (stats.productCount / stats.maxProducts) * 100;
+  let fillClass = 'fill-normal';
+  if (productPct >= 90) fillClass = 'fill-critical';
+  else if (productPct >= 80) fillClass = 'fill-warning';
+  const isCritical = productPct >= 99.5;
+
+  return (
+    <div className={`widget-body ${isCritical ? 'pulsing-critical' : ''}`}>
+      <div className="widget-limits-container">
+        <div className="limit-item">
+          <div className="limit-label">
+            <span>Products Usage</span>
+            <span>{stats.productCount} / {stats.maxProducts} ({productPct.toFixed(1)}%)</span>
+          </div>
+          <div className="limit-progress-bar">
+            <div className={`limit-progress-fill ${fillClass}`} style={{ width: `${Math.min(productPct, 100)}%` }} />
+          </div>
+        </div>
+      </div>
+      <div className="widget-footer" style={{ marginTop: '1rem' }}>
+        <Button variant="secondary" size="small" onClick={() => navigate('/inventory')}>Open App</Button>
+      </div>
+    </div>
+  );
+};
+
+export const CrmWidget: React.FC = () => {
+  const [stats, setStats] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get<any>('/crm/limits')
+      .then(res => setStats(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  if (!stats) return <div>Loading...</div>;
+
+  const contactsPct = stats.limits.customers === -1 ? 0 : (stats.usage.customers / stats.limits.customers) * 100;
+  let fillClass = 'fill-normal';
+  if (contactsPct >= 90) fillClass = 'fill-critical';
+  else if (contactsPct >= 80) fillClass = 'fill-warning';
+
+  return (
+    <div className="widget-body">
+      <div className="widget-limits-container">
+        <div className="limit-item">
+          <div className="limit-label">
+            <span>Contacts Usage</span>
+            <span>{stats.usage.customers} / {stats.limits.customers === -1 ? 'Unlimited' : stats.limits.customers}</span>
+          </div>
+          <div className="limit-progress-bar">
+            <div className={`limit-progress-fill ${fillClass}`} style={{ width: `${Math.min(contactsPct, 100)}%` }} />
+          </div>
+        </div>
+      </div>
+      <div className="widget-footer" style={{ marginTop: '1rem' }}>
+        <Button variant="secondary" size="small" onClick={() => navigate('/crm')}>Open App</Button>
+      </div>
+    </div>
+  );
+};
+
+export const HrWidget: React.FC = () => {
+  const [stats, setStats] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    Promise.all([
+      api.get<any>('/hr/employees'),
+      api.get<any>('/hr/payroll')
+    ]).then(([empRes, payRes]) => {
+      const emps = empRes.data?.data || [];
+      const pays = payRes.data?.data || [];
+      setStats({
+        employeeCount: emps.length,
+        payrollTotal: pays.reduce((sum: number, p: any) => sum + (p.amount || 0), 0)
+      });
+    }).catch(err => console.error(err));
+  }, []);
+
+  if (!stats) return <div>Loading...</div>;
+
+  return (
+    <div className="widget-body">
+      <div className="widget-limits-container">
+        <div className="limit-item">
+          <span>Total Employees: </span><strong>{stats.employeeCount}</strong>
+        </div>
+        <div className="limit-item" style={{ marginTop: '0.5rem' }}>
+          <span>Monthly Payroll: </span><strong>{formatCurrency(stats.payrollTotal)}</strong>
+        </div>
+      </div>
+      <div className="widget-footer" style={{ marginTop: '1rem' }}>
+        <Button variant="secondary" size="small" onClick={() => navigate('/hr')}>Open App</Button>
+      </div>
+    </div>
+  );
+};
+
+export const AnalyticsWidget: React.FC = () => {
+  const [stats, setStats] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch('/api/analytics/dashboard?org_id=org_default_123', {
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setStats(data.overview))
+      .catch(err => console.error(err));
+  }, []);
+
+  if (!stats) return <div>Loading...</div>;
+
+  return (
+    <div className="widget-body">
+      <div className="widget-limits-container">
+        <div>Deals Won Revenue: <strong>{formatCurrency(stats.totalRevenue || 0)}</strong></div>
+        <div style={{ marginTop: '0.5rem' }}>Inventory Valuation: <strong>{formatCurrency(stats.inventoryValuation || 0)}</strong></div>
+      </div>
+      <div className="widget-footer" style={{ marginTop: '1rem' }}>
+        <Button variant="secondary" size="small" onClick={() => navigate('/analytics')}>Open App</Button>
+      </div>
+    </div>
+  );
+};
+
+export const PmWidget: React.FC = () => {
+  const [stats, setStats] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get<any>('/plugins/project-management/stats')
+      .then(res => setStats(res.data))
+      .catch(err => console.error(err));
+  }, []);
+
+  if (!stats) return <div>Loading...</div>;
+
+  return (
+    <div className="widget-body">
+      <div className="widget-limits-container">
+        <div>Projects: <strong>{stats.projectCount}</strong></div>
+        <div style={{ marginTop: '0.5rem' }}>Issues: <strong>{stats.issueCount}</strong></div>
+      </div>
+      <div className="widget-footer" style={{ marginTop: '1rem' }}>
+        <Button variant="secondary" size="small" onClick={() => navigate('/projects')}>Open App</Button>
+      </div>
+    </div>
+  );
+};
