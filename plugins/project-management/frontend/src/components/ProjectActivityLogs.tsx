@@ -43,7 +43,7 @@ export const ProjectActivityLogs: React.FC = () => {
       if (debouncedSearch.trim()) {
         queryParams.append('search', debouncedSearch.trim());
       }
-      const res = await api.get<{ data: any }>('/project-management/audit-logs?' + queryParams.toString());
+      const res = await api.get<{ data: any }>('/plugins/project-management/audit-logs?' + queryParams.toString());
       setLogs(res.data?.data || []);
       setTotalPages(res.data?.meta?.totalPages || 1);
     } catch (err) {
