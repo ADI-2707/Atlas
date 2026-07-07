@@ -66,10 +66,12 @@ const AnalyticsWrapper: React.FC = () => {
   return <Analytics tier={tier} />;
 };
 
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+
 export const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <AuthProvider>
+      <AuthProvider apiUrl={apiUrl}>
         <PluginProvider>
           <BrowserRouter>
             <Routes>
