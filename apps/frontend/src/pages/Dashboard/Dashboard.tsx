@@ -84,7 +84,7 @@ export const Dashboard: React.FC = () => {
       )}
 
       {installedPlugins.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
+        <div className="dashboard-engine-wrapper">
           <DashboardEngine registry={registry} />
         </div>
       )}
