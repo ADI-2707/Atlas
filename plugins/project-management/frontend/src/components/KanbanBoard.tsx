@@ -39,7 +39,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ issues, onIssueMove })
     }, 0);
   };
 
-  const handleDragEnd = (e: React.DragEvent, id: string) => {
+  const handleDragEnd = (_e: React.DragEvent, id: string) => {
     setDraggedIssueId(null);
     const el = document.getElementById(`issue-${id}`);
     if (el) el.classList.remove('dragging');

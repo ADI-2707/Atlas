@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Button, Modal, Tabs, Pagination, useDebounce } from '@atlas/ui';
+import { Button, Tabs, Pagination, useDebounce } from '@atlas/ui';
 import { api } from '@atlas/api';
 import { ProductForm } from '../components/ProductForm';
 import { WarehouseManager } from '../components/WarehouseManager';
