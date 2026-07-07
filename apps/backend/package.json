@@ -18,6 +18,8 @@
     "db:reset": "prisma migrate reset --force"
   },
   "dependencies": {
+    "@atlas/config": "workspace:*",
+    "@atlas/storage": "workspace:*",
     "@atlas/events": "workspace:*",
     "@atlas/logger": "workspace:*",
     "@atlas/plugin-crm": "workspace:*",

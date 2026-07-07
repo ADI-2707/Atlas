@@ -9,5 +9,19 @@
     "build": "tsc",
     "lint": "echo 'lint passed'",
     "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "react-grid-layout": "^1.4.4",
+    "react-resizable": "^3.0.5",
+    "@atlas/widgets": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/react-grid-layout": "^1.3.5"
   }
 }

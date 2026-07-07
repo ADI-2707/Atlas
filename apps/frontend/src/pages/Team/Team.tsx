@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
+import { FormBuilder } from '@atlas/forms';
+import { z } from 'zod';
 import './Team.css';
 
 interface User {
@@ -11,18 +13,18 @@ interface User {
   createdAt: string;
 }
 
+const CreateEmployeeSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters')
+});
+
 export const Team: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
-
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: ''
-  });
 
   const fetchUsers = async () => {
     try {
@@ -40,13 +42,11 @@ export const Team: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreateUser = async (data: z.infer<typeof CreateEmployeeSchema>) => {
     setError('');
     try {
-      await api.post('/users', formData);
+      await api.post('/users', data);
       setShowModal(false);
-      setFormData({ firstName: '', lastName: '', email: '', password: '' });
       fetchUsers();
     } catch (err: any) {
       setError(err.message || 'Failed to create user.');
@@ -115,57 +115,20 @@ export const Team: React.FC = () => {
             <p>They will be added to your organization instantly.</p>
             {error && <div className="error-message">{error}</div>}
             
-            <form onSubmit={handleCreateUser}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>First Name</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={formData.firstName}
-                    onChange={e => setFormData({...formData, firstName: e.target.value})}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Last Name</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={formData.lastName}
-                    onChange={e => setFormData({...formData, lastName: e.target.value})}
-                  />
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Email Address</label>
-                <input 
-                  type="email" 
-                  required 
-                  value={formData.email}
-                  onChange={e => setFormData({...formData, email: e.target.value})}
-                />
-              </div>
-              <div className="form-group">
-                <label>Temporary Password</label>
-                <input 
-                  type="password" 
-                  required 
-                  minLength={8}
-                  value={formData.password}
-                  onChange={e => setFormData({...formData, password: e.target.value})}
-                />
-                <small>Give this password to your employee so they can sign in.</small>
-              </div>
-
-              <div className="modal-actions">
-                <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Create Account
-                </button>
-              </div>
-            </form>
+            <FormBuilder
+              schema={CreateEmployeeSchema}
+              onSubmit={handleCreateUser}
+              submitLabel="Create Account"
+              fields={[
+                { name: 'firstName', label: 'First Name', type: 'text' },
+                { name: 'lastName', label: 'Last Name', type: 'text' },
+                { name: 'email', label: 'Email Address', type: 'email' },
+                { name: 'password', label: 'Temporary Password', type: 'text' },
+              ]}
+            />
+            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+              <button className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
+            </div>
           </div>
         </div>
       )}

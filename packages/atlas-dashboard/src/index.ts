@@ -1,3 +1,1 @@
-// @atlas/dashboard — Atlas Dashboard Engine
-
-export {};
+export * from './components/Dashboard';

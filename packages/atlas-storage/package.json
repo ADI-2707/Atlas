@@ -9,5 +9,8 @@
     "build": "tsc",
     "lint": "echo 'lint passed'",
     "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.0"
   }
 }
