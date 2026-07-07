@@ -45,7 +45,7 @@ const SetupGuard: React.FC<{ children: React.ReactNode, requireSetup?: boolean }
   if (requireSetup && !user.hasCompletedSetup && location.pathname !== '/setup') {
     return <Navigate to="/setup" replace />;
   }
-  
+
   if (!requireSetup && user.hasCompletedSetup && location.pathname === '/setup') {
     return <Navigate to="/" replace />;
   }
@@ -57,12 +57,12 @@ const AnalyticsWrapper: React.FC = () => {
   const { allPlugins } = usePlugins();
   const analyticsPlugin = allPlugins.find(p => p.id === 'analytics');
   const activeBackendTier = analyticsPlugin?.config?.tier || 'free';
-  
+
   let tier: 'free' | 'pro' | 'business' | 'enterprise' = 'free';
   if (activeBackendTier === 'tier1') tier = 'pro';
   else if (activeBackendTier === 'tier2') tier = 'business';
   else if (activeBackendTier === 'tier3') tier = 'enterprise';
-  
+
   return <Analytics tier={tier} />;
 };
 
@@ -74,7 +74,7 @@ export const App: React.FC = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
-              
+
               <Route path="/setup" element={
                 <ProtectedRoute fallback={<Navigate to="/login" replace />}>
                   <SetupGuard requireSetup={false}>
