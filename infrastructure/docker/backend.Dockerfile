@@ -2,7 +2,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install pnpm
+# Install pnpm and openssl
+RUN apk add --no-cache openssl
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 # Copy workspace files
@@ -26,7 +27,8 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install pnpm for production deps
+# Install pnpm and openssl
+RUN apk add --no-cache openssl
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 COPY --from=builder /app/package.json /app/pnpm-workspace.yaml /app/pnpm-lock.yaml ./
@@ -37,10 +39,10 @@ COPY --from=builder /app/plugins ./plugins/
 # Install production dependencies
 RUN pnpm install --frozen-lockfile --prod
 
-# Copy Prisma schema and generated client (since it's inside node_modules/@prisma/client usually)
+# Copy Prisma schema
 COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
-# Re-generate in prod environment to ensure correct engine (or just copy node_modules if we skipped --prod, but we'll re-generate)
-RUN pnpm --filter @atlas/backend db:generate
+# Re-generate in prod environment to ensure correct engine
+RUN npx prisma generate --schema=apps/backend/prisma/schema.prisma
 
 # Copy built dist
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
