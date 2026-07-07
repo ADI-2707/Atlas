@@ -5,6 +5,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { AuditService } from '../audit/audit.service';
+import { configManager } from '@atlas/config';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 
@@ -181,7 +182,7 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRATION || '15m',
+      expiresIn: configManager.has('JWT_ACCESS_EXPIRATION') ? configManager.get<string>('JWT_ACCESS_EXPIRATION') : '15m',
     });
     const refreshToken = randomUUID();
 
@@ -263,7 +264,7 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRATION || '15m',
+      expiresIn: configManager.has('JWT_ACCESS_EXPIRATION') ? configManager.get<string>('JWT_ACCESS_EXPIRATION') : '15m',
     });
 
     
@@ -288,8 +289,8 @@ export class AuthService {
   }
 
   async superAdminLogin(dto: LoginDto, ipAddress?: string) {
-    const adminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@atlas.com';
-    const adminPassword = process.env.SUPER_ADMIN_PASSWORD || 'Admin@123';
+    const adminEmail = configManager.has('SUPER_ADMIN_EMAIL') ? configManager.get<string>('SUPER_ADMIN_EMAIL') : 'admin@atlas.com';
+    const adminPassword = configManager.has('SUPER_ADMIN_PASSWORD') ? configManager.get<string>('SUPER_ADMIN_PASSWORD') : 'Admin@123';
 
     if (dto.email !== adminEmail || dto.password !== adminPassword) {
       await this.auditService.createLog({
