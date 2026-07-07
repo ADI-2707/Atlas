@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@atlas/ui';
+import { api } from '@atlas/api';
 import './SupportWidget.css';
 
 interface Ticket {
@@ -26,15 +27,8 @@ export const SupportWidget: React.FC = () => {
 
   const fetchTickets = async () => {
     try {
-      const res = await fetch('/api/v1/audit/tickets', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('atlas_token')}`
-        }
-      });
-      if (res.ok) {
-        const json = await res.json();
-        setTickets(json.data || []);
-      }
+      const res = await api.get<{ data: Ticket[] }>('/audit/tickets');
+      setTickets(res.data || []);
     } catch (e) {
       console.error('Failed to load tickets', e);
     }
@@ -46,22 +40,11 @@ export const SupportWidget: React.FC = () => {
     
     setLoading(true);
     try {
-      const res = await fetch('/api/v1/audit/tickets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('atlas_token')}`
-        },
-        body: JSON.stringify({ subject, description })
-      });
+      await api.post('/audit/tickets', { subject, description });
       
-      if (res.ok) {
-        setSubject('');
-        setDescription('');
-        setView('LIST');
-      } else {
-        alert('Failed to submit ticket');
-      }
+      setSubject('');
+      setDescription('');
+      setView('LIST');
     } catch (e) {
       console.error(e);
       alert('Error submitting ticket');
