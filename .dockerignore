@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+dist
+build
+.git
+.env
+.DS_Store
+.idea
+.vscode
+coverage
+.pytest_cache
+__pycache__
