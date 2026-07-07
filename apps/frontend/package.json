@@ -13,6 +13,7 @@
     "@atlas/api": "workspace:*",
     "@atlas/auth": "workspace:*",
     "@atlas/events": "workspace:*",
+    "@atlas/forms": "workspace:*",
     "@atlas/ui": "workspace:*",
     "@atlas/utils": "workspace:*",
     "react": "18.2.0",

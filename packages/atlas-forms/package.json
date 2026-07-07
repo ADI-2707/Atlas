@@ -9,5 +9,19 @@
     "build": "tsc",
     "lint": "echo 'lint passed'",
     "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "3.3.4",
+    "react-hook-form": "7.51.0",
+    "zod": "3.22.4",
+    "@atlas/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0"
   }
 }

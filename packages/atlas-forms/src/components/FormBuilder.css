@@ -1,0 +1,61 @@
+.atlas-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.atlas-form-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.atlas-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.atlas-form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.atlas-form-error {
+  font-size: 0.75rem;
+  color: #ef4444; /* red-500 */
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+}
+
+.atlas-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.atlas-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.atlas-checkbox {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.atlas-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}

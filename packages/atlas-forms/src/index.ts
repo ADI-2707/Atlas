@@ -1,3 +1,1 @@
-// @atlas/forms — Atlas Form Framework
-
-export {};
+export * from './components/FormBuilder';
