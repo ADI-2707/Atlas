@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@atlas/dashboard": "workspace:*",
+    "@atlas/widgets": "workspace:*",
     "@atlas/api": "workspace:*",
     "@atlas/auth": "workspace:*",
     "@atlas/events": "workspace:*",
