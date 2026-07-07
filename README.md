@@ -153,8 +153,8 @@ pnpm dev
 ```
 
 By default:
-- **SaaS portal** (marketing, pricing, signup, platform admin) → `http://localhost:5173`
-- **Product frontend** (used by subscribed organizations) → served per the frontend app config
+- **SaaS portal** (marketing, pricing, signup, platform admin) → `http://localhost:5174`
+- **Product frontend** (used by subscribed organizations) → `http://localhost:5173`
 - **Backend API** → `http://localhost:3000`
 
 ---
