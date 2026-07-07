@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
+import { Tabs } from '@atlas/ui';
 import './AnalyticsDashboard.css';
 
 interface DashboardProps {
@@ -88,31 +89,17 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
     
     return (
       <div style={{ marginTop: '2rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
-          <button
-            onClick={() => setSubTab('hr')}
-            style={{
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              color: subTab === 'hr' ? 'var(--color-accent-core, #3b82f6)' : 'var(--text-secondary)',
-              fontWeight: subTab === 'hr' ? 'bold' : 'normal'
-            }}
-          >HR Analytics</button>
-          <button
-            onClick={() => setSubTab('crm')}
-            style={{
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              color: subTab === 'crm' ? 'var(--color-accent-core, #3b82f6)' : 'var(--text-secondary)',
-              fontWeight: subTab === 'crm' ? 'bold' : 'normal'
-            }}
-          >CRM Analytics</button>
-          <button
-            onClick={() => setSubTab('inventory')}
-            style={{
-              background: 'transparent', border: 'none', cursor: 'pointer',
-              color: subTab === 'inventory' ? 'var(--color-accent-core, #3b82f6)' : 'var(--text-secondary)',
-              fontWeight: subTab === 'inventory' ? 'bold' : 'normal'
-            }}
-          >Inventory Analytics</button>
+        <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
+          <Tabs
+            tabs={[
+              { id: 'hr', label: 'HR Analytics' },
+              { id: 'crm', label: 'CRM Analytics' },
+              { id: 'inventory', label: 'Inventory Analytics' }
+            ]}
+            activeId={subTab}
+            onChange={(id) => setSubTab(id as any)}
+            accentColor="var(--color-accent-core, #3b82f6)"
+          />
         </div>
 
         <div style={{ height: '300px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -173,71 +160,16 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
     <div className="analytics-dashboard">
       <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div className="clean-tabs-bar" style={{ display: 'flex', gap: '1.5rem' }}>
-            <button
-              type="button"
-              onClick={() => setActiveTab('overview')}
-              className={`clean-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                borderBottom: activeTab === 'overview' ? '2px solid var(--color-accent-core, #3b82f6)' : '2px solid transparent',
-                color: activeTab === 'overview' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                padding: '0.5rem 0',
-                cursor: 'pointer',
-                fontWeight: activeTab === 'overview' ? '600' : '500',
-                fontSize: '0.95rem',
-                outline: 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Overview
-            </button>
-            
-            {canViewAnomalies && (
-              <button
-                type="button"
-                onClick={() => setActiveTab('anomalies')}
-                className={`clean-tab-btn ${activeTab === 'anomalies' ? 'active' : ''}`}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  borderBottom: activeTab === 'anomalies' ? '2px solid var(--color-accent-core, #3b82f6)' : '2px solid transparent',
-                  color: activeTab === 'anomalies' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  padding: '0.5rem 0',
-                  cursor: 'pointer',
-                  fontWeight: activeTab === 'anomalies' ? '600' : '500',
-                  fontSize: '0.95rem',
-                  outline: 'none',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                Anomaly Detection
-              </button>
-            )}
-
-            {canViewForecasts && (
-              <button
-                type="button"
-                onClick={() => setActiveTab('forecasts')}
-                className={`clean-tab-btn ${activeTab === 'forecasts' ? 'active' : ''}`}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  borderBottom: activeTab === 'forecasts' ? '2px solid var(--color-accent-core, #3b82f6)' : '2px solid transparent',
-                  color: activeTab === 'forecasts' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  padding: '0.5rem 0',
-                  cursor: 'pointer',
-                  fontWeight: activeTab === 'forecasts' ? '600' : '500',
-                  fontSize: '0.95rem',
-                  outline: 'none',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                Predictive Forecasts
-              </button>
-            )}
-          </div>
+          <Tabs
+            tabs={[
+              { id: 'overview', label: 'Overview' },
+              ...(canViewAnomalies ? [{ id: 'anomalies', label: 'Anomaly Detection' }] : []),
+              ...(canViewForecasts ? [{ id: 'forecasts', label: 'Predictive Forecasts' }] : [])
+            ]}
+            activeId={activeTab}
+            onChange={(id) => setActiveTab(id as any)}
+            accentColor="var(--color-accent-core, #3b82f6)"
+          />
           
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             {syncMsg && <span style={{ color: 'var(--color-accent-inventory, #10b981)', fontSize: '0.85rem' }}>{syncMsg}</span>}
