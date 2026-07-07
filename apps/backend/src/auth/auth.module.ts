@@ -8,14 +8,16 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { PermissionsGuard } from './guards/permissions.guard';
 
+import { configManager } from '@atlas/config';
+
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       useFactory: () => ({
-        secret: process.env.JWT_SECRET || 'atlas-dev-secret-key-change-in-production',
+        secret: configManager.has('JWT_SECRET') ? configManager.get<string>('JWT_SECRET') : 'atlas-dev-secret-key-change-in-production',
         signOptions: {
-          expiresIn: process.env.JWT_ACCESS_EXPIRATION || '15m',
+          expiresIn: configManager.has('JWT_ACCESS_EXPIRATION') ? configManager.get<string>('JWT_ACCESS_EXPIRATION') : '15m',
         },
       }),
     }),
