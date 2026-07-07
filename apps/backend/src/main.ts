@@ -2,7 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { configManager } from '@atlas/config';
+import { StorageFactory, LocalDiskStorageProvider } from '@atlas/storage';
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
@@ -15,6 +17,13 @@ async function bootstrap() {
   Object.keys(process.env).forEach(key => {
     configManager.set(key, process.env[key]);
   });
+
+  // Initialize global storage provider
+  const storagePath = configManager.has('STORAGE_PATH') ? configManager.get<string>('STORAGE_PATH') : './storage';
+  StorageFactory.initialize(new LocalDiskStorageProvider({ 
+    baseDir: path.resolve(process.cwd(), storagePath),
+    baseUrl: '/uploads'
+  }));
 
   const app = await NestFactory.create(AppModule);
 
