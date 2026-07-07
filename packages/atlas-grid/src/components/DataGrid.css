@@ -1,0 +1,106 @@
+.atlas-datagrid-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--bg-surface-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.atlas-datagrid-wrapper {
+  overflow-x: auto;
+}
+
+.atlas-datagrid {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.atlas-datagrid th {
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-surface-secondary);
+  user-select: none;
+}
+
+.atlas-datagrid th.sortable-header {
+  cursor: pointer;
+}
+
+.atlas-datagrid th.sortable-header:hover {
+  background: var(--bg-surface-hover);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-icon {
+  font-size: 0.8em;
+}
+
+.atlas-datagrid td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.atlas-datagrid tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.datagrid-message {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-tertiary);
+}
+
+.atlas-datagrid-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-surface-primary);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.pagination-controls button {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination-controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-controls button:not(:disabled):hover {
+  background: var(--bg-surface-hover);
+}
+
+.pagination-size select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+}

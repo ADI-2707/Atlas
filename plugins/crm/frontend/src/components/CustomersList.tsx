@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from '@atlas/api';
 import { Button, Pagination, useDebounce } from '@atlas/ui';
+import { DataGrid } from '@atlas/grid';
 
 interface Customer {
   id: string;
@@ -291,72 +292,59 @@ export const CustomersList: React.FC<{ addTrigger?: number; onStatsChanged?: () 
       </div>
 
       <div className="table-container">
-        <table className="atlas-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Company</th>
-              {customFields.map((f: any) => (
-                <th key={f.name}>{f.label}</th>
-              ))}
-              <th>Status</th>
-              <th style={{ textAlign: 'right' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={6 + customFields.length} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>Loading contacts...</td>
-              </tr>
-            ) : customers.length === 0 ? (
-              <tr>
-                <td colSpan={6 + customFields.length} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-tertiary)' }}>No contacts found. Add one to start.</td>
-              </tr>
-            ) : customers.map(cust => (
-              <tr key={cust.id}>
-                <td>{cust.name}</td>
-                <td>{cust.email}</td>
-                <td>{cust.phone || '-'}</td>
-                <td>{cust.company || '-'}</td>
-                {customFields.map((f: any) => (
-                  <td key={f.name}>{cust.customData?.[f.name] || '-'}</td>
-                ))}
-                <td>
-                  <span className={getStatusBadgeClass(cust.status)}>{cust.status}</span>
-                </td>
-                <td style={{ textAlign: 'right' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                    <Button
-                      variant="secondary"
-                      size="small"
-                      disabled={isAddLocked}
-                      onClick={() => handleOpenEditModal(cust)}
-                      title={isAddLocked ? "Limit reached. Upgrade plan to edit contacts." : ""}
-                    >
-                      Edit
-                    </Button>
-                    <Button variant="secondary" size="small" onClick={() => handleDelete(cust.id)}>Delete</Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataGrid
+          columns={[
+            { id: 'name', header: 'Name', accessor: 'name', sortable: true },
+            { id: 'email', header: 'Email', accessor: 'email', sortable: true },
+            { id: 'phone', header: 'Phone', accessor: 'phone' },
+            { id: 'company', header: 'Company', accessor: 'company', sortable: true },
+            ...customFields.map((f: any) => ({
+              id: f.name,
+              header: f.label,
+              renderCell: (row: Customer) => row.customData?.[f.name] || '-'
+            })),
+            { 
+              id: 'status', 
+              header: 'Status', 
+              accessor: 'status',
+              sortable: true,
+              renderCell: (row: Customer) => <span className={getStatusBadgeClass(row.status)}>{row.status}</span> 
+            },
+            {
+              id: 'actions',
+              header: <div style={{ textAlign: 'right', width: '100%' }}>Actions</div>,
+              renderCell: (row: Customer) => (
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    disabled={isAddLocked}
+                    onClick={() => handleOpenEditModal(row)}
+                    title={isAddLocked ? "Limit reached. Upgrade plan to edit contacts." : ""}
+                  >
+                    Edit
+                  </Button>
+                  <Button variant="secondary" size="small" onClick={() => handleDelete(row.id)}>Delete</Button>
+                </div>
+              )
+            }
+          ]}
+          data={customers}
+          keyExtractor={(row) => row.id}
+          isLoading={isLoading}
+          emptyMessage="No contacts found. Add one to start."
+          pagination={{
+            currentPage: page,
+            totalPages,
+            pageSize: limit,
+            pageSizeOptions: [5, 10, 20, 50],
+            onPageChange: setPage,
+            onPageSizeChange: (s) => { setLimit(s); setPage(1); }
+          }}
+        />
       </div>
 
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        pageSize={limit}
-        pageSizeOptions={[5, 10, 20, 50]}
-        onPageChange={p => setPage(p)}
-        onPageSizeChange={s => {
-          setLimit(s);
-          setPage(1);
-        }}
-      />
+
 
       {isModalOpen && createPortal(
         <div className="modal-overlay">

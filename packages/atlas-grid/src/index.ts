@@ -1,3 +1,1 @@
-// @atlas/grid — Atlas Enterprise Data Grid
-
-export {};
+export * from './components/DataGrid';
