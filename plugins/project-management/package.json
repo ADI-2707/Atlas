@@ -1,0 +1,17 @@
+{
+  "name": "@atlas/plugin-project-management",
+  "version": "1.0.0",
+  "description": "Atlas Project Management Plugin",
+  "main": "dist/backend/src/index.js",
+  "types": "dist/backend/src/index.d.ts",
+  "private": true,
+  "dependencies": {
+    "@atlas/plugin-sdk": "workspace:*",
+    "@atlas/utils": "workspace:*",
+    "@nestjs/common": "10.4.15",
+    "@nestjs/swagger": "8.1.0"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

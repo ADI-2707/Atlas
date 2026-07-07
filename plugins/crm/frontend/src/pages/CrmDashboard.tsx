@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '@atlas/api';
-import { Button } from '@atlas/ui';
+import { Button, Tabs } from '@atlas/ui';
 import { CustomersList } from '../components/CustomersList';
 import { DealsPipeline } from '../components/DealsPipeline';
 import { CrmActivityLogs } from '../components/CrmActivityLogs';
@@ -42,65 +42,16 @@ export const CrmDashboard: React.FC = () => {
     <div className="crm-dashboard">
       <div className="dashboard-header-container" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div className="clean-tabs-bar" style={{ display: 'flex', gap: '1.5rem' }}>
-            <button
-              type="button"
-              onClick={() => setActiveView('contacts')}
-              className={`clean-tab-btn ${activeView === 'contacts' ? 'active' : ''}`}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                borderBottom: activeView === 'contacts' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
-                color: activeView === 'contacts' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                padding: '0.5rem 0',
-                cursor: 'pointer',
-                fontWeight: activeView === 'contacts' ? '600' : '500',
-                fontSize: '0.95rem',
-                outline: 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Contacts & Leads
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveView('pipeline')}
-              className={`clean-tab-btn ${activeView === 'pipeline' ? 'active' : ''}`}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                borderBottom: activeView === 'pipeline' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
-                color: activeView === 'pipeline' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                padding: '0.5rem 0',
-                cursor: 'pointer',
-                fontWeight: activeView === 'pipeline' ? '600' : '500',
-                fontSize: '0.95rem',
-                outline: 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Deals Pipeline
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveView('logs')}
-              className={`clean-tab-btn ${activeView === 'logs' ? 'active' : ''}`}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                borderBottom: activeView === 'logs' ? '2px solid var(--color-accent-crm)' : '2px solid transparent',
-                color: activeView === 'logs' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                padding: '0.5rem 0',
-                cursor: 'pointer',
-                fontWeight: activeView === 'logs' ? '600' : '500',
-                fontSize: '0.95rem',
-                outline: 'none',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              Activity Logs
-            </button>
-          </div>
+          <Tabs
+            tabs={[
+              { id: 'contacts', label: 'Contacts & Leads' },
+              { id: 'pipeline', label: 'Deals Pipeline' },
+              { id: 'logs', label: 'Activity Logs' }
+            ]}
+            activeId={activeView}
+            onChange={(id) => setActiveView(id as any)}
+            accentColor="var(--color-accent-crm)"
+          />
 
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             {activeView === 'contacts' && (

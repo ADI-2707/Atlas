@@ -14,10 +14,12 @@ import { AuditLogs } from './pages/AuditLogs/AuditLogs';
 import { Admin } from './pages/Admin/Admin';
 import { Team } from './pages/Team/Team';
 
+
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
 import CRM from '../../../plugins/crm/frontend/src';
 import HR from '../../../plugins/hr/frontend/src';
 import Analytics from '../../../plugins/analytics/frontend/src';
+import { ProjectManagement } from '../../../plugins/project-management/frontend/src';
 
 const LayoutGuard: React.FC = () => {
   const { installedPlugins, isLoadingPlugins } = usePlugins();
@@ -101,6 +103,7 @@ export const App: React.FC = () => {
               >
                 <Route index element={<Dashboard />} />
                 <Route path="team" element={<Team />} />
+
                 <Route path="logs" element={<AuditLogs />} />
                 <Route path="admin" element={<Admin />} />
                 <Route path="store" element={<PluginStore />} />
@@ -109,6 +112,7 @@ export const App: React.FC = () => {
                 <Route path="crm/*" element={<CRM />} />
                 <Route path="hr/*" element={<HR />} />
                 <Route path="analytics/*" element={<AnalyticsWrapper />} />
+                <Route path="project-management/*" element={<ProjectManagement />} />
               </Route>
             </Routes>
           </BrowserRouter>

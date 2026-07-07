@@ -39,6 +39,14 @@ const getPluginTiers = (pluginId: string) => {
       { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'Predictive analytics.', features: ['Report Generation', 'Anomaly Detection', 'Forecasting Models'] },
     ];
   }
+  if (pluginId === 'project-management') {
+    return [
+      { id: 'free', name: 'Free', price: '$0', desc: 'Basic boards.', features: ['1 Project', '100 Issues'] },
+      { id: 'pro', name: 'Professional', price: '$19', desc: 'Unlimited issues.', features: ['5 Projects', 'Unlimited Issues'] },
+      { id: 'business', name: 'Business', price: '$99', desc: 'For teams.', features: ['50 Projects', 'Custom Workflows'] },
+      { id: 'enterprise', name: 'Enterprise', price: 'Custom', desc: 'Scale to the maximum.', features: ['Unlimited Projects', 'Advanced Reporting'] },
+    ];
+  }
   // Default fallback
   return [
     { id: 'free', name: 'Free', price: '$0', desc: 'Basic features.', features: ['Core Functionality'] },
@@ -66,7 +74,12 @@ export const PluginStore: React.FC = () => {
     if (user && !user.hasCompletedSetup) {
       completeSetup();
     }
-    navigate(`/${pId}`);
+    const pluginMock = mockPlugins.find(p => p.id === pId);
+    if (pluginMock && pluginMock.navigation.length > 0) {
+      navigate(pluginMock.navigation[0].path);
+    } else {
+      navigate(`/${pId}`);
+    }
   };
 
   const handleUpgrade = async (pId: string, tier: string, activeTierId: string) => {

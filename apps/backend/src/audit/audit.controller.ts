@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Req, UseGuards, ForbiddenException } from '@nestjs/common';
 import { AuditService } from './audit.service';
 
 @Controller('audit')
@@ -12,10 +12,15 @@ export class AuditController {
     @Query('limit') limit?: string,
     @Query('search') search?: string
   ) {
+    const isAdmin = req.user.roles?.some((role: string) => ['Super Admin', 'Org Admin', 'SYSTEM_ADMIN'].includes(role));
+    if (!isAdmin) {
+      throw new ForbiddenException('Only organization administrators can view global audit logs');
+    }
+
     const skip = page ? (parseInt(page) - 1) * (limit ? parseInt(limit) : 20) : 0;
     const take = limit ? parseInt(limit) : 20;
 
-    return this.auditService.getLogs(req.user.organizationId, { skip, take, search });
+    return this.auditService.getLogs(req.user.organizationId, { skip, take, search }, true);
   }
 
   @Get('tickets')

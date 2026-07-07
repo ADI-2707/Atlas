@@ -58,14 +58,31 @@ export class AuditService {
     }
   }
 
-  async getLogs(organizationId: string, options: { skip: number, take: number, search?: string }) {
+  async getLogs(organizationId: string, options: { skip: number, take: number, search?: string }, coreOnly: boolean = false) {
     const where: any = { organizationId };
 
-    if (options.search) {
+    if (coreOnly) {
       where.OR = [
+        { pluginId: null },
+        { action: { in: ['plugin.install', 'plugin.enable', 'plugin.disable', 'plugin.upgrade'] } }
+      ];
+    }
+
+    if (options.search) {
+      const searchCondition = [
         { action: { contains: options.search, mode: 'insensitive' } },
         { result: { contains: options.search, mode: 'insensitive' } },
       ];
+      
+      if (where.OR) {
+        where.AND = [
+          { OR: where.OR },
+          { OR: searchCondition }
+        ];
+        delete where.OR;
+      } else {
+        where.OR = searchCondition;
+      }
     }
 
     const [items, total] = await Promise.all([

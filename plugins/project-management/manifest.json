@@ -1,0 +1,15 @@
+{
+  "id": "project-management",
+  "name": "Project Management",
+  "version": "1.0.0",
+  "author": "Atlas Team",
+  "description": "Enterprise project management and issue tracking plugin.",
+  "atlasVersion": "1.0.0",
+  "dependencies": [],
+  "permissions": [],
+  "events": [],
+  "routes": [
+    "/project-management"
+  ],
+  "widgets": []
+}

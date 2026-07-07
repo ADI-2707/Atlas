@@ -43,4 +43,14 @@ export class HrController {
   async createPayrollRecord(@Request() req: any, @Body() body: any) {
     return this.hrService.createPayrollRecord(req.user.organizationId, body, req.user.id);
   }
+
+  @Get('audit-logs')
+  async getAuditLogs(
+    @Request() req: any,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string
+  ) {
+    return this.hrService.getAuditLogs(req.user.organizationId, { page, limit, search });
+  }
 }

@@ -23,6 +23,7 @@
     "@atlas/plugin-crm": "workspace:*",
     "@atlas/plugin-hr": "workspace:*",
     "@atlas/plugin-inventory": "workspace:*",
+    "@atlas/plugin-project-management": "workspace:*",
     "@atlas/plugin-sdk": "workspace:*",
     "@atlas/utils": "workspace:*",
     "@nestjs/common": "10.4.15",

@@ -43,6 +43,35 @@ export class HrService {
     };
   }
 
+  async getAuditLogs(organizationId: string, query: { page?: string; limit?: string; search?: string }) {
+    const { page, limit, skip } = getPaginationParams(query);
+    const whereCondition: any = { organizationId, pluginId: 'hr' };
+
+    if (query.search) {
+      whereCondition.action = { contains: query.search, mode: 'insensitive' };
+    }
+
+    const total = await this.prisma.auditLog.count({ where: whereCondition });
+    const data = await this.prisma.auditLog.findMany({
+      where: whereCondition,
+      orderBy: { timestamp: 'desc' },
+      skip,
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          }
+        }
+      }
+    });
+
+    return buildPaginatedResult(data, total, page, limit);
+  }
+
   async getEmployees(organizationId: string, query: { search?: string; page?: string; limit?: string }) {
     const whereCondition: any = { organizationId };
 
