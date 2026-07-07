@@ -1,0 +1,29 @@
+.clean-tabs-bar {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.clean-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  padding: 0.5rem 0;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+}
+
+.clean-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.clean-tab-btn.active {
+  color: var(--color-accent-active);
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-accent-active);
+}

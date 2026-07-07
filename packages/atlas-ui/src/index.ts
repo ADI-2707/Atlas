@@ -11,5 +11,5 @@ export * from './components/Modal/Modal';
 export * from './components/Sidebar/Sidebar';
 export * from './components/Navbar/Navbar';
 export * from './components/Pagination/Pagination';
+export * from './components/Tabs';
 export * from './hooks/useDebounce';
-
