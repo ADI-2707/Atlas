@@ -34,6 +34,68 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Backend ─────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/backend.Dockerfile
+    container_name: atlas-backend
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - APP_PORT=3000
+      - DATABASE_URL=postgresql://atlas:atlas_dev_password@postgres:5432/atlas?schema=atlas_core
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=super_secret_jwt_key_for_dev_only
+      - FRONTEND_URL=http://localhost:5173
+
+  # ── Frontend ────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/frontend.Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000/api/v1
+    container_name: atlas-frontend
+    restart: unless-stopped
+    ports:
+      - '5173:80'
+    depends_on:
+      - backend
+
+  # ── SaaS Portal ─────────────────────────────────────────
+  saas-portal:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/saas-portal.Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3000/api/v1
+        VITE_APP_URL: http://localhost:5173
+    container_name: atlas-saas-portal
+    restart: unless-stopped
+    ports:
+      - '5174:80'
+    depends_on:
+      - backend
+
+  # ── Analytics Engine ────────────────────────────────────
+  analytics-engine:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/analytics-engine.Dockerfile
+    container_name: atlas-analytics-engine
+    restart: unless-stopped
+    ports:
+      - '8000:8000'
+
 volumes:
   pgdata:
     driver: local
