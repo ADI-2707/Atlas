@@ -3,7 +3,7 @@ import './Tabs.css';
 
 export interface TabItem {
   id: string;
-  label: string;
+  label: React.ReactNode;
 }
 
 export interface TabsProps {
