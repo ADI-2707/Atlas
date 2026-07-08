@@ -25,6 +25,7 @@
     "@atlas/config": "workspace:*",
     "@atlas/events": "workspace:*",
     "@atlas/logger": "workspace:*",
+    "@atlas/plugin-analytics": "workspace:*",
     "@atlas/plugin-crm": "workspace:*",
     "@atlas/plugin-hr": "workspace:*",
     "@atlas/plugin-inventory": "workspace:*",
