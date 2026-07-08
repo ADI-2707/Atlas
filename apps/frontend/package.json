@@ -10,18 +10,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@atlas/dashboard": "workspace:*",
-    "@atlas/widgets": "workspace:*",
     "@atlas/api": "workspace:*",
     "@atlas/auth": "workspace:*",
+    "@atlas/dashboard": "workspace:*",
     "@atlas/events": "workspace:*",
     "@atlas/forms": "workspace:*",
+    "@atlas/plugin-sdk": "workspace:*",
     "@atlas/ui": "workspace:*",
     "@atlas/utils": "workspace:*",
+    "@atlas/widgets": "workspace:*",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "6.22.3",
-    "recharts": "3.9.1"
+    "recharts": "3.9.1",
+    "zod": "3.22.4"
   },
   "devDependencies": {
     "@types/react": "18.2.66",

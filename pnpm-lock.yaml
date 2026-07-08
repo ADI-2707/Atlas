@@ -171,6 +171,9 @@ importers:
       '@atlas/forms':
         specifier: workspace:*
         version: link:../../packages/atlas-forms
+      '@atlas/plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/atlas-plugin-sdk
       '@atlas/ui':
         specifier: workspace:*
         version: link:../../packages/atlas-ui
@@ -192,6 +195,9 @@ importers:
       recharts:
         specifier: 3.9.1
         version: 3.9.1(@types/react@18.2.66)(react-dom@18.2.0(react@18.2.0))(react-is@19.2.7)(react@18.2.0)(redux@5.0.1)
+      zod:
+        specifier: 3.22.4
+        version: 3.22.4
     devDependencies:
       '@types/react':
         specifier: 18.2.66
@@ -207,7 +213,7 @@ importers:
         version: 7.2.0(eslint@8.57.0)(typescript@5.2.2)
       '@vitejs/plugin-react':
         specifier: 4.2.1
-        version: 4.2.1(vite@5.2.0(@types/node@22.10.2)(terser@5.48.0))
+        version: 4.2.1(vite@5.2.0(@types/node@26.1.1)(terser@5.48.0))
       eslint:
         specifier: 8.57.0
         version: 8.57.0
@@ -222,7 +228,7 @@ importers:
         version: 5.2.2
       vite:
         specifier: 5.2.0
-        version: 5.2.0(@types/node@22.10.2)(terser@5.48.0)
+        version: 5.2.0(@types/node@26.1.1)(terser@5.48.0)
 
   apps/saas-portal:
     dependencies:
@@ -256,7 +262,7 @@ importers:
         version: 18.3.7(@types/react@18.3.31)
       '@vitejs/plugin-react':
         specifier: ^4.3.3
-        version: 4.7.0(vite@5.4.21(@types/node@22.10.2)(terser@5.48.0))
+        version: 4.7.0(vite@5.4.21(@types/node@26.1.1)(terser@5.48.0))
       eslint:
         specifier: ^9.13.0
         version: 9.39.4
@@ -277,7 +283,7 @@ importers:
         version: 8.62.1(eslint@9.39.4)(typescript@5.6.3)
       vite:
         specifier: ^5.4.10
-        version: 5.4.21(@types/node@22.10.2)(terser@5.48.0)
+        version: 5.4.21(@types/node@26.1.1)(terser@5.48.0)
 
   apps/worker: {}
 
@@ -291,6 +297,10 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.17
+        version: 19.2.17
 
   packages/atlas-config: {}
 
@@ -322,7 +332,11 @@ importers:
         specifier: ^1.3.5
         version: 1.3.6
 
-  packages/atlas-events: {}
+  packages/atlas-events:
+    devDependencies:
+      '@types/node':
+        specifier: 26.1.1
+        version: 26.1.1
 
   packages/atlas-forms:
     dependencies:
@@ -386,6 +400,13 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.17)
 
   packages/atlas-utils: {}
 
@@ -407,12 +428,18 @@ importers:
 
   plugins/analytics:
     dependencies:
+      '@atlas/api':
+        specifier: workspace:*
+        version: link:../../packages/atlas-api
       '@atlas/events':
         specifier: workspace:*
         version: link:../../packages/atlas-events
       '@atlas/plugin-sdk':
         specifier: workspace:*
         version: link:../../packages/atlas-plugin-sdk
+      '@atlas/ui':
+        specifier: workspace:*
+        version: link:../../packages/atlas-ui
       '@atlas/utils':
         specifier: workspace:*
         version: link:../../packages/atlas-utils
@@ -425,15 +452,40 @@ importers:
       '@prisma/client':
         specifier: 5.22.0
         version: 5.22.0(prisma@5.22.0)
+      react:
+        specifier: 19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: 19.2.7
+        version: 19.2.7(react@19.2.7)
+      recharts:
+        specifier: 3.9.2
+        version: 3.9.2(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react-is@19.2.7)(react@19.2.7)(redux@5.0.1)
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.17)
 
   plugins/crm:
     dependencies:
+      '@atlas/api':
+        specifier: workspace:*
+        version: link:../../packages/atlas-api
       '@atlas/events':
         specifier: workspace:*
         version: link:../../packages/atlas-events
+      '@atlas/grid':
+        specifier: workspace:*
+        version: link:../../packages/atlas-grid
       '@atlas/plugin-sdk':
         specifier: workspace:*
         version: link:../../packages/atlas-plugin-sdk
+      '@atlas/ui':
+        specifier: workspace:*
+        version: link:../../packages/atlas-ui
       '@atlas/utils':
         specifier: workspace:*
         version: link:../../packages/atlas-utils
@@ -446,15 +498,34 @@ importers:
       '@prisma/client':
         specifier: 5.22.0
         version: 5.22.0(prisma@5.22.0)
+      react:
+        specifier: 19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: 19.2.7
+        version: 19.2.7(react@19.2.7)
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.17)
 
   plugins/hr:
     dependencies:
+      '@atlas/api':
+        specifier: workspace:*
+        version: link:../../packages/atlas-api
       '@atlas/events':
         specifier: workspace:*
         version: link:../../packages/atlas-events
       '@atlas/plugin-sdk':
         specifier: workspace:*
         version: link:../../packages/atlas-plugin-sdk
+      '@atlas/ui':
+        specifier: workspace:*
+        version: link:../../packages/atlas-ui
       '@atlas/utils':
         specifier: workspace:*
         version: link:../../packages/atlas-utils
@@ -467,6 +538,19 @@ importers:
       '@prisma/client':
         specifier: 5.22.0
         version: 5.22.0(prisma@5.22.0)
+      react:
+        specifier: 19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: 19.2.7
+        version: 19.2.7(react@19.2.7)
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.17)
 
   plugins/inventory:
     dependencies:
@@ -485,9 +569,15 @@ importers:
 
   plugins/project-management:
     dependencies:
+      '@atlas/api':
+        specifier: workspace:*
+        version: link:../../packages/atlas-api
       '@atlas/plugin-sdk':
         specifier: workspace:*
         version: link:../../packages/atlas-plugin-sdk
+      '@atlas/ui':
+        specifier: workspace:*
+        version: link:../../packages/atlas-ui
       '@atlas/utils':
         specifier: workspace:*
         version: link:../../packages/atlas-utils
@@ -497,6 +587,19 @@ importers:
       '@nestjs/swagger':
         specifier: 8.1.0
         version: 8.1.0(@nestjs/common@10.4.15(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.15)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)
+      react:
+        specifier: 19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: 19.2.7
+        version: 19.2.7(react@19.2.7)
+    devDependencies:
+      '@types/react':
+        specifier: 19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.17)
 
 packages:
 
@@ -1661,6 +1764,9 @@ packages:
   '@types/node@22.10.2':
     resolution: {integrity: sha512-Xxr6BBRCAOQixvonOye19wnzyDiUtTeqldOOmj3CkeblonbccA12PFwlufvRdrpjXxqnmUaeiU5EOA+7s5diUQ==}
 
+  '@types/node@26.1.1':
+    resolution: {integrity: sha512-nxAkRSVkN1Y0JC1W8ky/fTfkGsMmcrRsbx+3XoZE+rMOX71kLYTV7fLXpqud1GpbpP5TuffXFqfX7fH2GgZREw==}
+
   '@types/passport-jwt@4.0.1':
     resolution: {integrity: sha512-Y0Ykz6nWP4jpxgEUYq8NoVZeCQPo1ZndJLfapI249g1jHChvRfZRO/LS3tqu26YgAS/laI1qx98sYGz0IalRXQ==}
 
@@ -1690,6 +1796,11 @@ packages:
     peerDependencies:
       '@types/react': ^18.0.0
 
+  '@types/react-dom@19.2.3':
+    resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
+    peerDependencies:
+      '@types/react': ^19.2.0
+
   '@types/react-grid-layout@1.3.6':
     resolution: {integrity: sha512-Cw7+sb3yyjtmxwwJiXtEXcu5h4cgs+sCGkHwHXsFmPyV30bf14LeD/fa2LwQovuD2HWxCcjIdNhDlcYGj95qGA==}
 
@@ -1698,6 +1809,9 @@ packages:
 
   '@types/react@18.3.31':
     resolution: {integrity: sha512-vfEqpXTvwT91yhmwdfouStN2hSKwTvyRs8qpLfADyrq/kxDw0hZM7Wk9Ug1FELj8hIby+S/+kQCSRFF32nv2Qw==}
+
+  '@types/react@19.2.17':
+    resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
 
   '@types/scheduler@0.26.0':
     resolution: {integrity: sha512-WFHp9YUJQ6CKshqoC37iOlHnQSmxNc795UhB26CyBBttrN9svdIrUjl/NjnNmfcwtncN0h/0PPAFWv9ovP8mLA==}
@@ -3785,6 +3899,11 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
+  react-dom@19.2.7:
+    resolution: {integrity: sha512-t0BRVXvbiE/o20Hfw669rLbMCDWtYZLvmJigy2f0MxsXF+71pxhR3xOkspmsO8h3ZlNzyibAmtCa3l4lYKk6gQ==}
+    peerDependencies:
+      react: ^19.2.7
+
   react-draggable@4.7.0:
     resolution: {integrity: sha512-kTpANmKWVnFXiZ76Ag2ZowiFStuBYnJ606PI1TbUsOg29/400/JNIxI9+CuenhiAqFuXWJffz6F4UI3R51kUug==}
     peerDependencies:
@@ -3871,6 +3990,10 @@ packages:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
     engines: {node: '>=0.10.0'}
 
+  react@19.2.7:
+    resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
+    engines: {node: '>=0.10.0'}
+
   readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
 
@@ -3895,6 +4018,14 @@ packages:
 
   recharts@3.9.1:
     resolution: {integrity: sha512-WMcwlXcB7l+BbxiEdyClkG+1sxrMHNZpzT577LEvU4+rXPd8oTAy1wXk72hnk2KOOmxuLvw3z5DtXT7HEAydtg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-is: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  recharts@3.9.2:
+    resolution: {integrity: sha512-G4fy+Pk46RaXgwWMh+Nzhyo/lbFAVqXo9gtetlyehe6Ehge9CsgDuOTwQDD+i1+llaLktNBiNq4bhnGlDRXFtw==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -4007,6 +4138,9 @@ packages:
 
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
+
+  scheduler@0.27.0:
+    resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
   schema-utils@3.3.0:
     resolution: {integrity: sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==}
@@ -4402,6 +4536,9 @@ packages:
 
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
+
+  undici-types@8.3.0:
+    resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
@@ -5544,6 +5681,18 @@ snapshots:
       react: 18.2.0
       react-redux: 9.3.0(@types/react@18.2.66)(react@18.2.0)(redux@5.0.1)
 
+  '@reduxjs/toolkit@2.12.0(react-redux@9.3.0(@types/react@19.2.17)(react@19.2.7)(redux@5.0.1))(react@19.2.7)':
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      '@standard-schema/utils': 0.3.0
+      immer: 11.1.8
+      redux: 5.0.1
+      redux-thunk: 3.1.0(redux@5.0.1)
+      reselect: 5.2.0
+    optionalDependencies:
+      react: 19.2.7
+      react-redux: 9.3.0(@types/react@19.2.17)(react@19.2.7)(redux@5.0.1)
+
   '@remix-run/router@1.15.3': {}
 
   '@rolldown/pluginutils@1.0.0-beta.27': {}
@@ -5673,11 +5822,11 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.10.2
+      '@types/node': 18.19.130
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 18.19.130
 
   '@types/cookiejar@2.1.5': {}
 
@@ -5719,7 +5868,7 @@ snapshots:
 
   '@types/express-serve-static-core@5.1.1':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 18.19.130
       '@types/qs': 6.15.1
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -5757,11 +5906,11 @@ snapshots:
   '@types/jsonwebtoken@9.0.10':
     dependencies:
       '@types/ms': 2.1.0
-      '@types/node': 22.10.2
+      '@types/node': 18.19.130
 
   '@types/jsonwebtoken@9.0.5':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 18.19.130
 
   '@types/methods@1.1.4': {}
 
@@ -5774,6 +5923,10 @@ snapshots:
   '@types/node@22.10.2':
     dependencies:
       undici-types: 6.20.0
+
+  '@types/node@26.1.1':
+    dependencies:
+      undici-types: 8.3.0
 
   '@types/passport-jwt@4.0.1':
     dependencies:
@@ -5809,6 +5962,10 @@ snapshots:
     dependencies:
       '@types/react': 18.3.31
 
+  '@types/react-dom@19.2.3(@types/react@19.2.17)':
+    dependencies:
+      '@types/react': 19.2.17
+
   '@types/react-grid-layout@1.3.6':
     dependencies:
       '@types/react': 18.3.31
@@ -5824,18 +5981,22 @@ snapshots:
       '@types/prop-types': 15.7.15
       csstype: 3.2.3
 
+  '@types/react@19.2.17':
+    dependencies:
+      csstype: 3.2.3
+
   '@types/scheduler@0.26.0': {}
 
   '@types/semver@7.7.1': {}
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 22.10.2
+      '@types/node': 18.19.130
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 22.10.2
+      '@types/node': 18.19.130
 
   '@types/stack-utils@2.0.3': {}
 
@@ -6040,18 +6201,18 @@ snapshots:
 
   '@ungap/structured-clone@1.3.2': {}
 
-  '@vitejs/plugin-react@4.2.1(vite@5.2.0(@types/node@22.10.2)(terser@5.48.0))':
+  '@vitejs/plugin-react@4.2.1(vite@5.2.0(@types/node@26.1.1)(terser@5.48.0))':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/plugin-transform-react-jsx-self': 7.29.7(@babel/core@7.29.7)
       '@babel/plugin-transform-react-jsx-source': 7.29.7(@babel/core@7.29.7)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.2.0(@types/node@22.10.2)(terser@5.48.0)
+      vite: 5.2.0(@types/node@26.1.1)(terser@5.48.0)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@22.10.2)(terser@5.48.0))':
+  '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@26.1.1)(terser@5.48.0))':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/plugin-transform-react-jsx-self': 7.29.7(@babel/core@7.29.7)
@@ -6059,7 +6220,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 5.4.21(@types/node@22.10.2)(terser@5.48.0)
+      vite: 5.4.21(@types/node@26.1.1)(terser@5.48.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -8331,6 +8492,11 @@ snapshots:
       react: 18.3.1
       scheduler: 0.23.2
 
+  react-dom@19.2.7(react@19.2.7):
+    dependencies:
+      react: 19.2.7
+      scheduler: 0.27.0
+
   react-draggable@4.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       clsx: 2.1.1
@@ -8366,6 +8532,15 @@ snapshots:
       use-sync-external-store: 1.6.0(react@18.2.0)
     optionalDependencies:
       '@types/react': 18.2.66
+      redux: 5.0.1
+
+  react-redux@9.3.0(@types/react@19.2.17)(react@19.2.7)(redux@5.0.1):
+    dependencies:
+      '@types/use-sync-external-store': 0.0.6
+      react: 19.2.7
+      use-sync-external-store: 1.6.0(react@19.2.7)
+    optionalDependencies:
+      '@types/react': 19.2.17
       redux: 5.0.1
 
   react-refresh@0.14.2: {}
@@ -8428,6 +8603,8 @@ snapshots:
     dependencies:
       loose-envify: 1.4.0
 
+  react@19.2.7: {}
+
   readable-stream@2.3.8:
     dependencies:
       core-util-is: 1.0.3
@@ -8480,6 +8657,26 @@ snapshots:
       reselect: 5.2.0
       tiny-invariant: 1.3.3
       use-sync-external-store: 1.6.0(react@18.2.0)
+      victory-vendor: 37.3.6
+    transitivePeerDependencies:
+      - '@types/react'
+      - redux
+
+  recharts@3.9.2(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react-is@19.2.7)(react@19.2.7)(redux@5.0.1):
+    dependencies:
+      '@reduxjs/toolkit': 2.12.0(react-redux@9.3.0(@types/react@19.2.17)(react@19.2.7)(redux@5.0.1))(react@19.2.7)
+      clsx: 2.1.1
+      decimal.js-light: 2.5.1
+      es-toolkit: 1.49.0
+      eventemitter3: 5.0.4
+      immer: 11.1.8
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      react-is: 19.2.7
+      react-redux: 9.3.0(@types/react@19.2.17)(react@19.2.7)(redux@5.0.1)
+      reselect: 5.2.0
+      tiny-invariant: 1.3.3
+      use-sync-external-store: 1.6.0(react@19.2.7)
       victory-vendor: 37.3.6
     transitivePeerDependencies:
       - '@types/react'
@@ -8594,6 +8791,8 @@ snapshots:
   scheduler@0.23.2:
     dependencies:
       loose-envify: 1.4.0
+
+  scheduler@0.27.0: {}
 
   schema-utils@3.3.0:
     dependencies:
@@ -8962,6 +9161,8 @@ snapshots:
 
   undici-types@6.20.0: {}
 
+  undici-types@8.3.0: {}
+
   universalify@2.0.1: {}
 
   unpipe@1.0.0: {}
@@ -8979,6 +9180,10 @@ snapshots:
   use-sync-external-store@1.6.0(react@18.2.0):
     dependencies:
       react: 18.2.0
+
+  use-sync-external-store@1.6.0(react@19.2.7):
+    dependencies:
+      react: 19.2.7
 
   util-deprecate@1.0.2: {}
 
@@ -9032,23 +9237,23 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  vite@5.2.0(@types/node@22.10.2)(terser@5.48.0):
+  vite@5.2.0(@types/node@26.1.1)(terser@5.48.0):
     dependencies:
       esbuild: 0.20.2
       postcss: 8.5.15
       rollup: 4.62.2
     optionalDependencies:
-      '@types/node': 22.10.2
+      '@types/node': 26.1.1
       fsevents: 2.3.3
       terser: 5.48.0
 
-  vite@5.4.21(@types/node@22.10.2)(terser@5.48.0):
+  vite@5.4.21(@types/node@26.1.1)(terser@5.48.0):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.15
       rollup: 4.62.2
     optionalDependencies:
-      '@types/node': 22.10.2
+      '@types/node': 26.1.1
       fsevents: 2.3.3
       terser: 5.48.0
 
