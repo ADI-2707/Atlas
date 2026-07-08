@@ -25,6 +25,7 @@
     "@atlas/config": "workspace:*",
     "@atlas/events": "workspace:*",
     "@atlas/logger": "workspace:*",
+    "@atlas/plugin-sdk": "workspace:*",
     "@atlas/storage": "workspace:*",
     "@atlas/utils": "workspace:*",
     "@nestjs/common": "10.4.15",

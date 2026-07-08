@@ -29,6 +29,9 @@ importers:
       '@atlas/logger':
         specifier: workspace:*
         version: link:../../packages/atlas-logger
+      '@atlas/plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/atlas-plugin-sdk
       '@atlas/storage':
         specifier: workspace:*
         version: link:../../packages/atlas-storage
