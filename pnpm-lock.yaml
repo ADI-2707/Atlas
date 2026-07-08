@@ -29,6 +29,21 @@ importers:
       '@atlas/logger':
         specifier: workspace:*
         version: link:../../packages/atlas-logger
+      '@atlas/plugin-analytics':
+        specifier: workspace:*
+        version: link:../../plugins/analytics
+      '@atlas/plugin-crm':
+        specifier: workspace:*
+        version: link:../../plugins/crm
+      '@atlas/plugin-hr':
+        specifier: workspace:*
+        version: link:../../plugins/hr
+      '@atlas/plugin-inventory':
+        specifier: workspace:*
+        version: link:../../plugins/inventory
+      '@atlas/plugin-project-management':
+        specifier: workspace:*
+        version: link:../../plugins/project-management
       '@atlas/plugin-sdk':
         specifier: workspace:*
         version: link:../../packages/atlas-plugin-sdk
