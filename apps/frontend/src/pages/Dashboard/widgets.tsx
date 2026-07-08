@@ -12,14 +12,26 @@ const formatCurrency = (value: number) =>
 
 export const InventoryWidget: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     api.get<any>('/inventory/stats')
       .then(res => setStats(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>Inventory Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   const productPct = (stats.productCount / stats.maxProducts) * 100;
@@ -50,14 +62,26 @@ export const InventoryWidget: React.FC = () => {
 
 export const CrmWidget: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     api.get<any>('/crm/limits')
       .then(res => setStats(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>CRM Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   const contactsPct = stats.limits.customers === -1 ? 0 : (stats.usage.customers / stats.limits.customers) * 100;
@@ -87,6 +111,7 @@ export const CrmWidget: React.FC = () => {
 
 export const HrWidget: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -100,9 +125,20 @@ export const HrWidget: React.FC = () => {
         employeeCount: emps.length,
         payrollTotal: pays.reduce((sum: number, p: any) => sum + (p.amount || 0), 0)
       });
-    }).catch(err => console.error(err));
+    }).catch(err => {
+      console.error(err);
+      setError(true);
+    });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>HR Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   return (
@@ -124,17 +160,26 @@ export const HrWidget: React.FC = () => {
 
 export const AnalyticsWidget: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/analytics/dashboard?org_id=org_default_123', {
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then(res => res.json())
-      .then(data => setStats(data.overview))
-      .catch(err => console.error(err));
+    api.get<any>('/analytics/dashboard?org_id=org_default_123')
+      .then(res => setStats(res.data.overview))
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>Analytics Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   return (
@@ -152,14 +197,26 @@ export const AnalyticsWidget: React.FC = () => {
 
 export const PmWidget: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     api.get<any>('/plugins/project-management/stats')
       .then(res => setStats(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>Project Management Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   return (
