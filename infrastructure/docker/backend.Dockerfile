@@ -43,7 +43,7 @@ RUN pnpm install --frozen-lockfile --prod
 # Copy Prisma schema
 COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
 # Re-generate in prod environment to ensure correct engine
-RUN npx prisma@5.22.0 generate --schema=apps/backend/prisma/schema.prisma
+RUN cd apps/backend && npx prisma@5.22.0 generate
 
 # Copy built dist
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
