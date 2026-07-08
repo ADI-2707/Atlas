@@ -11,7 +11,7 @@ import { RolesModule } from './roles/roles.module';
 import { PluginsModule } from './plugins/plugins.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AdminModule } from './admin/admin.module';
-
+import { PluginActiveGuard } from './plugins/guards/plugin-active.guard';
 
 @Module({
   imports: [
@@ -33,6 +33,10 @@ import { AdminModule } from './admin/admin.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PluginActiveGuard,
     },
   ],
 })
