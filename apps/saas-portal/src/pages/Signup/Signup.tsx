@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Signup.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 const APP_URL = import.meta.env.VITE_APP_URL || 'http://localhost:5173';
 
 const PLANS = [
@@ -69,7 +69,7 @@ export const Signup = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${API_URL}/api/v1/auth/register`, {
+      const res = await fetch(`${API_URL.replace(/\/$/, '')}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
