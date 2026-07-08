@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { join } from 'path';
 import { existsSync, readdirSync, readFileSync } from 'fs';
-import { PrismaClient } from '@prisma/client';
+
 
 @Module({})
 export class PluginsModule {
@@ -20,69 +20,56 @@ export class PluginsModule {
 
     if (existsSync(dir)) {
       const entries = readdirSync(dir, { withFileTypes: true });
-      const prisma = new PrismaClient();
-      try {
-        await prisma.$connect();
-        for (const entry of entries) {
-          if (entry.isDirectory()) {
-            const manifestPath = join(dir, entry.name, 'manifest.json');
-            if (existsSync(manifestPath)) {
-              try {
-                const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-                const dbPlugin = await prisma.plugin.findUnique({
-                  where: { id: manifest.id },
-                });
-                if (dbPlugin && (dbPlugin.status === 'ENABLED' || dbPlugin.status === 'INSTALLED')) {
-                  let config: any;
-                  const backendPath = join(dir, entry.name, 'backend', 'src', 'index.ts');
-                  const shouldPreferSource = process.env.NODE_ENV !== 'production';
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const manifestPath = join(dir, entry.name, 'manifest.json');
+          if (existsSync(manifestPath)) {
+            try {
+              const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+              let config: any;
+              const backendPath = join(dir, entry.name, 'backend', 'src', 'index.ts');
+              const shouldPreferSource = process.env.NODE_ENV !== 'production';
 
-                  if (shouldPreferSource && existsSync(backendPath)) {
+              if (shouldPreferSource && existsSync(backendPath)) {
+                try {
+                  // eslint-disable-next-line @typescript-eslint/no-require-imports
+                  const pluginExport = require(backendPath);
+                  config = pluginExport.default || pluginExport;
+                } catch (srcErr) {
+                  console.warn(`Failed to require source file ${backendPath}, will try compiled package:`, srcErr);
+                }
+              }
+
+              if (!config) {
+                try {
+                  // eslint-disable-next-line @typescript-eslint/no-require-imports
+                  const pluginExport = require(`@atlas/plugin-${manifest.id}`);
+                  config = pluginExport.default || pluginExport;
+                } catch (pkgErr) {
+                  if (existsSync(backendPath)) {
                     try {
                       // eslint-disable-next-line @typescript-eslint/no-require-imports
                       const pluginExport = require(backendPath);
                       config = pluginExport.default || pluginExport;
                     } catch (srcErr) {
-                      console.warn(`Failed to require source file ${backendPath}, will try compiled package:`, srcErr);
-                    }
-                  }
-
-                  if (!config) {
-                    try {
-                      // eslint-disable-next-line @typescript-eslint/no-require-imports
-                      const pluginExport = require(`@atlas/plugin-${manifest.id}`);
-                      config = pluginExport.default || pluginExport;
-                    } catch (pkgErr) {
-                      if (existsSync(backendPath)) {
-                        try {
-                          // eslint-disable-next-line @typescript-eslint/no-require-imports
-                          const pluginExport = require(backendPath);
-                          config = pluginExport.default || pluginExport;
-                        } catch (srcErr) {
-                          console.error(`Failed to load plugin ${manifest.id} from source:`, srcErr);
-                        }
-                      }
-                    }
-                  }
-                  if (config) {
-                    if (config.controllers) {
-                      controllers.push(...config.controllers);
-                    }
-                    if (config.providers) {
-                      providers.push(...config.providers);
+                      console.error(`Failed to load plugin ${manifest.id} from source:`, srcErr);
                     }
                   }
                 }
-              } catch (err) {
-                console.error(`Failed to register extensions for ${entry.name}:`, err);
               }
+              if (config) {
+                if (config.controllers) {
+                  controllers.push(...config.controllers);
+                }
+                if (config.providers) {
+                  providers.push(...config.providers);
+                }
+              }
+            } catch (err) {
+              console.error(`Failed to register extensions for ${entry.name}:`, err);
             }
           }
         }
-      } catch (err) {
-        console.error('Failed to query plugins during dynamic module registration:', err);
-      } finally {
-        await prisma.$disconnect();
       }
     }
 
