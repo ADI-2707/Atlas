@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Patch, Body, Req, Query, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req, Query, Delete, SetMetadata } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { InventoryService } from '../services/inventory.service';
 
 @ApiTags('inventory')
 @ApiBearerAuth()
+@SetMetadata('pluginId', 'inventory')
 @Controller('inventory')
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) { }
