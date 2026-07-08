@@ -21,6 +21,7 @@ model Organization {
   roles          Role[]
   auditLogs      AuditLog[]
   supportTickets SupportTicket[]
+  pluginData     PluginData[]
 
   healthScore Float @default(100.0) @map("health_score")
   mrr         Float @default(0.0)
@@ -108,7 +109,26 @@ model Plugin {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  data        PluginData[]
+
   @@map("plugins")
+  @@schema("atlas_core")
+}
+
+model PluginData {
+  id             String       @id @default(uuid())
+  pluginId       String       @map("plugin_id")
+  organizationId String       @map("organization_id")
+  entityType     String       @map("entity_type")
+  data           Json         @default("{}")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plugin         Plugin       @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+
+  @@index([pluginId, organizationId, entityType])
+  @@map("plugin_data")
   @@schema("atlas_core")
 }
 
