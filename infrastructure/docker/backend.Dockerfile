@@ -40,6 +40,9 @@ COPY --from=builder /app/apps/backend/prisma ./prisma
 ENV PRISMA_GENERATE_SKIP_AUTOINSTALL=1
 RUN npx prisma@5.22.0 generate
 
+# Copy plugin manifests so PluginManagerService can discover them
+COPY --from=builder /app/plugins ./plugins
+
 # Expose port
 EXPOSE 3000
 
