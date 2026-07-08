@@ -243,7 +243,15 @@ export const InventoryDashboard: React.FC = () => {
   };
 
   const activeTable = tables.find(t => t.id === activeTableId) || tables[0];
-  const customFields = activeTable?.fieldSchema || [];
+  let customFields = [];
+  try {
+    customFields = typeof activeTable?.fieldSchema === 'string' 
+      ? JSON.parse(activeTable.fieldSchema) 
+      : (activeTable?.fieldSchema || []);
+    if (!Array.isArray(customFields)) customFields = [];
+  } catch(e) {
+    customFields = [];
+  }
 
   const isAddLocked = limitStats ? (limitStats.productCount / limitStats.maxProducts) >= 0.995 : false;
   const isWarehouseLocked = limitStats ? limitStats.maxWarehouses === 0 : false;
@@ -434,10 +442,12 @@ export const InventoryDashboard: React.FC = () => {
                       <tr key={product.id}>
                         <td>{product.sku}</td>
                         <td>{product.name}</td>
-                        <td>${product.basePrice.toFixed(2)}</td>
-                        {customFields.map((field: any) => (
-                          <td key={field.name}>{product.customData?.[field.name] || '-'}</td>
-                        ))}
+                        <td>${Number(product.basePrice || 0).toFixed(2)}</td>
+                        {customFields.map((field: any) => {
+                          let val = product.customData?.[field.name];
+                          if (val && typeof val === 'object') val = JSON.stringify(val);
+                          return <td key={field.name}>{val || '-'}</td>;
+                        })}
                         <td>
                           {isWarehouseLocked && adjustingStockMap[product.id] !== undefined ? (
                             <input
