@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 import './Admin.css';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-const API_URL = `${BASE_URL.replace(/\/$/, '')}/api/v1`;
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+const API_URL = BASE_URL.replace(/\/$/, '');
 
 export const Admin = () => {
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'LOGS' | 'TICKETS'>('OVERVIEW');
