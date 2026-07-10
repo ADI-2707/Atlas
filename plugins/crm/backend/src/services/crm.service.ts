@@ -220,7 +220,7 @@ export class CrmService {
     }
 
     const lineItems = data.lineItems || [];
-    const calculatedValue = lineItems.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
+    const calculatedValue = lineItems.reduce((acc: number, item: any) => acc + (item.quantity * item.priceAtTime), 0);
 
     const deal = await this.prisma.deal.create({
       data: {
@@ -233,7 +233,7 @@ export class CrmService {
           create: lineItems.map((item: any) => ({
             productId: item.productId,
             quantity: item.quantity,
-            unitPrice: item.unitPrice
+            priceAtTime: item.priceAtTime || item.unitPrice
           }))
         }
       },
@@ -276,7 +276,7 @@ export class CrmService {
           create: lineItems.map((item: any) => ({
             productId: item.productId,
             quantity: item.quantity,
-            unitPrice: item.unitPrice
+            priceAtTime: item.priceAtTime || item.unitPrice
           }))
         }
       },

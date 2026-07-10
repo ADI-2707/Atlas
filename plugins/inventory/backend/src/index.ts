@@ -1,6 +1,7 @@
 import { AtlasPlugin } from '@atlas/plugin-sdk';
 import { InventoryController } from './controllers/inventory.controller';
 import { InventoryService } from './services/inventory.service';
+import { InventoryPrismaService } from './prisma/inventory-prisma.service';
 
 const manifest = {
   id: 'inventory',
@@ -19,7 +20,7 @@ const manifest = {
 const config = AtlasPlugin({
   manifest,
   controllers: [InventoryController],
-  providers: [InventoryService],
+  providers: [InventoryService, InventoryPrismaService],
   permissions: [
     {
       code: 'inventory.read',

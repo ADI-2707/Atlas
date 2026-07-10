@@ -243,7 +243,7 @@ export const InventoryDashboard: React.FC = () => {
   };
 
   const activeTable = tables.find(t => t.id === activeTableId) || tables[0];
-  let customFields = [];
+  let customFields: any[] = [];
   try {
     customFields = typeof activeTable?.fieldSchema === 'string' 
       ? JSON.parse(activeTable.fieldSchema) 
