@@ -19,6 +19,9 @@ RUN pnpm install --frozen-lockfile
 # Generate Prisma client
 RUN pnpm --filter @atlas/backend db:generate
 RUN pnpm exec prisma generate --schema=plugins/inventory/backend/prisma/schema.prisma
+RUN pnpm exec prisma generate --schema=plugins/crm/backend/prisma/schema.prisma
+RUN pnpm exec prisma generate --schema=plugins/hr/backend/prisma/schema.prisma
+RUN pnpm exec prisma generate --schema=plugins/project-management/backend/prisma/schema.prisma
 
 # Build the backend
 RUN pnpm --filter @atlas/backend... build
@@ -44,8 +47,11 @@ RUN npx prisma@5.22.0 generate
 # Copy plugin manifests so PluginManagerService can discover them
 COPY --from=builder /app/plugins ./plugins
 
-# Generate Prisma client for inventory plugin
+# Generate Prisma clients for plugins
 RUN npx prisma@5.22.0 generate --schema=./plugins/inventory/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./plugins/crm/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./plugins/hr/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./plugins/project-management/backend/prisma/schema.prisma
 
 # Expose port
 EXPOSE 3000
