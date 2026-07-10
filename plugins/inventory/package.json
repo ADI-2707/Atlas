@@ -14,8 +14,6 @@
     "@nestjs/common": "10.4.15",
     "@nestjs/swagger": "8.1.0",
     "@prisma/client": "5.22.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
     "react-router-dom": "6.22.3",
     "@atlas/core-ui": "workspace:*"
   },
@@ -25,5 +23,9 @@
   "devDependencies": {
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
