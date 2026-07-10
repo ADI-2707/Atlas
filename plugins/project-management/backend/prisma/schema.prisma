@@ -1,0 +1,133 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../../node_modules/@prisma/client-pm"
+}
+
+model Project {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  key            String
+  description    String?
+  parentId       String?  @map("parent_id")
+  status         String   @default("ACTIVE") // ACTIVE, ON_HOLD, COMPLETED
+  startDate      DateTime? @map("start_date")
+  endDate        DateTime? @map("end_date")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  parentProject  Project?  @relation("SubProjects", fields: [parentId], references: [id], onDelete: SetNull)
+  subProjects    Project[] @relation("SubProjects")
+  boards         Board[]
+  issues         Issue[]
+  lineups        Lineup[]
+  errorLogs      ErrorLog[]
+
+  @@unique([organizationId, key])
+  @@map("pm_projects")
+}
+
+model Board {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  projectId      String   @map("project_id")
+  name           String
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("pm_boards")
+}
+
+model Issue {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  projectId      String   @map("project_id")
+  reporterId     String?  @map("reporter_id")
+  assigneeId     String?  @map("assignee_id")
+  title          String
+  description    String?
+  status         String   @default("TODO") // TODO, IN_PROGRESS, DONE
+  lineupId       String?  @map("lineup_id")
+  priority       String   @default("MEDIUM") // LOW, MEDIUM, HIGH
+  issueType      String   @default("TASK") // TASK, BUG, EPIC
+  startDate      DateTime? @map("start_date")
+  dueDate        DateTime? @map("due_date")
+  estimateHours  Float?   @map("estimate_hours")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  lineup   Lineup?   @relation(fields: [lineupId], references: [id], onDelete: SetNull)
+  comments Comment[]
+  steps    Step[]
+
+  @@map("pm_issues")
+}
+
+model Comment {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  issueId        String   @map("issue_id")
+  authorId       String   @map("author_id")
+  text           String
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@map("pm_comments")
+}
+
+model Step {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  issueId        String   @map("issue_id")
+  title          String
+  isCompleted    Boolean  @default(false) @map("is_completed")
+  order          Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+
+  @@map("pm_steps")
+}
+
+model Lineup {
+  id              String   @id @default(uuid())
+  organizationId  String   @map("organization_id")
+  projectId       String   @map("project_id")
+  name            String
+  order           Int      @default(0)
+  allocatedUserId String?  @map("allocated_user_id") // Resource allocation on each step
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  issues  Issue[]
+
+  @@map("pm_lineups")
+}
+
+model ErrorLog {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  projectId      String   @map("project_id")
+  message        String
+  stackTrace     String?  @map("stack_trace")
+  source         String   @default("SYSTEM") // SYSTEM, USER
+  status         String   @default("UNRESOLVED") // UNRESOLVED, RESOLVED
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("pm_error_logs")
+}
