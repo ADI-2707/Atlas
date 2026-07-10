@@ -5,7 +5,7 @@ import { KanbanBoard, Issue } from '../components/KanbanBoard';
 import { ProjectModal } from '../components/ProjectModal';
 import { IssueModal } from '../components/IssueModal';
 import { ProjectActivityLogs } from '../components/ProjectActivityLogs';
-import { usePlugins } from '../../../../../apps/frontend/src/contexts/PluginContext';
+import { usePlugins } from '@atlas/core-ui';
 import { TimelineView } from '../components/TimelineView';
 import { ErrorTrackingView } from '../components/ErrorTrackingView';
 import { LineupView } from '../components/LineupView';

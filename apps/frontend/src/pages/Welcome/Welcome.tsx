@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
 import { useAuth } from '@atlas/auth';
-import { usePlugins } from '../../contexts/PluginContext';
+import { usePlugins } from '@atlas/core-ui';
 import './Welcome.css';
 
 export const Welcome: React.FC = () => {

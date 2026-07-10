@@ -6,7 +6,7 @@ import { api } from '@atlas/api';
 import { ProductForm } from '../components/ProductForm';
 import { WarehouseManager } from '../components/WarehouseManager';
 import { AdjustmentLogs } from '../components/AdjustmentLogs';
-import { usePlugins } from '../../../../../apps/frontend/src/contexts/PluginContext';
+import { usePlugins } from '@atlas/core-ui';
 import './InventoryDashboard.css';
 
 export const InventoryDashboard: React.FC = () => {
