@@ -47,11 +47,11 @@ RUN npx prisma@5.22.0 generate
 # Copy plugin manifests so PluginManagerService can discover them
 COPY --from=builder /app/plugins ./plugins
 
-# Generate Prisma clients for plugins
-RUN npx prisma@5.22.0 generate --schema=./plugins/inventory/backend/prisma/schema.prisma
-RUN npx prisma@5.22.0 generate --schema=./plugins/crm/backend/prisma/schema.prisma
-RUN npx prisma@5.22.0 generate --schema=./plugins/hr/backend/prisma/schema.prisma
-RUN npx prisma@5.22.0 generate --schema=./plugins/project-management/backend/prisma/schema.prisma
+# Generate Prisma clients for plugins in their deployed node_modules
+RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-inventory/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-crm/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-hr/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-project-management/backend/prisma/schema.prisma
 
 # Expose port
 EXPOSE 3000
