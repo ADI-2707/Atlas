@@ -9,6 +9,27 @@ import { FullScreenLock } from '../FullScreenLock/FullScreenLock';
 import { SupportWidget } from '../SupportWidget/SupportWidget';
 import './AppLayout.css';
 
+interface InventoryStats {
+  productCount: number;
+  maxProducts: number;
+}
+
+interface CrmLimits {
+  limits: {
+    customers: number;
+    deals: number;
+  };
+  usage: {
+    customers: number;
+    deals: number;
+  };
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
 export const AppLayout: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(() => {
     return localStorage.getItem('atlas_sidebar_collapsed') === 'true';
@@ -33,14 +54,14 @@ export const AppLayout: React.FC = () => {
 
   useEffect(() => {
     setWorkspaceLock(null);
-  }, [location.pathname]);
+  }, [location.pathname, setWorkspaceLock]);
 
   const [isInventoryLocked, setIsInventoryLocked] = useState(false);
   const [isCrmLocked, setIsCrmLocked] = useState(false);
 
   useEffect(() => {
     if (location.pathname.startsWith('/inventory')) {
-      api.get<any>('/inventory/stats')
+      api.get<ApiResponse<InventoryStats>>('/inventory/stats')
         .then(res => {
           const stats = res.data;
           const isLocked = stats ? (stats.productCount / stats.maxProducts) >= 0.995 : false;
@@ -52,7 +73,7 @@ export const AppLayout: React.FC = () => {
     }
 
     if (location.pathname.startsWith('/crm')) {
-      api.get<any>('/crm/limits')
+      api.get<ApiResponse<CrmLimits>>('/crm/limits')
         .then(res => {
           const stats = res.data;
           const isLocked = stats && (

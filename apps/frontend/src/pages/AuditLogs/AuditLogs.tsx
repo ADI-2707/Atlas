@@ -10,12 +10,27 @@ interface AuditLog {
   action: string;
   result: string;
   ipAddress: string | null;
-  details: any;
+  details: unknown;
   user: {
     firstName: string;
     lastName: string;
     email: string;
   } | null;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+interface AuditLogsResponse {
+  items: AuditLog[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
 
 export const AuditLogs: React.FC = () => {
@@ -25,31 +40,31 @@ export const AuditLogs: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
 
-  const fetchLogs = async () => {
-    try {
-      setLoading(true);
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: '20',
-        search: search || ''
-      });
-      const response = await apiClient.get<any>(`/audit?${queryParams.toString()}`);
-      
-      if (response.success && response.data) {
-        setLogs(response.data.items || []);
-        setTotalPages(response.data.meta.totalPages || 1);
-      } else {
-        setLogs([]);
-        setTotalPages(1);
-      }
-    } catch (error) {
-      console.error('Failed to fetch audit logs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        setLoading(true);
+        const queryParams = new URLSearchParams({
+          page: page.toString(),
+          limit: '20',
+          search: search || ''
+        });
+        const response = await apiClient.get<ApiResponse<AuditLogsResponse>>(`/audit?${queryParams.toString()}`);
+        
+        if (response.success && response.data) {
+          setLogs(response.data.items || []);
+          setTotalPages(response.data.meta.totalPages || 1);
+        } else {
+          setLogs([]);
+          setTotalPages(1);
+        }
+      } catch (error) {
+        console.error('Failed to fetch audit logs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchLogs();
   }, [page, search]);
 

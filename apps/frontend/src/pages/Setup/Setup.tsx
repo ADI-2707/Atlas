@@ -38,7 +38,7 @@ export const Setup: React.FC = () => {
 
   useEffect(() => {
     setTheme('light');
-  }, []);
+  }, [setTheme]);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1 && !isAnimatingOut) {
