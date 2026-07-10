@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../../node_modules/@prisma/client-crm"
+}
+
+model Customer {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  email          String
+  phone          String?
+  company        String?
+  status         String   @default("LEAD") // LEAD, PROSPECT, CUSTOMER, CHURNED
+  customData     Json?    @default("{}") @map("custom_data")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  deals Deal[]
+
+  @@unique([organizationId, email])
+  @@map("crm_customers")
+}
+
+model Deal {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  title          String
+  customerId     String   @map("customer_id")
+  stage          String   @default("QUALIFICATION") // QUALIFICATION, PROPOSAL, NEGOTIATION, CLOSED_WON, CLOSED_LOST
+  value          Float    @default(0.0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  customer  Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  lineItems DealItem[]
+
+  @@map("crm_deals")
+}
+
+model DealItem {
+  id             String   @id @default(uuid())
+  dealId         String   @map("deal_id")
+  productId      String   @map("product_id")
+  quantity       Int
+  priceAtTime    Float    @map("price_at_time")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  deal    Deal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@map("crm_deal_items")
+}

@@ -2,6 +2,8 @@ import { AtlasPlugin } from '@atlas/plugin-sdk';
 import { CrmController } from './controllers/crm.controller';
 import { CrmService } from './services/crm.service';
 
+import { CrmPrismaService } from './prisma/crm-prisma.service';
+
 const manifest = {
   id: 'crm',
   name: 'CRM Management',
@@ -19,7 +21,7 @@ const manifest = {
 const config = AtlasPlugin({
   manifest,
   controllers: [CrmController],
-  providers: [CrmService],
+  providers: [CrmService, CrmPrismaService],
   permissions: [
     {
       code: 'crm.read',
