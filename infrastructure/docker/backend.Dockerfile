@@ -18,10 +18,10 @@ RUN pnpm install --frozen-lockfile
 
 # Generate Prisma client
 RUN pnpm --filter @atlas/backend db:generate
-RUN pnpm exec prisma generate --schema=plugins/inventory/backend/prisma/schema.prisma
-RUN pnpm exec prisma generate --schema=plugins/crm/backend/prisma/schema.prisma
-RUN pnpm exec prisma generate --schema=plugins/hr/backend/prisma/schema.prisma
-RUN pnpm exec prisma generate --schema=plugins/project-management/backend/prisma/schema.prisma
+RUN pnpm --filter @atlas/plugin-inventory exec prisma generate --schema=backend/prisma/schema.prisma
+RUN pnpm --filter @atlas/plugin-crm exec prisma generate --schema=backend/prisma/schema.prisma
+RUN pnpm --filter @atlas/plugin-hr exec prisma generate --schema=backend/prisma/schema.prisma
+RUN pnpm --filter @atlas/plugin-project-management exec prisma generate --schema=backend/prisma/schema.prisma
 
 # Build the backend
 RUN pnpm --filter @atlas/backend... build
