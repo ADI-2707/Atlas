@@ -56,6 +56,14 @@ export const AppLayout: React.FC = () => {
     setWorkspaceLock(null);
   }, [location.pathname, setWorkspaceLock]);
 
+  useEffect(() => {
+    if (user?.orgSlug) {
+      document.title = `atlas.io/${user.orgSlug}`;
+    } else {
+      document.title = 'Atlas';
+    }
+  }, [user]);
+
   const [isInventoryLocked, setIsInventoryLocked] = useState(false);
   const [isCrmLocked, setIsCrmLocked] = useState(false);
 
