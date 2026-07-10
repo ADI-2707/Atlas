@@ -2,6 +2,8 @@ import { AtlasPlugin } from '@atlas/plugin-sdk';
 import { HrController } from './controllers/hr.controller';
 import { HrService } from './services/hr.service';
 
+import { HrPrismaService } from './prisma/hr-prisma.service';
+
 const manifest = {
   id: 'hr',
   name: 'HR Management',
@@ -19,7 +21,7 @@ const manifest = {
 const config = AtlasPlugin({
   manifest,
   controllers: [HrController],
-  providers: [HrService],
+  providers: [HrService, HrPrismaService],
   permissions: [
     { code: 'hr.read', name: 'Read HR', description: 'Allows viewing employees' },
     { code: 'hr.create', name: 'Manage HR', description: 'Allows adding employees' },
