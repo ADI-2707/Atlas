@@ -18,10 +18,6 @@ RUN pnpm install --frozen-lockfile
 
 # Generate Prisma client
 RUN pnpm --filter @atlas/backend db:generate
-RUN pnpm --filter @atlas/plugin-inventory exec prisma generate --schema=backend/prisma/schema.prisma
-RUN pnpm --filter @atlas/plugin-crm exec prisma generate --schema=backend/prisma/schema.prisma
-RUN pnpm --filter @atlas/plugin-hr exec prisma generate --schema=backend/prisma/schema.prisma
-RUN pnpm --filter @atlas/plugin-project-management exec prisma generate --schema=backend/prisma/schema.prisma
 
 # Build the backend
 RUN pnpm --filter @atlas/backend... build
@@ -52,6 +48,10 @@ RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-inventory/b
 RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-crm/backend/prisma/schema.prisma
 RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-hr/backend/prisma/schema.prisma
 RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-project-management/backend/prisma/schema.prisma
+
+# Fix Prisma client paths: Copy them to the root node_modules so they are universally resolvable
+RUN mkdir -p /app/node_modules/@prisma && \
+    find /app -type d -name "client-*" -exec cp -r {} /app/node_modules/@prisma/ \;
 
 # Expose port
 EXPOSE 3000
