@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
 import { useAuth } from '@atlas/auth';
-import { useTheme } from '../../contexts/ThemeContext';
-import { mockPlugins } from '../../plugins/mock-plugins';
+import { useTheme } from '@atlas/core-ui';
+import { mockPlugins } from '@atlas/core-ui';
 import './Setup.css';
 
 const steps = [
@@ -38,7 +38,7 @@ export const Setup: React.FC = () => {
 
   useEffect(() => {
     setTheme('light');
-  }, []);
+  }, [setTheme]);
 
   const handleNext = () => {
     if (currentStep < steps.length - 1 && !isAnimatingOut) {

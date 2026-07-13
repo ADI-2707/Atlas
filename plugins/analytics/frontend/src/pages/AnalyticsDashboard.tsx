@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
 import { Tabs } from '@atlas/ui';
+import { api } from '@atlas/api';
 import './AnalyticsDashboard.css';
 
 interface DashboardProps {
@@ -26,22 +27,24 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const headers = { 'Content-Type': 'application/json' };
+      // Headers removed as they are handled by api client
       
-      const dashRes = await fetch(`/api/analytics/dashboard?org_id=${organizationId}`, { headers });
-      if (dashRes.ok) setOverviewData(await dashRes.json());
+      const dashRes = await api.get<{ data: any }>(`/analytics/dashboard?org_id=${organizationId}`);
+      if (dashRes) setOverviewData(dashRes.data);
 
-      const tsRes = await fetch(`/api/analytics/timeseries?org_id=${organizationId}`, { headers });
-      if (tsRes.ok) setTimeseries(await tsRes.json());
+      try {
+        const tsRes = await api.get<{ data: any }>(`/analytics/timeseries?org_id=${organizationId}`);
+        if (tsRes) setTimeseries(tsRes.data);
+      } catch (e) { console.warn('timeseries endpoint not available'); }
 
       if (canViewAnomalies) {
-        const anomRes = await fetch(`/api/analytics/anomalies?org_id=${organizationId}`, { headers });
-        if (anomRes.ok) setAnomalies(await anomRes.json());
+        const anomRes = await api.get<{ data: any }>(`/analytics/anomalies?org_id=${organizationId}`);
+        if (anomRes) setAnomalies(anomRes.data);
       }
 
       if (canViewForecasts) {
-        const foreRes = await fetch(`/api/analytics/forecast?org_id=${organizationId}`, { headers });
-        if (foreRes.ok) setForecasts(await foreRes.json());
+        const foreRes = await api.get<{ data: any }>(`/analytics/forecasts?org_id=${organizationId}`);
+        if (foreRes) setForecasts(foreRes.data);
       }
     } catch (e) {
       console.error('Failed to fetch analytics', e);
@@ -55,8 +58,8 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
 
   const handleGenerateReport = async () => {
     try {
-      const res = await fetch(`/api/analytics/reports/generate?org_id=${organizationId}`, { method: 'POST' });
-      if (res.ok) {
+      const res = await api.post<{ data: any }>(`/analytics/reports/generate?org_id=${organizationId}`);
+      if (res) {
         alert('Report generated successfully and is ready for download!');
       } else {
         alert('Failed to generate report.');
@@ -71,8 +74,8 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
     setSyncing(true);
     setSyncMsg('');
     try {
-      const res = await fetch(`/api/analytics/sync?org_id=${organizationId}`, { method: 'POST' });
-      const data = await res.json();
+      const res = await api.post<{ data: any }>(`/analytics/sync?org_id=${organizationId}`);
+      const data = res.data || {};
       setSyncMsg(data.message || (data.status === 'success' ? 'Sync successful.' : 'Sync failed.'));
       if (data.status === 'success') {
         fetchData();

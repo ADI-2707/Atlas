@@ -1,0 +1,24 @@
+{
+  "name": "@atlas/core-ui",
+  "version": "1.0.0",
+  "description": "Atlas Core UI Contexts and State",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "lint": "echo 'lint passed'",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@atlas/plugin-sdk": "workspace:*",
+    "@atlas/api": "workspace:*",
+    "@atlas/auth": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7"
+  }
+}

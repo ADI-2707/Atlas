@@ -2,17 +2,21 @@ import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { getPaginationParams, buildPaginatedResult } from '@atlas/utils';
 import { AtlasEvent, eventBus } from '@atlas/events';
+import { InventoryPrismaService } from '../prisma/inventory-prisma.service';
 
 @Injectable()
 export class InventoryService implements OnModuleInit {
-  constructor(@Inject('PRISMA_SERVICE') private readonly prisma: PrismaClient) { }
+  constructor(
+    @Inject('PRISMA_SERVICE') private readonly corePrisma: PrismaClient,
+    private readonly inventoryPrisma: InventoryPrismaService
+  ) { }
 
   onModuleInit() {
     eventBus.subscribe('crm.deal.closed_won', this.handleCrmDealClosedWon.bind(this));
   }
 
   async getLimitStats(organizationId: string) {
-    const plugin = await this.prisma.plugin.findUnique({
+    const plugin = await this.corePrisma.plugin.findUnique({
       where: { id: 'inventory' }
     });
     const config: any = plugin?.config || {};
@@ -28,14 +32,14 @@ export class InventoryService implements OnModuleInit {
     if (tier === 'tier2') maxWarehouses = 5;
     else if (tier === 'tier3') maxWarehouses = 20;
 
-    const warehouseCount = await this.prisma.warehouse.count({
+    const warehouseCount = await this.inventoryPrisma.warehouse.count({
       where: { organizationId }
     });
 
-    const tableCount = await this.prisma.inventoryTable.count({
+    const tableCount = await this.inventoryPrisma.inventoryTable.count({
       where: { organizationId }
     });
-    const productCount = await this.prisma.product.count({
+    const productCount = await this.inventoryPrisma.product.count({
       where: { organizationId }
     });
 
@@ -48,12 +52,12 @@ export class InventoryService implements OnModuleInit {
 
       if (now - lastAlert >= eightHoursMs) {
         const updatedConfig = { ...config, lastLimitAlertTime: String(now) };
-        await this.prisma.plugin.update({
+        await this.corePrisma.plugin.update({
           where: { id: 'inventory' },
           data: { config: updatedConfig }
         });
 
-        await this.prisma.auditLog.create({
+        await this.corePrisma.auditLog.create({
           data: {
             organizationId,
             pluginId: 'inventory',
@@ -81,7 +85,7 @@ export class InventoryService implements OnModuleInit {
   }
 
   async getTables(organizationId: string) {
-    let tables = await this.prisma.inventoryTable.findMany({
+    let tables = await this.inventoryPrisma.inventoryTable.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'asc' }
     });
@@ -91,7 +95,7 @@ export class InventoryService implements OnModuleInit {
         { name: 'category', label: 'Category', type: 'string' },
         { name: 'weight', label: 'Weight (kg)', type: 'number' }
       ];
-      const defaultTable = await this.prisma.inventoryTable.create({
+      const defaultTable = await this.inventoryPrisma.inventoryTable.create({
         data: {
           organizationId,
           name: 'Main Inventory',
@@ -105,7 +109,7 @@ export class InventoryService implements OnModuleInit {
   }
 
   async createTable(organizationId: string, data: any) {
-    const plugin = await this.prisma.plugin.findUnique({
+    const plugin = await this.corePrisma.plugin.findUnique({
       where: { id: 'inventory' }
     });
     const config: any = plugin?.config || {};
@@ -116,7 +120,7 @@ export class InventoryService implements OnModuleInit {
     else if (tier === 'tier2') maxTables = 10;
     else if (tier === 'tier3') maxTables = 25;
 
-    const currentCount = await this.prisma.inventoryTable.count({
+    const currentCount = await this.inventoryPrisma.inventoryTable.count({
       where: { organizationId }
     });
 
@@ -124,7 +128,7 @@ export class InventoryService implements OnModuleInit {
       throw new Error(`Tier limit reached. Upgrade to add more than ${maxTables} tables.`);
     }
 
-    return this.prisma.inventoryTable.create({
+    return this.inventoryPrisma.inventoryTable.create({
       data: {
         organizationId,
         name: data.name,
@@ -134,7 +138,7 @@ export class InventoryService implements OnModuleInit {
   }
 
   async updateTableSchema(organizationId: string, tableId: string, fieldSchema: any) {
-    return this.prisma.inventoryTable.update({
+    return this.inventoryPrisma.inventoryTable.update({
       where: { id: tableId, organizationId },
       data: { fieldSchema },
     });
@@ -147,7 +151,7 @@ export class InventoryService implements OnModuleInit {
   ) {
     await this.getOrCreateDefaultWarehouse(organizationId);
 
-    const plugin = await this.prisma.plugin.findUnique({
+    const plugin = await this.corePrisma.plugin.findUnique({
       where: { id: 'inventory' }
     });
     const config: any = plugin?.config || {};
@@ -158,7 +162,7 @@ export class InventoryService implements OnModuleInit {
     else if (tier === 'tier2') maxProducts = 10000;
     else if (tier === 'tier3') maxProducts = 100000;
 
-    const allowedProducts = await this.prisma.product.findMany({
+    const allowedProducts = await this.inventoryPrisma.product.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'asc' },
       take: maxProducts,
@@ -181,11 +185,11 @@ export class InventoryService implements OnModuleInit {
 
     const { page, limit, skip } = getPaginationParams(query);
 
-    const total = await this.prisma.product.count({
+    const total = await this.inventoryPrisma.product.count({
       where: whereCondition
     });
 
-    const data = await this.prisma.product.findMany({
+    const data = await this.inventoryPrisma.product.findMany({
       where: whereCondition,
       orderBy: { createdAt: 'asc' },
       skip,
@@ -201,7 +205,7 @@ export class InventoryService implements OnModuleInit {
   }
 
   async createProduct(organizationId: string, data: any) {
-    const plugin = await this.prisma.plugin.findUnique({
+    const plugin = await this.corePrisma.plugin.findUnique({
       where: { id: 'inventory' }
     });
     const config: any = plugin?.config || {};
@@ -212,7 +216,7 @@ export class InventoryService implements OnModuleInit {
     else if (tier === 'tier2') maxProducts = 10000;
     else if (tier === 'tier3') maxProducts = 100000;
 
-    const currentProductCount = await this.prisma.product.count({
+    const currentProductCount = await this.inventoryPrisma.product.count({
       where: { organizationId }
     });
 
@@ -224,7 +228,7 @@ export class InventoryService implements OnModuleInit {
       throw new Error(`Item limit reached. Upgrade your plan to store more than ${maxProducts} products.`);
     }
 
-    return this.prisma.product.create({
+    return this.inventoryPrisma.product.create({
       data: {
         organizationId,
         tableId: data.tableId,
@@ -237,7 +241,7 @@ export class InventoryService implements OnModuleInit {
   }
 
   async getWarehouses(organizationId: string) {
-    return this.prisma.warehouse.findMany({
+    return this.inventoryPrisma.warehouse.findMany({
       where: { organizationId },
       orderBy: { name: 'asc' }
     });
@@ -252,7 +256,7 @@ export class InventoryService implements OnModuleInit {
       throw new Error(`Warehouse limit reached. Upgrade your plan to store more than ${stats.maxWarehouses} warehouses.`);
     }
 
-    return this.prisma.warehouse.create({
+    return this.inventoryPrisma.warehouse.create({
       data: {
         organizationId,
         name: data.name,
@@ -262,11 +266,11 @@ export class InventoryService implements OnModuleInit {
   }
 
   async getOrCreateDefaultWarehouse(organizationId: string) {
-    let defaultWh = await this.prisma.warehouse.findFirst({
+    let defaultWh = await this.inventoryPrisma.warehouse.findFirst({
       where: { organizationId, name: 'Default Warehouse' }
     });
     if (!defaultWh) {
-      defaultWh = await this.prisma.warehouse.create({
+      defaultWh = await this.inventoryPrisma.warehouse.create({
         data: {
           organizationId,
           name: 'Default Warehouse',
@@ -287,7 +291,7 @@ export class InventoryService implements OnModuleInit {
   }
 
   async updateWarehouse(organizationId: string, id: string, data: any) {
-    return this.prisma.warehouse.update({
+    return this.inventoryPrisma.warehouse.update({
       where: { id, organizationId },
       data: {
         name: data.name,
@@ -297,7 +301,7 @@ export class InventoryService implements OnModuleInit {
   }
 
   async deleteWarehouse(organizationId: string, id: string) {
-    return this.prisma.warehouse.delete({
+    return this.inventoryPrisma.warehouse.delete({
       where: { id, organizationId },
     });
   }
@@ -307,7 +311,7 @@ export class InventoryService implements OnModuleInit {
     data: { productId: string; warehouseId: string; quantity: number },
     userId?: string,
   ) {
-    const currentStock = await this.prisma.stock.findUnique({
+    const currentStock = await this.inventoryPrisma.stock.findUnique({
       where: {
         productId_warehouseId: {
           productId: data.productId,
@@ -319,7 +323,7 @@ export class InventoryService implements OnModuleInit {
     const previousQty = currentStock ? currentStock.quantity : 0;
     const diff = data.quantity - previousQty;
 
-    const stock = await this.prisma.stock.upsert({
+    const stock = await this.inventoryPrisma.stock.upsert({
       where: {
         productId_warehouseId: {
           productId: data.productId,
@@ -338,7 +342,7 @@ export class InventoryService implements OnModuleInit {
     });
 
     if (diff !== 0) {
-      await this.prisma.stockTransaction.create({
+      await this.inventoryPrisma.stockTransaction.create({
         data: {
           organizationId,
           productId: data.productId,
@@ -367,11 +371,11 @@ export class InventoryService implements OnModuleInit {
       };
     }
 
-    const total = await this.prisma.stockTransaction.count({
+    const total = await this.inventoryPrisma.stockTransaction.count({
       where: whereCondition,
     });
 
-    const data = await this.prisma.stockTransaction.findMany({
+    const data = await this.inventoryPrisma.stockTransaction.findMany({
       where: whereCondition,
       orderBy: { createdAt: 'desc' },
       skip,
@@ -387,14 +391,14 @@ export class InventoryService implements OnModuleInit {
   }
 
   async exportProductsCsv(organizationId: string, tableId: string) {
-    const activeTable = await this.prisma.inventoryTable.findUnique({
+    const activeTable = await this.inventoryPrisma.inventoryTable.findUnique({
       where: { id: tableId, organizationId },
     });
     if (!activeTable) throw new Error('Table not found');
 
     const customFields = (activeTable.fieldSchema as any[]) || [];
 
-    const plugin = await this.prisma.plugin.findUnique({
+    const plugin = await this.corePrisma.plugin.findUnique({
       where: { id: 'inventory' },
     });
     const config: any = plugin?.config || {};
@@ -405,7 +409,7 @@ export class InventoryService implements OnModuleInit {
     else if (tier === 'tier2') maxProducts = 10000;
     else if (tier === 'tier3') maxProducts = 100000;
 
-    const allowedProducts = await this.prisma.product.findMany({
+    const allowedProducts = await this.inventoryPrisma.product.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'asc' },
       take: maxProducts,
@@ -413,7 +417,7 @@ export class InventoryService implements OnModuleInit {
     });
     const allowedIds = allowedProducts.map((p: any) => p.id);
 
-    const products = await this.prisma.product.findMany({
+    const products = await this.inventoryPrisma.product.findMany({
       where: {
         organizationId,
         tableId,
@@ -433,7 +437,7 @@ export class InventoryService implements OnModuleInit {
   }
 
   async importProductsCsv(organizationId: string, tableId: string, csvContent: string) {
-    const activeTable = await this.prisma.inventoryTable.findUnique({
+    const activeTable = await this.inventoryPrisma.inventoryTable.findUnique({
       where: { id: tableId, organizationId },
     });
     if (!activeTable) throw new Error('Table not found');
@@ -455,7 +459,7 @@ export class InventoryService implements OnModuleInit {
     const imported = [];
     let skipped = 0;
 
-    const plugin = await this.prisma.plugin.findUnique({
+    const plugin = await this.corePrisma.plugin.findUnique({
       where: { id: 'inventory' },
     });
     const config: any = plugin?.config || {};
@@ -466,7 +470,7 @@ export class InventoryService implements OnModuleInit {
     else if (tier === 'tier2') maxProducts = 10000;
     else if (tier === 'tier3') maxProducts = 100000;
 
-    const currentCount = await this.prisma.product.count({
+    const currentCount = await this.inventoryPrisma.product.count({
       where: { organizationId },
     });
 
@@ -520,7 +524,7 @@ export class InventoryService implements OnModuleInit {
       }
 
       try {
-        await this.prisma.product.upsert({
+        await this.inventoryPrisma.product.upsert({
           where: {
             organizationId_sku: {
               organizationId,
@@ -571,7 +575,7 @@ export class InventoryService implements OnModuleInit {
     const defaultWh = await this.getOrCreateDefaultWarehouse(organizationId);
 
     for (const item of payload.lineItems) {
-      const stockEntry = await this.prisma.stock.findUnique({
+      const stockEntry = await this.inventoryPrisma.stock.findUnique({
         where: {
           productId_warehouseId: {
             productId: item.productId,
@@ -582,7 +586,7 @@ export class InventoryService implements OnModuleInit {
       const currentQty = stockEntry ? stockEntry.quantity : 0;
       const nextQty = Math.max(0, currentQty - item.quantity);
 
-      await this.prisma.stock.upsert({
+      await this.inventoryPrisma.stock.upsert({
         where: {
           productId_warehouseId: {
             productId: item.productId,
@@ -600,7 +604,7 @@ export class InventoryService implements OnModuleInit {
         },
       });
 
-      await this.prisma.stockTransaction.create({
+      await this.inventoryPrisma.stockTransaction.create({
         data: {
           organizationId,
           productId: item.productId,

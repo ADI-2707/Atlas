@@ -81,12 +81,22 @@ export class PluginManagerService implements OnModuleInit {
     }
   }
 
+  private async getOrSyncPlugin(id: string) {
+    let plugin = await this.prisma.plugin.findUnique({ where: { id } });
+    if (!plugin) {
+      await this.discoverAndSyncPlugins();
+      plugin = await this.prisma.plugin.findUnique({ where: { id } });
+    }
+    return plugin;
+  }
+
   async getPlugins() {
+    await this.discoverAndSyncPlugins();
     return this.prisma.plugin.findMany();
   }
 
   async installPlugin(id: string, tier?: string) {
-    const plugin = await this.prisma.plugin.findUnique({ where: { id } });
+    const plugin = await this.getOrSyncPlugin(id);
     if (!plugin) throw new Error('Plugin not found');
 
     const loaded = this.loadedPlugins.get(id);
@@ -135,7 +145,7 @@ export class PluginManagerService implements OnModuleInit {
   }
 
   async enablePlugin(id: string) {
-    const plugin = await this.prisma.plugin.findUnique({ where: { id } });
+    const plugin = await this.getOrSyncPlugin(id);
     if (!plugin) throw new Error('Plugin not found');
 
     const loaded = this.loadedPlugins.get(id);
@@ -157,7 +167,7 @@ export class PluginManagerService implements OnModuleInit {
   }
 
   async disablePlugin(id: string) {
-    const plugin = await this.prisma.plugin.findUnique({ where: { id } });
+    const plugin = await this.getOrSyncPlugin(id);
     if (!plugin) throw new Error('Plugin not found');
 
     const loaded = this.loadedPlugins.get(id);
@@ -179,7 +189,7 @@ export class PluginManagerService implements OnModuleInit {
   }
 
   async upgradePlugin(id: string, tier: string) {
-    const plugin = await this.prisma.plugin.findUnique({ where: { id } });
+    const plugin = await this.getOrSyncPlugin(id);
     if (!plugin) throw new Error('Plugin not found');
 
     const config = (plugin.config as Record<string, any>) || {};
@@ -198,5 +208,6 @@ export class PluginManagerService implements OnModuleInit {
       data: { config },
     });
   }
+
 }
 

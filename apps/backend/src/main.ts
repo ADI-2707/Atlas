@@ -7,6 +7,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { TenantInterceptor } from './common/interceptors/tenant.interceptor';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 
 // Load .env file explicitly before bootstrapping
@@ -47,7 +48,10 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(
+    new TransformInterceptor(),
+    new TenantInterceptor(),
+  );
 
   app.useGlobalFilters(new AllExceptionsFilter());
 

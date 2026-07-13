@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@atlas/auth';
-import { usePlugins } from '../../contexts/PluginContext';
+import { usePlugins } from '@atlas/core-ui';
 import { Dashboard as DashboardEngine } from '@atlas/dashboard';
 import { WidgetRegistry } from '@atlas/widgets';
 import { InventoryWidget, CrmWidget, HrWidget, AnalyticsWidget, PmWidget } from './widgets';

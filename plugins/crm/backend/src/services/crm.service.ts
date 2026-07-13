@@ -2,10 +2,14 @@ import { BadRequestException, Injectable, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { getPaginationParams, buildPaginatedResult } from '@atlas/utils';
 import { eventBus } from '@atlas/events';
+import { CrmPrismaService } from '../prisma/crm-prisma.service';
 
 @Injectable()
 export class CrmService {
-  constructor(@Inject('PRISMA_SERVICE') private readonly prisma: PrismaClient) { }
+  constructor(
+    @Inject('PRISMA_SERVICE') private readonly corePrisma: PrismaClient,
+    private readonly crmPrisma: CrmPrismaService
+  ) { }
 
   private readonly tierLimits: Record<string, { customers: number; deals: number }> = {
     free: { customers: 50, deals: 20 },
@@ -34,11 +38,11 @@ export class CrmService {
 
     const { page, limit, skip } = getPaginationParams(query);
 
-    const total = await this.prisma.customer.count({
+    const total = await this.crmPrisma.customer.count({
       where: whereCondition
     });
 
-    const data = await this.prisma.customer.findMany({
+    const data = await this.crmPrisma.customer.findMany({
       where: whereCondition,
       orderBy: { createdAt: 'desc' },
       skip,
@@ -49,13 +53,13 @@ export class CrmService {
   }
 
   async getCustomer(organizationId: string, id: string) {
-    return this.prisma.customer.findFirst({
+    return this.crmPrisma.customer.findFirst({
       where: { id, organizationId }
     });
   }
 
   async getLimitStats(organizationId: string) {
-    const plugin = await this.prisma.plugin.findFirst({
+    const plugin = await this.corePrisma.plugin.findFirst({
       where: { id: 'crm' }
     });
     const tier = this.getNormalizedTier((plugin?.config as any)?.tier);
@@ -75,22 +79,22 @@ export class CrmService {
       pipelineValue,
       closedWonValue,
     ] = await Promise.all([
-      this.prisma.customer.count({ where: { organizationId } }),
-      this.prisma.deal.count({ where: { organizationId } }),
-      this.prisma.customer.count({ where: { organizationId, status: 'LEAD' } }),
-      this.prisma.customer.count({ where: { organizationId, status: 'PROSPECT' } }),
-      this.prisma.customer.count({ where: { organizationId, status: 'CUSTOMER' } }),
-      this.prisma.customer.count({ where: { organizationId, status: 'CHURNED' } }),
-      this.prisma.deal.count({ where: { organizationId, stage: 'QUALIFICATION' } }),
-      this.prisma.deal.count({ where: { organizationId, stage: 'PROPOSAL' } }),
-      this.prisma.deal.count({ where: { organizationId, stage: 'NEGOTIATION' } }),
-      this.prisma.deal.count({ where: { organizationId, stage: 'CLOSED_WON' } }),
-      this.prisma.deal.count({ where: { organizationId, stage: 'CLOSED_LOST' } }),
-      this.prisma.deal.aggregate({
+      this.crmPrisma.customer.count({ where: { organizationId } }),
+      this.crmPrisma.deal.count({ where: { organizationId } }),
+      this.crmPrisma.customer.count({ where: { organizationId, status: 'LEAD' } }),
+      this.crmPrisma.customer.count({ where: { organizationId, status: 'PROSPECT' } }),
+      this.crmPrisma.customer.count({ where: { organizationId, status: 'CUSTOMER' } }),
+      this.crmPrisma.customer.count({ where: { organizationId, status: 'CHURNED' } }),
+      this.crmPrisma.deal.count({ where: { organizationId, stage: 'QUALIFICATION' } }),
+      this.crmPrisma.deal.count({ where: { organizationId, stage: 'PROPOSAL' } }),
+      this.crmPrisma.deal.count({ where: { organizationId, stage: 'NEGOTIATION' } }),
+      this.crmPrisma.deal.count({ where: { organizationId, stage: 'CLOSED_WON' } }),
+      this.crmPrisma.deal.count({ where: { organizationId, stage: 'CLOSED_LOST' } }),
+      this.crmPrisma.deal.aggregate({
         where: { organizationId },
         _sum: { value: true },
       }),
-      this.prisma.deal.aggregate({
+      this.crmPrisma.deal.aggregate({
         where: { organizationId, stage: 'CLOSED_WON' },
         _sum: { value: true },
       }),
@@ -134,7 +138,7 @@ export class CrmService {
       }
     }
 
-    const customer = await this.prisma.customer.create({
+    const customer = await this.crmPrisma.customer.create({
       data: {
         organizationId,
         name: data.name,
@@ -159,7 +163,7 @@ export class CrmService {
       throw new BadRequestException(`Critical limit reached (>=99.5%). Upgrade your subscription plan to modify or add CRM contacts.`);
     }
 
-    const customer = await this.prisma.customer.update({
+    const customer = await this.crmPrisma.customer.update({
       where: { id },
       data: {
         name: data.name,
@@ -179,7 +183,7 @@ export class CrmService {
     const exists = await this.getCustomer(organizationId, id);
     if (!exists) throw new Error('Customer not found or access denied');
 
-    const customer = await this.prisma.customer.delete({
+    const customer = await this.crmPrisma.customer.delete({
       where: { id }
     });
 
@@ -188,7 +192,7 @@ export class CrmService {
   }
 
   async getDeals(organizationId: string) {
-    return this.prisma.deal.findMany({
+    return this.crmPrisma.deal.findMany({
       where: { organizationId },
       include: {
         customer: true,
@@ -199,7 +203,7 @@ export class CrmService {
   }
 
   async getDeal(organizationId: string, id: string) {
-    return this.prisma.deal.findFirst({
+    return this.crmPrisma.deal.findFirst({
       where: { id, organizationId },
       include: {
         customer: true,
@@ -220,9 +224,9 @@ export class CrmService {
     }
 
     const lineItems = data.lineItems || [];
-    const calculatedValue = lineItems.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
+    const calculatedValue = lineItems.reduce((acc: number, item: any) => acc + (item.quantity * item.priceAtTime), 0);
 
-    const deal = await this.prisma.deal.create({
+    const deal = await this.crmPrisma.deal.create({
       data: {
         organizationId,
         title: data.title,
@@ -233,7 +237,7 @@ export class CrmService {
           create: lineItems.map((item: any) => ({
             productId: item.productId,
             quantity: item.quantity,
-            unitPrice: item.unitPrice
+            priceAtTime: item.priceAtTime || item.unitPrice
           }))
         }
       },
@@ -248,7 +252,7 @@ export class CrmService {
   }
 
   async updateDeal(organizationId: string, id: string, data: any, userId?: string) {
-    const previousDeal = await this.prisma.deal.findFirst({
+    const previousDeal = await this.crmPrisma.deal.findFirst({
       where: { id, organizationId }
     });
     if (!previousDeal) throw new Error('Deal not found');
@@ -261,11 +265,11 @@ export class CrmService {
     const lineItems = data.lineItems || [];
     const calculatedValue = lineItems.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0);
 
-    await this.prisma.dealItem.deleteMany({
+    await this.crmPrisma.dealItem.deleteMany({
       where: { dealId: id }
     });
 
-    const updatedDeal = await this.prisma.deal.update({
+    const updatedDeal = await this.crmPrisma.deal.update({
       where: { id },
       data: {
         title: data.title,
@@ -276,7 +280,7 @@ export class CrmService {
           create: lineItems.map((item: any) => ({
             productId: item.productId,
             quantity: item.quantity,
-            unitPrice: item.unitPrice
+            priceAtTime: item.priceAtTime || item.unitPrice
           }))
         }
       },
@@ -298,7 +302,7 @@ export class CrmService {
     const exists = await this.getDeal(organizationId, id);
     if (!exists) throw new Error('Deal not found or access denied');
 
-    const deal = await this.prisma.deal.delete({
+    const deal = await this.crmPrisma.deal.delete({
       where: { id }
     });
 
@@ -325,7 +329,7 @@ export class CrmService {
   }
 
   async getContactSchema() {
-    const plugin = await this.prisma.plugin.findUnique({
+    const plugin = await this.corePrisma.plugin.findUnique({
       where: { id: 'crm' }
     });
     const config = (plugin?.config as any) || {};
@@ -333,13 +337,13 @@ export class CrmService {
   }
 
   async updateContactSchema(fieldSchema: any) {
-    const plugin = await this.prisma.plugin.findUnique({
+    const plugin = await this.corePrisma.plugin.findUnique({
       where: { id: 'crm' }
     });
     const config = (plugin?.config as any) || {};
     const updatedConfig = { ...config, contactFields: fieldSchema };
 
-    await this.prisma.plugin.update({
+    await this.corePrisma.plugin.update({
       where: { id: 'crm' },
       data: { config: updatedConfig }
     });
@@ -348,7 +352,7 @@ export class CrmService {
 
   async exportCustomersCsv(organizationId: string) {
     const schema = await this.getContactSchema();
-    const customers = await this.prisma.customer.findMany({
+    const customers = await this.crmPrisma.customer.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'desc' }
     });
@@ -442,7 +446,7 @@ export class CrmService {
       }
 
       try {
-        await this.prisma.customer.upsert({
+        await this.crmPrisma.customer.upsert({
           where: {
             organizationId_email: {
               organizationId,
@@ -489,8 +493,8 @@ export class CrmService {
       whereCondition.action = { contains: query.search, mode: 'insensitive' };
     }
 
-    const total = await this.prisma.auditLog.count({ where: whereCondition });
-    const data = await this.prisma.auditLog.findMany({
+    const total = await this.corePrisma.auditLog.count({ where: whereCondition });
+    const data = await this.corePrisma.auditLog.findMany({
       where: whereCondition,
       orderBy: { timestamp: 'desc' },
       skip,
@@ -518,7 +522,7 @@ export class CrmService {
     userId?: string
   ) {
     try {
-      await this.prisma.auditLog.create({
+      await this.corePrisma.auditLog.create({
         data: {
           organizationId,
           pluginId: 'crm',

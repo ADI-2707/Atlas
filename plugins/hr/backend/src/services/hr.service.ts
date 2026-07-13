@@ -1,10 +1,14 @@
 import { BadRequestException, Injectable, Inject } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { getPaginationParams, buildPaginatedResult } from '@atlas/utils';
+import { HrPrismaService } from '../prisma/hr-prisma.service';
 
 @Injectable()
 export class HrService {
-  constructor(@Inject('PRISMA_SERVICE') private readonly prisma: PrismaClient) {}
+  constructor(
+    @Inject('PRISMA_SERVICE') private readonly corePrisma: PrismaClient,
+    private readonly hrPrisma: HrPrismaService
+  ) {}
 
   private readonly tierLimits: Record<string, { employees: number; departments: number }> = {
     free: { employees: 10, departments: 1 },
@@ -18,7 +22,7 @@ export class HrService {
   }
 
   async getLimitStats(organizationId: string) {
-    const plugin = await this.prisma.plugin.findFirst({
+    const plugin = await this.corePrisma.plugin.findFirst({
       where: { id: 'hr' }
     });
     const tier = this.getNormalizedTier((plugin?.config as any)?.tier);
@@ -27,8 +31,8 @@ export class HrService {
       employeesCount,
       departmentsCount
     ] = await Promise.all([
-      this.prisma.employee.count({ where: { organizationId } }),
-      this.prisma.department.count({ where: { organizationId } })
+      this.hrPrisma.employee.count({ where: { organizationId } }),
+      this.hrPrisma.department.count({ where: { organizationId } })
     ]);
 
     const currentLimits = this.tierLimits[tier];
@@ -51,8 +55,8 @@ export class HrService {
       whereCondition.action = { contains: query.search, mode: 'insensitive' };
     }
 
-    const total = await this.prisma.auditLog.count({ where: whereCondition });
-    const data = await this.prisma.auditLog.findMany({
+    const total = await this.corePrisma.auditLog.count({ where: whereCondition });
+    const data = await this.corePrisma.auditLog.findMany({
       where: whereCondition,
       orderBy: { timestamp: 'desc' },
       skip,
@@ -86,8 +90,8 @@ export class HrService {
 
     const { page, limit, skip } = getPaginationParams(query);
 
-    const total = await this.prisma.employee.count({ where: whereCondition });
-    const data = await this.prisma.employee.findMany({
+    const total = await this.hrPrisma.employee.count({ where: whereCondition });
+    const data = await this.hrPrisma.employee.findMany({
       where: whereCondition,
       orderBy: { createdAt: 'desc' },
       skip,
@@ -99,7 +103,7 @@ export class HrService {
   }
 
   async getEmployee(organizationId: string, id: string) {
-    return this.prisma.employee.findFirst({
+    return this.hrPrisma.employee.findFirst({
       where: { id, organizationId },
       include: { department: true }
     });
@@ -116,7 +120,7 @@ export class HrService {
       }
     }
 
-    const employee = await this.prisma.employee.create({
+    const employee = await this.hrPrisma.employee.create({
       data: {
         organizationId,
         firstName: data.firstName,
@@ -147,7 +151,7 @@ export class HrService {
       throw new BadRequestException(`Critical limit reached (>=99.5%). Upgrade your subscription plan to modify or add HR employees.`);
     }
 
-    const employee = await this.prisma.employee.update({
+    const employee = await this.hrPrisma.employee.update({
       where: { id },
       data: {
         firstName: data.firstName,
@@ -174,7 +178,7 @@ export class HrService {
     const exists = await this.getEmployee(organizationId, id);
     if (!exists) throw new Error('Employee not found or access denied');
 
-    const employee = await this.prisma.employee.delete({
+    const employee = await this.hrPrisma.employee.delete({
       where: { id }
     });
 
@@ -186,8 +190,8 @@ export class HrService {
     const { page, limit, skip } = getPaginationParams(query);
     const whereCondition = { organizationId };
 
-    const total = await this.prisma.payrollRecord.count({ where: whereCondition });
-    const data = await this.prisma.payrollRecord.findMany({
+    const total = await this.hrPrisma.payrollRecord.count({ where: whereCondition });
+    const data = await this.hrPrisma.payrollRecord.findMany({
       where: whereCondition,
       orderBy: { periodStart: 'desc' },
       skip,
@@ -199,7 +203,7 @@ export class HrService {
   }
 
   async createPayrollRecord(organizationId: string, data: any, userId?: string) {
-    const record = await this.prisma.payrollRecord.create({
+    const record = await this.hrPrisma.payrollRecord.create({
       data: {
         organizationId,
         employeeId: data.employeeId,
@@ -224,7 +228,7 @@ export class HrService {
     userId?: string
   ) {
     try {
-      await this.prisma.auditLog.create({
+      await this.corePrisma.auditLog.create({
         data: {
           organizationId,
           pluginId: 'hr',

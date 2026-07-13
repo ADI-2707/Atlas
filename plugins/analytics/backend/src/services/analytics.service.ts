@@ -4,8 +4,8 @@ import Redis from 'ioredis';
 @Injectable()
 export class AnalyticsService {
   private readonly logger = new Logger(AnalyticsService.name);
-  private readonly ENGINE_URL = 'http://127.0.0.1:8000';
-  private readonly redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+  private readonly ENGINE_URL = process.env.ANALYTICS_ENGINE_URL || 'http://analytics-engine:8000';
+  private readonly redis = new Redis(process.env.REDIS_URL || 'redis://redis:6379');
 
   async getDashboardMetrics(organizationId: string) {
     try {

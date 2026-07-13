@@ -12,16 +12,18 @@ COPY apps/backend/package.json ./apps/backend/
 COPY packages ./packages/
 COPY plugins ./plugins/
 
-# Install dependencies (only what's needed to build backend and its deps)
-# We copy the whole source for simplicity, but only build the backend
+# Install dependencies
 COPY . .
 RUN pnpm install --frozen-lockfile
 
 # Generate Prisma client
 RUN pnpm --filter @atlas/backend db:generate
 
-# Build the backend and its package dependencies
+# Build the backend
 RUN pnpm --filter @atlas/backend... build
+
+# Deploy isolated backend (extracts only @atlas/backend and its production dependencies)
+RUN pnpm deploy --filter @atlas/backend --prod /prod/backend
 
 FROM node:20-alpine AS runner
 
@@ -31,21 +33,25 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 
-COPY --from=builder /app/package.json /app/pnpm-workspace.yaml /app/pnpm-lock.yaml ./
-COPY --from=builder /app/apps/backend/package.json ./apps/backend/
-COPY --from=builder /app/packages ./packages/
-COPY --from=builder /app/plugins ./plugins/
+# Copy the isolated production build
+COPY --from=builder /prod/backend .
+# Note: pnpm deploy doesn't generate the prisma client natively, so we regenerate it
+COPY --from=builder /app/apps/backend/prisma ./prisma
+ENV PRISMA_GENERATE_SKIP_AUTOINSTALL=1
+RUN npx prisma@5.22.0 generate
 
-# Install production dependencies
-RUN pnpm install --frozen-lockfile --prod
+# Copy plugin manifests so PluginManagerService can discover them
+COPY --from=builder /app/plugins ./plugins
 
-# Copy Prisma schema
-COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
-# Re-generate in prod environment to ensure correct engine
-RUN npx prisma@5.22.0 generate --schema=apps/backend/prisma/schema.prisma
+# Generate Prisma clients for plugins in their deployed node_modules
+RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-inventory/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-crm/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-hr/backend/prisma/schema.prisma
+RUN npx prisma@5.22.0 generate --schema=./node_modules/@atlas/plugin-project-management/backend/prisma/schema.prisma
 
-# Copy built dist
-COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+# Fix Prisma client paths: Copy them to the root node_modules so they are universally resolvable
+RUN mkdir -p /app/node_modules/@prisma && \
+    find /app -type d -name "client-*" -exec cp -r {} /app/node_modules/@prisma/ \;
 
 # Expose port
 EXPOSE 3000
@@ -53,4 +59,4 @@ EXPOSE 3000
 ENV NODE_ENV=production
 ENV APP_PORT=3000
 
-CMD ["node", "apps/backend/dist/main.js"]
+CMD ["node", "dist/main.js"]

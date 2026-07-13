@@ -146,6 +146,7 @@ export class AuthService {
       where: { email: dto.email },
       include: {
         roles: true,
+        organization: true,
       },
     });
 
@@ -223,6 +224,7 @@ export class AuthService {
           firstName: user.firstName,
           lastName: user.lastName,
           organizationId: user.organizationId,
+          orgSlug: user.organization?.slug,
           roles: user.roles.map((r: any) => r.name),
           hasCompletedSetup: user.hasCompletedSetup,
         },

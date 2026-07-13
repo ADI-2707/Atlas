@@ -31,7 +31,7 @@ export const Team: React.FC = () => {
       setLoading(true);
       const data = await api.get<User[]>('/users');
       setUsers(data);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to fetch users:', err);
     } finally {
       setLoading(false);
@@ -48,8 +48,8 @@ export const Team: React.FC = () => {
       await api.post('/users', data);
       setShowModal(false);
       fetchUsers();
-    } catch (err: any) {
-      setError(err.message || 'Failed to create user.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create user.');
     }
   };
 

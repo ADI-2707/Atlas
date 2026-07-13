@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Req, Query, SetMetadata } from '@nestjs/common';
 import { ProjectManagementService } from '../services/project-management.service';
 
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('Project Management')
 @ApiBearerAuth()
+@SetMetadata('pluginId', 'project-management')
 @Controller('plugins/project-management')
 export class ProjectManagementController {
   constructor(private readonly pmService: ProjectManagementService) {}

@@ -11,6 +11,6 @@
     "clean": "rimraf dist"
   },
   "devDependencies": {
-    "@types/node": "^18.15.0"
+    "@types/node": "22.10.2"
   }
 }

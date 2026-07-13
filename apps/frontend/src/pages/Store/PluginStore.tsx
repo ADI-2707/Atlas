@@ -2,8 +2,8 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
 import { useAuth } from '@atlas/auth';
-import { usePlugins } from '../../contexts/PluginContext';
-import { mockPlugins } from '../../plugins/mock-plugins';
+import { usePlugins } from '@atlas/core-ui';
+import { mockPlugins } from '@atlas/core-ui';
 import './PluginStore.css';
 
 const getPluginTiers = (pluginId: string) => {

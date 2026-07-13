@@ -3,11 +3,32 @@ import { Sidebar, SidebarItem, Navbar, Button } from '@atlas/ui';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@atlas/auth';
 import { api } from '@atlas/api';
-import { usePlugins } from '../../contexts/PluginContext';
-import { useTheme } from '../../contexts/ThemeContext';
+import { usePlugins } from '@atlas/core-ui';
+import { useTheme } from '@atlas/core-ui';
 import { FullScreenLock } from '../FullScreenLock/FullScreenLock';
 import { SupportWidget } from '../SupportWidget/SupportWidget';
 import './AppLayout.css';
+
+interface InventoryStats {
+  productCount: number;
+  maxProducts: number;
+}
+
+interface CrmLimits {
+  limits: {
+    customers: number;
+    deals: number;
+  };
+  usage: {
+    customers: number;
+    deals: number;
+  };
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
 
 export const AppLayout: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -33,14 +54,22 @@ export const AppLayout: React.FC = () => {
 
   useEffect(() => {
     setWorkspaceLock(null);
-  }, [location.pathname]);
+  }, [location.pathname, setWorkspaceLock]);
+
+  useEffect(() => {
+    if (user?.orgSlug) {
+      document.title = `atlas.io/${user.orgSlug}`;
+    } else {
+      document.title = 'Atlas';
+    }
+  }, [user]);
 
   const [isInventoryLocked, setIsInventoryLocked] = useState(false);
   const [isCrmLocked, setIsCrmLocked] = useState(false);
 
   useEffect(() => {
     if (location.pathname.startsWith('/inventory')) {
-      api.get<any>('/inventory/stats')
+      api.get<ApiResponse<InventoryStats>>('/inventory/stats')
         .then(res => {
           const stats = res.data;
           const isLocked = stats ? (stats.productCount / stats.maxProducts) >= 0.995 : false;
@@ -52,7 +81,7 @@ export const AppLayout: React.FC = () => {
     }
 
     if (location.pathname.startsWith('/crm')) {
-      api.get<any>('/crm/limits')
+      api.get<ApiResponse<CrmLimits>>('/crm/limits')
         .then(res => {
           const stats = res.data;
           const isLocked = stats && (

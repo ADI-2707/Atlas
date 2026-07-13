@@ -10,16 +10,38 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   });
 
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+interface InventoryStats {
+  productCount: number;
+  maxProducts: number;
+}
+
 export const InventoryWidget: React.FC = () => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<InventoryStats | null>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get<any>('/inventory/stats')
+    api.get<ApiResponse<InventoryStats>>('/inventory/stats')
       .then(res => setStats(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>Inventory Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   const productPct = (stats.productCount / stats.maxProducts) * 100;
@@ -48,16 +70,33 @@ export const InventoryWidget: React.FC = () => {
   );
 };
 
+interface CrmLimits {
+  limits: { customers: number; deals: number };
+  usage: { customers: number; deals: number };
+}
+
 export const CrmWidget: React.FC = () => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<CrmLimits | null>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get<any>('/crm/limits')
+    api.get<ApiResponse<CrmLimits>>('/crm/limits')
       .then(res => setStats(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>CRM Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   const contactsPct = stats.limits.customers === -1 ? 0 : (stats.usage.customers / stats.limits.customers) * 100;
@@ -85,24 +124,45 @@ export const CrmWidget: React.FC = () => {
   );
 };
 
+interface HrStats {
+  employeeCount: number;
+  payrollTotal: number;
+}
+
+interface PayrollRecord {
+  amount: number;
+}
+
 export const HrWidget: React.FC = () => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<HrStats | null>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all([
-      api.get<any>('/hr/employees'),
-      api.get<any>('/hr/payroll')
+      api.get<ApiResponse<unknown[]>>('/hr/employees'),
+      api.get<ApiResponse<PayrollRecord[]>>('/hr/payroll')
     ]).then(([empRes, payRes]) => {
-      const emps = empRes.data?.data || [];
-      const pays = payRes.data?.data || [];
+      const emps = Array.isArray(empRes.data) ? empRes.data : (empRes.data as any)?.data || [];
+      const pays = Array.isArray(payRes.data) ? payRes.data : (payRes.data as any)?.data || [];
       setStats({
         employeeCount: emps.length,
-        payrollTotal: pays.reduce((sum: number, p: any) => sum + (p.amount || 0), 0)
+        payrollTotal: pays.reduce((sum: number, p: PayrollRecord) => sum + (p.amount || 0), 0)
       });
-    }).catch(err => console.error(err));
+    }).catch(err => {
+      console.error(err);
+      setError(true);
+    });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>HR Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   return (
@@ -122,19 +182,37 @@ export const HrWidget: React.FC = () => {
   );
 };
 
+interface AnalyticsOverview {
+  totalRevenue: number;
+  inventoryValuation: number;
+}
+
+interface AnalyticsResponse {
+  overview: AnalyticsOverview;
+}
+
 export const AnalyticsWidget: React.FC = () => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<AnalyticsOverview | null>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/analytics/dashboard?org_id=org_default_123', {
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then(res => res.json())
-      .then(data => setStats(data.overview))
-      .catch(err => console.error(err));
+    api.get<ApiResponse<AnalyticsResponse>>('/analytics/dashboard?org_id=org_default_123')
+      .then(res => setStats(res.data.overview))
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>Analytics Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   return (
@@ -150,16 +228,33 @@ export const AnalyticsWidget: React.FC = () => {
   );
 };
 
+interface PmStats {
+  projectCount: number;
+  issueCount: number;
+}
+
 export const PmWidget: React.FC = () => {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<PmStats | null>(null);
+  const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get<any>('/plugins/project-management/stats')
+    api.get<ApiResponse<PmStats>>('/plugins/project-management/stats')
       .then(res => setStats(res.data))
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        setError(true);
+      });
   }, []);
 
+  if (error) {
+    return (
+      <div className="widget-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <div style={{ color: 'var(--text-muted)' }}>Project Management Plugin Disabled</div>
+        <Button variant="secondary" size="small" onClick={() => navigate('/plugins')}>Open Marketplace</Button>
+      </div>
+    );
+  }
   if (!stats) return <div>Loading...</div>;
 
   return (
@@ -169,7 +264,7 @@ export const PmWidget: React.FC = () => {
         <div style={{ marginTop: '0.5rem' }}>Issues: <strong>{stats.issueCount}</strong></div>
       </div>
       <div className="widget-footer" style={{ marginTop: '1rem' }}>
-        <Button variant="secondary" size="small" onClick={() => navigate('/projects')}>Open App</Button>
+        <Button variant="secondary" size="small" onClick={() => navigate('/project-management')}>Open App</Button>
       </div>
     </div>
   );

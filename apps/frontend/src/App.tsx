@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, ProtectedRoute, useAuth } from '@atlas/auth';
-import { PluginProvider } from './contexts/PluginContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { PluginProvider } from '@atlas/core-ui';
+import { ThemeProvider } from '@atlas/core-ui';
 import { AppLayout } from './components/Layout/AppLayout';
-import { usePlugins } from './contexts/PluginContext';
+import { usePlugins } from '@atlas/core-ui';
 import { Login } from './pages/Login/Login';
 import { Setup } from './pages/Setup/Setup';
 import { PluginStore } from './pages/Store/PluginStore';
