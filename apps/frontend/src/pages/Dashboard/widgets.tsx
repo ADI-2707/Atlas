@@ -143,8 +143,8 @@ export const HrWidget: React.FC = () => {
       api.get<ApiResponse<unknown[]>>('/hr/employees'),
       api.get<ApiResponse<PayrollRecord[]>>('/hr/payroll')
     ]).then(([empRes, payRes]) => {
-      const emps = empRes.data || [];
-      const pays = payRes.data || [];
+      const emps = Array.isArray(empRes.data) ? empRes.data : (empRes.data as any)?.data || [];
+      const pays = Array.isArray(payRes.data) ? payRes.data : (payRes.data as any)?.data || [];
       setStats({
         employeeCount: emps.length,
         payrollTotal: pays.reduce((sum: number, p: PayrollRecord) => sum + (p.amount || 0), 0)
