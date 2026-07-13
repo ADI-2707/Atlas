@@ -264,7 +264,7 @@ export const PmWidget: React.FC = () => {
         <div style={{ marginTop: '0.5rem' }}>Issues: <strong>{stats.issueCount}</strong></div>
       </div>
       <div className="widget-footer" style={{ marginTop: '1rem' }}>
-        <Button variant="secondary" size="small" onClick={() => navigate('/projects')}>Open App</Button>
+        <Button variant="secondary" size="small" onClick={() => navigate('/project-management')}>Open App</Button>
       </div>
     </div>
   );

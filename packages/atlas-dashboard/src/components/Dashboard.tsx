@@ -47,6 +47,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ registry, initialLayout, o
         onLayoutChange={handleLayoutChange}
         isDraggable={isEditable}
         isResizable={isEditable}
+        draggableCancel="button, input, a, select, textarea"
       >
         {layout.map(item => {
           const widget = registry.get(item.i);
