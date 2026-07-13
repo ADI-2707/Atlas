@@ -1,12 +1,21 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client-pm';
 
+declare const process: any;
+
 @Injectable()
 export class PmPrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PmPrismaService.name);
 
   constructor() {
+    const dbUrl = process.env.DATABASE_URL;
+    const urlWithSchema = dbUrl ? dbUrl.replace(/schema=[^&]*/, 'schema=atlas_pm') : dbUrl;
     super({
+      datasources: {
+        db: {
+          url: urlWithSchema,
+        },
+      },
       log: ['error', 'warn'],
     });
   }
