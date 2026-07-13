@@ -1,7 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["atlas_core", "atlas_inventory"]
+  schemas  = ["atlas_core", "atlas_inventory", "atlas_crm", "atlas_hr"]
 }
 
 generator client {
