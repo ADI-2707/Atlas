@@ -7,8 +7,12 @@ const API_URL = BASE_URL.replace(/\/$/, '');
 
 export const Admin = () => {
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'LOGS' | 'TICKETS'>('OVERVIEW');
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return localStorage.getItem('admin_sidebar_collapsed') === 'true';
+  });
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('admin_theme') as 'light' | 'dark') || 'light';
+  });
   const [metrics, setMetrics] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [tickets, setTickets] = useState<any[]>([]);
@@ -29,10 +33,18 @@ export const Admin = () => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedClientFilter(clientFilter);
-      setClientPage(1); // Reset page on new debounced search
+      setClientPage(1);
     }, 300);
     return () => clearTimeout(handler);
   }, [clientFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('admin_sidebar_collapsed', String(isCollapsed));
+  }, [isCollapsed]);
+
+  useEffect(() => {
+    localStorage.setItem('admin_theme', theme);
+  }, [theme]);
 
   const headers = {
     'Authorization': `Bearer ${token}`
@@ -72,9 +84,9 @@ export const Admin = () => {
 
   const handleResolveTicket = async (id: string) => {
     try {
-      const res = await fetch(`${API_URL}/admin/tickets/${id}/resolve`, { 
+      const res = await fetch(`${API_URL}/admin/tickets/${id}/resolve`, {
         method: 'POST',
-        headers 
+        headers
       });
       if (res.ok) {
         setTickets(tickets.map(t => t.id === id ? { ...t, status: 'RESOLVED' } : t));
@@ -123,24 +135,24 @@ export const Admin = () => {
           <h2>Super Admin Login</h2>
           <p>Please enter your system admin credentials to access the God View.</p>
           <form onSubmit={handleLogin}>
-            <input 
-              type="email" 
-              placeholder="Email Address" 
+            <input
+              type="email"
+              placeholder="Email Address"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
             />
             <div className="password-input-wrapper">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                placeholder="Password" 
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
               />
-              <button 
-                type="button" 
-                className="password-toggle-btn" 
+              <button
+                type="button"
+                className="password-toggle-btn"
                 onClick={() => setShowPassword(!showPassword)}
                 title={showPassword ? "Hide password" : "Show password"}
               >
@@ -170,8 +182,8 @@ export const Admin = () => {
       <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
         <div className="admin-brand">
           {!isCollapsed && <span>Atlas God View</span>}
-          <button 
-            className="collapse-btn" 
+          <button
+            className="collapse-btn"
             onClick={() => setIsCollapsed(!isCollapsed)}
             title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -197,8 +209,8 @@ export const Admin = () => {
           </button>
         </nav>
         <div className="sidebar-footer">
-          <button 
-            className="theme-toggle-btn" 
+          <button
+            className="theme-toggle-btn"
             onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
             title="Toggle theme"
           >
@@ -222,7 +234,7 @@ export const Admin = () => {
             <header className="admin-header">
               <h1>Platform Overview</h1>
             </header>
-            
+
             <div className="metrics-cards">
               <div className="card">
                 <h3>Total Organizations</h3>
@@ -238,7 +250,7 @@ export const Admin = () => {
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: 'var(--font-sm)' }}>
               Ranking based on a blended Value Score: MRR (60%), User Adoption (20%), and Health (20%).
             </p>
-            
+
             {metrics?.topClients && metrics.topClients.length > 0 && (
               <div className="top-clients-section">
                 <div className="chart-container" style={{ width: '100%', height: 350, backgroundColor: 'var(--bg-primary)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', marginBottom: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
@@ -250,8 +262,8 @@ export const Admin = () => {
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                       <XAxis type="number" stroke="var(--text-tertiary)" />
-                      <YAxis dataKey="name" type="category" width={150} stroke="var(--text-secondary)" tick={{fontSize: 12}} />
-                      <Tooltip 
+                      <YAxis dataKey="name" type="category" width={150} stroke="var(--text-secondary)" tick={{ fontSize: 12 }} />
+                      <Tooltip
                         contentStyle={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)', color: 'var(--text-primary)', borderRadius: '8px', boxShadow: 'var(--shadow-sm)' }}
                       />
                       <Legend />
@@ -288,7 +300,7 @@ export const Admin = () => {
                           </td>
                           <td style={{ fontWeight: 'bold' }}>{client.valueScore}/100</td>
                           <td>
-                            <button 
+                            <button
                               className="btn btn-primary btn-sm"
                               style={{ padding: '0.4rem 0.8rem', fontSize: 'var(--font-xs)', borderRadius: 'var(--radius-sm)' }}
                               onClick={() => console.log(`Selected ${client.name} for marketing campaign. Email extraction to follow in phase 2.`)}
@@ -306,9 +318,9 @@ export const Admin = () => {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h2>All Clients & Health</h2>
-              <input 
-                type="text" 
-                placeholder="Filter by name or slug..." 
+              <input
+                type="text"
+                placeholder="Filter by name or slug..."
                 value={clientFilter}
                 onChange={(e) => setClientFilter(e.target.value)}
                 style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', width: '250px', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
@@ -348,13 +360,13 @@ export const Admin = () => {
                 </tbody>
               </table>
             </div>
-            
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
               <span style={{ fontSize: 'var(--font-sm)', color: 'var(--text-secondary)' }}>
                 Showing {(clientPage - 1) * 10 + 1} to {Math.min(clientPage * 10, filteredClients.length)} of {filteredClients.length} clients
               </span>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button 
+                <button
                   className="btn btn-secondary btn-sm"
                   disabled={clientPage === 1}
                   onClick={() => setClientPage(p => Math.max(1, p - 1))}
@@ -362,7 +374,7 @@ export const Admin = () => {
                 >
                   Previous
                 </button>
-                <button 
+                <button
                   className="btn btn-secondary btn-sm"
                   disabled={clientPage === totalClientPages}
                   onClick={() => setClientPage(p => Math.min(totalClientPages, p + 1))}
