@@ -8,6 +8,7 @@ export interface User {
   role: string;
   hasCompletedSetup?: boolean;
   orgSlug?: string;
+  permissions?: string[];
 }
 
 export interface AuthContextType {
@@ -67,7 +68,8 @@ export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = 
       name: `${backendUser.firstName} ${backendUser.lastName}`,
       role: backendUser.roles[0] || 'User',
       hasCompletedSetup: backendUser.hasCompletedSetup ?? false,
-      orgSlug: backendUser.orgSlug
+      orgSlug: backendUser.orgSlug,
+      permissions: backendUser.permissions || []
     };
 
 

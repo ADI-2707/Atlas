@@ -114,6 +114,7 @@ export const AcceptInvite: React.FC = () => {
         role: backendUser.roles[0] || 'User',
         hasCompletedSetup: backendUser.hasCompletedSetup ?? true,
         orgSlug: backendUser.orgSlug,
+        permissions: backendUser.permissions || [],
       };
       
       localStorage.setItem('atlas_user', JSON.stringify(userWithSetup));

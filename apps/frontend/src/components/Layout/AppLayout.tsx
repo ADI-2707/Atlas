@@ -196,15 +196,21 @@ export const AppLayout: React.FC = () => {
           </div>
         }
       >
-        {navigationItems.map((item) => (
-          <SidebarItem
-            key={item.path}
-            label={item.title}
-            icon={renderIcon(item.icon)}
-            isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
-            onClick={() => navigate(item.path)}
-          />
-        ))}
+        {navigationItems
+          .filter((item) => {
+            if (!item.permissions || item.permissions.length === 0) return true;
+            if (user?.role === 'Super Admin' || user?.role === 'SYSTEM_ADMIN') return true;
+            return item.permissions.some((perm) => user?.permissions?.includes(perm));
+          })
+          .map((item) => (
+            <SidebarItem
+              key={item.path}
+              label={item.title}
+              icon={renderIcon(item.icon)}
+              isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
+              onClick={() => navigate(item.path)}
+            />
+          ))}
 
         <div style={{ flex: 1 }} />
         <SidebarItem

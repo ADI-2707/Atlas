@@ -146,7 +146,11 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
       include: {
-        roles: true,
+        roles: {
+          include: {
+            permissions: true,
+          },
+        },
         organization: true,
       },
     });
@@ -227,6 +231,9 @@ export class AuthService {
           organizationId: user.organizationId,
           orgSlug: user.organization?.slug,
           roles: user.roles.map((r: any) => r.name),
+          permissions: Array.from(
+            new Set(user.roles.flatMap((r: any) => r.permissions.map((p: any) => p.code)))
+          ),
           hasCompletedSetup: user.hasCompletedSetup,
         },
       },
@@ -443,7 +450,11 @@ export class AuthService {
           } : undefined,
         },
         include: {
-          roles: true,
+          roles: {
+            include: {
+              permissions: true,
+            },
+          },
           organization: true,
         },
       });
@@ -507,6 +518,9 @@ export class AuthService {
           organizationId: user.organizationId,
           orgSlug: user.organization?.slug,
           roles: user.roles.map((r: any) => r.name),
+          permissions: Array.from(
+            new Set(user.roles.flatMap((r: any) => r.permissions.map((p: any) => p.code)))
+          ),
           hasCompletedSetup: user.hasCompletedSetup,
         },
       },
