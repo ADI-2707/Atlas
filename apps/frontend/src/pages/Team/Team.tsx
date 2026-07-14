@@ -41,8 +41,8 @@ export const Team: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const data = await api.get<User[]>('/users');
-      setUsers(data);
+      const res = await api.get<{ success: boolean; data: User[] }>('/users');
+      setUsers(res.data || []);
     } catch (err) {
       console.error('Failed to fetch users:', err);
     }
@@ -50,8 +50,8 @@ export const Team: React.FC = () => {
 
   const fetchInvitations = async () => {
     try {
-      const data = await api.get<Invitation[]>('/invitations');
-      setInvitations(data);
+      const res = await api.get<{ success: boolean; data: Invitation[] }>('/invitations');
+      setInvitations(res.data || []);
     } catch (err) {
       console.error('Failed to fetch invitations:', err);
     }
@@ -59,8 +59,8 @@ export const Team: React.FC = () => {
 
   const fetchRoles = async () => {
     try {
-      const data = await api.get<Role[]>('/roles');
-      setRoles(data);
+      const res = await api.get<{ success: boolean; data: Role[] }>('/roles');
+      setRoles(res.data || []);
     } catch (err) {
       console.error('Failed to fetch roles:', err);
     }

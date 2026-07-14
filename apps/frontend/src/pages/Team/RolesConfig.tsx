@@ -34,10 +34,12 @@ export const RolesConfig: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [rolesData, permsData] = await Promise.all([
-        api.get<Role[]>('/roles'),
-        api.get<Permission[]>('/permissions'),
+      const [rolesRes, permsRes] = await Promise.all([
+        api.get<{ success: boolean; data: Role[] }>('/roles'),
+        api.get<{ success: boolean; data: Permission[] }>('/permissions'),
       ]);
+      const rolesData = rolesRes.data || [];
+      const permsData = permsRes.data || [];
       setRoles(rolesData);
       setPermissions(permsData);
       
