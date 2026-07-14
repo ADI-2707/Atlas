@@ -13,6 +13,7 @@ import { Dashboard } from './pages/Dashboard/Dashboard';
 import { AuditLogs } from './pages/AuditLogs/AuditLogs';
 import { Admin } from './pages/Admin/Admin';
 import { Team } from './pages/Team/Team';
+import { AcceptInvite } from './pages/AcceptInvite/AcceptInvite';
 
 
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
@@ -76,6 +77,7 @@ export const App: React.FC = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route path="/accept-invite" element={<AcceptInvite />} />
 
               <Route path="/setup" element={
                 <ProtectedRoute fallback={<Navigate to="/login" replace />}>
