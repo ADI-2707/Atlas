@@ -1,9 +1,10 @@
-import { Injectable, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
+import { AcceptInviteDto } from './dto/accept-invite.dto';
 import { AuditService } from '../audit/audit.service';
 import { configManager } from '@atlas/config';
 import * as bcrypt from 'bcryptjs';
@@ -366,6 +367,150 @@ export class AuthService {
       data: { hasCompletedSetup: true },
     });
     return { message: 'Setup completed', data: null };
+  }
+
+  async verifyInvitation(token: string) {
+    const invite = await this.prisma.invitation.findUnique({
+      where: { token },
+      include: { organization: true },
+    });
+
+    if (!invite) {
+      throw new NotFoundException('Invitation not found or invalid');
+    }
+
+    if (invite.status !== 'PENDING') {
+      throw new BadRequestException(`This invitation has already been ${invite.status.toLowerCase()}`);
+    }
+
+    if (new Date(invite.expiresAt) < new Date()) {
+      throw new BadRequestException('This invitation has expired');
+    }
+
+    return {
+      message: 'Invitation is valid',
+      data: {
+        email: invite.email,
+        organization: {
+          id: invite.organization.id,
+          name: invite.organization.name,
+          slug: invite.organization.slug,
+        },
+      },
+    };
+  }
+
+  async acceptInvitation(dto: AcceptInviteDto, ipAddress?: string, userAgent?: string) {
+    const invite = await this.prisma.invitation.findUnique({
+      where: { token: dto.token },
+      include: { organization: true },
+    });
+
+    if (!invite) {
+      throw new NotFoundException('Invitation not found or invalid');
+    }
+
+    if (invite.status !== 'PENDING') {
+      throw new BadRequestException(`This invitation has already been ${invite.status.toLowerCase()}`);
+    }
+
+    if (new Date(invite.expiresAt) < new Date()) {
+      throw new BadRequestException('This invitation has expired');
+    }
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: invite.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('A registered user with this email address already exists');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.prisma.$transaction(async (tx: any) => {
+      const createdUser = await tx.user.create({
+        data: {
+          email: invite.email,
+          passwordHash,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          status: 'ACTIVE',
+          hasCompletedSetup: true,
+          organizationId: invite.organizationId,
+          roles: invite.roleIds && invite.roleIds.length > 0 ? {
+            connect: invite.roleIds.map((id: string) => ({ id })),
+          } : undefined,
+        },
+        include: {
+          roles: true,
+          organization: true,
+        },
+      });
+
+      await tx.invitation.update({
+        where: { id: invite.id },
+        data: { status: 'ACCEPTED' },
+      });
+
+      return createdUser;
+    });
+
+    const sessionId = randomUUID();
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      orgId: user.organizationId,
+      roles: user.roles.map((r: any) => r.name),
+      sessionId,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: configManager.has('JWT_ACCESS_EXPIRATION') ? configManager.get<string>('JWT_ACCESS_EXPIRATION') : '15m',
+    });
+    const refreshToken = randomUUID();
+
+    const refreshExpiry = new Date();
+    refreshExpiry.setDate(refreshExpiry.getDate() + 7);
+
+    await this.prisma.session.create({
+      data: {
+        id: sessionId,
+        userId: user.id,
+        refreshToken,
+        ipAddress,
+        userAgent,
+        expiresAt: refreshExpiry,
+      },
+    });
+
+    await this.auditService.createLog({
+      userId: user.id,
+      organizationId: user.organizationId,
+      action: 'auth.accept_invite',
+      result: 'SUCCESS',
+      ipAddress,
+      sessionId,
+      details: { email: user.email, invitationId: invite.id },
+    });
+
+    return {
+      message: 'Invitation accepted and logged in successfully',
+      data: {
+        accessToken,
+        refreshToken,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          organizationId: user.organizationId,
+          orgSlug: user.organization?.slug,
+          roles: user.roles.map((r: any) => r.name),
+          hasCompletedSetup: user.hasCompletedSetup,
+        },
+      },
+    };
   }
 }
 
