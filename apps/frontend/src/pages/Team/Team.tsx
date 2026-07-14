@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
+import { RolesConfig } from './RolesConfig';
 import './Team.css';
 
 interface User {
@@ -36,6 +37,7 @@ export const Team: React.FC = () => {
   const [email, setEmail] = useState('');
   const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'members' | 'roles'>('members');
 
   const fetchUsers = async () => {
     try {
@@ -127,15 +129,54 @@ export const Team: React.FC = () => {
           <h1>Team Management</h1>
           <p>Manage your organization's employees, pending invites, and access roles.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          Invite Employee
+        {activeTab === 'members' && (
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            Invite Employee
+          </button>
+        )}
+      </div>
+
+      {/* Tabs Header */}
+      <div className="tabs-header" style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem' }}>
+        <button
+          className={`tab-btn ${activeTab === 'members' ? 'active' : ''}`}
+          onClick={() => setActiveTab('members')}
+          style={{
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === 'members' ? '2px solid var(--color-primary)' : 'none',
+            color: activeTab === 'members' ? 'var(--text-primary)' : 'var(--text-secondary)',
+            padding: '0.75rem 1rem',
+            cursor: 'pointer',
+            fontWeight: 500,
+            fontSize: '1rem',
+          }}
+        >
+          Members & Invites
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'roles' ? 'active' : ''}`}
+          onClick={() => setActiveTab('roles')}
+          style={{
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === 'roles' ? '2px solid var(--color-primary)' : 'none',
+            color: activeTab === 'roles' ? 'var(--text-primary)' : 'var(--text-secondary)',
+            padding: '0.75rem 1rem',
+            cursor: 'pointer',
+            fontWeight: 500,
+            fontSize: '1rem',
+          }}
+        >
+          Roles & Permissions
         </button>
       </div>
 
-      {loading ? (
-        <div className="loading">Loading team...</div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+      {activeTab === 'members' ? (
+        loading ? (
+          <div className="loading">Loading team...</div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
           
           {/* Active Members Section */}
           <div>
@@ -244,7 +285,10 @@ export const Team: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )
+    ) : (
+      <RolesConfig />
+    )}
 
       {showModal && (
         <div className="modal-overlay">
