@@ -20,12 +20,33 @@ export class PluginActiveGuard implements CanActivate {
       return true; // No plugin requirement
     }
 
-    const plugin = await this.prisma.plugin.findUnique({
-      where: { id: pluginId },
+    const { user } = context.switchToHttp().getRequest();
+
+    if (user?.roles?.includes('SYSTEM_ADMIN')) {
+      const plugin = await this.prisma.plugin.findUnique({
+        where: { id: pluginId },
+      });
+      if (!plugin || (plugin.status !== 'ENABLED' && plugin.status !== 'INSTALLED')) {
+        throw new ForbiddenException(`Plugin ${pluginId} is not enabled.`);
+      }
+      return true;
+    }
+
+    if (!user || !user.organizationId) {
+      throw new ForbiddenException('Organization context is required to access plugins.');
+    }
+
+    const orgPlugin = await this.prisma.organizationPlugin.findUnique({
+      where: {
+        organizationId_pluginId: {
+          organizationId: user.organizationId,
+          pluginId,
+        },
+      },
     });
 
-    if (!plugin || (plugin.status !== 'ENABLED' && plugin.status !== 'INSTALLED')) {
-      throw new ForbiddenException(`Plugin ${pluginId} is not enabled.`);
+    if (!orgPlugin || orgPlugin.status !== 'ENABLED') {
+      throw new ForbiddenException(`Plugin ${pluginId} is not enabled for your organization.`);
     }
 
     return true;
