@@ -14,6 +14,7 @@ import { AuditLogs } from './pages/AuditLogs/AuditLogs';
 import { Admin } from './pages/Admin/Admin';
 import { Team } from './pages/Team/Team';
 import { AcceptInvite } from './pages/AcceptInvite/AcceptInvite';
+import { ToastProvider } from './lib/toast/ToastContext';
 
 
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
@@ -74,52 +75,54 @@ export const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider apiUrl={apiUrl}>
         <PluginProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/accept-invite" element={<AcceptInvite />} />
+          <ToastProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/accept-invite" element={<AcceptInvite />} />
 
-              <Route path="/setup" element={
-                <ProtectedRoute fallback={<Navigate to="/login" replace />}>
-                  <SetupGuard requireSetup={false}>
-                    <Setup />
-                  </SetupGuard>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/welcome" element={
-                <ProtectedRoute fallback={<Navigate to="/login" replace />}>
-                  <SetupGuard>
-                    <Welcome />
-                  </SetupGuard>
-                </ProtectedRoute>
-              } />
-
-              <Route
-                path="/"
-                element={
+                <Route path="/setup" element={
                   <ProtectedRoute fallback={<Navigate to="/login" replace />}>
-                    <SetupGuard>
-                      <LayoutGuard />
+                    <SetupGuard requireSetup={false}>
+                      <Setup />
                     </SetupGuard>
                   </ProtectedRoute>
-                }
-              >
-                <Route index element={<Dashboard />} />
-                <Route path="team" element={<Team />} />
+                } />
 
-                <Route path="logs" element={<AuditLogs />} />
-                <Route path="admin" element={<Admin />} />
-                <Route path="store" element={<PluginStore />} />
-                <Route path="store/:pluginId" element={<PluginStore />} />
-                <Route path="inventory/*" element={<Inventory />} />
-                <Route path="crm/*" element={<CRM />} />
-                <Route path="hr/*" element={<HR />} />
-                <Route path="analytics/*" element={<AnalyticsWrapper />} />
-                <Route path="project-management/*" element={<ProjectManagement />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
+                <Route path="/welcome" element={
+                  <ProtectedRoute fallback={<Navigate to="/login" replace />}>
+                    <SetupGuard>
+                      <Welcome />
+                    </SetupGuard>
+                  </ProtectedRoute>
+                } />
+
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute fallback={<Navigate to="/login" replace />}>
+                      <SetupGuard>
+                        <LayoutGuard />
+                      </SetupGuard>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Dashboard />} />
+                  <Route path="team" element={<Team />} />
+
+                  <Route path="logs" element={<AuditLogs />} />
+                  <Route path="admin" element={<Admin />} />
+                  <Route path="store" element={<PluginStore />} />
+                  <Route path="store/:pluginId" element={<PluginStore />} />
+                  <Route path="inventory/*" element={<Inventory />} />
+                  <Route path="crm/*" element={<CRM />} />
+                  <Route path="hr/*" element={<HR />} />
+                  <Route path="analytics/*" element={<AnalyticsWrapper />} />
+                  <Route path="project-management/*" element={<ProjectManagement />} />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </ToastProvider>
         </PluginProvider>
       </AuthProvider>
     </ThemeProvider>
