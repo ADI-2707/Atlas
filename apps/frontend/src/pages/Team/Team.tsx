@@ -196,12 +196,12 @@ export const Team: React.FC = () => {
     <div className="team-page" style={{ height: '100%' }}>
       {showEmptyState ? (
         <div className="dashboard-active-state" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '450px' }}>
-          <div className="dashboard-empty-state" style={{ maxWidth: '600px', padding: '3rem', textAlign: 'center' }}>
-            <div className="dashboard-empty-icon" style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>👥</div>
+          <div className="dashboard-empty-state" style={{ maxWidth: '600px', padding: 'var(--spacing-2xl)', textAlign: 'center' }}>
+            <div className="dashboard-empty-icon" style={{ fontSize: '3.5rem', marginBottom: 'var(--spacing-lg)' }}>👥</div>
             <h2 className="dashboard-empty-title" style={{ fontSize: '1.8rem', fontWeight: 600, marginBottom: '1.125rem' }}>
               Welcome, {user?.name ? user.name.split(' ')[0] : 'Admin'}! Your team is empty.
             </h2>
-            <p className="dashboard-empty-sub" style={{ color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: '1.6', fontSize: '0.95rem' }}>
+            <p className="dashboard-empty-sub" style={{ color: 'var(--text-secondary)', marginBottom: 'var(--spacing-xl)', lineHeight: '1.6', fontSize: '0.95rem' }}>
               You haven't added any team members yet. Invite your first employee to start collaborating, assigning roles, and managing permissions in your workspace.
             </p>
             <button
@@ -215,7 +215,7 @@ export const Team: React.FC = () => {
               <span>+</span> Add Member
             </button>
             {isLimitReached && (
-              <div style={{ marginTop: '1rem', color: 'var(--color-danger)', fontSize: '0.85rem' }}>
+              <div style={{ marginTop: 'var(--spacing-md)', color: 'var(--color-danger)', fontSize: '0.85rem' }}>
                 Plan capacity reached. Please upgrade your plan.
               </div>
             )}
@@ -223,14 +223,14 @@ export const Team: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+          <div className="page-header" style={{ marginBottom: 'var(--spacing-lg)' }}>
             <div>
               <h1>Team Management</h1>
               <p>Manage your organization's employees, pending invites, and access roles.</p>
             </div>
           </div>
 
-          <div style={{ marginBottom: '2rem' }}>
+          <div style={{ marginBottom: 'var(--spacing-xl)' }}>
             <Tabs
               tabs={[
                 { id: 'members', label: 'Members Management' },
@@ -248,10 +248,10 @@ export const Team: React.FC = () => {
             loading ? (
               <div className="loading">Loading team...</div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2xl)' }}>
                 {/* Active Members Section */}
                 <div>
-                  <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 600 }}>Active Members</h2>
+                  <h2 style={{ marginBottom: 'var(--spacing-md)', fontSize: '1.25rem', fontWeight: 600 }}>Active Members</h2>
                   <div className="table-container glass-panel">
                     <table className="users-table">
                       <thead>
@@ -300,7 +300,7 @@ export const Team: React.FC = () => {
 
                 {/* Pending Invitations Section */}
                 <div>
-                  <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 600 }}>Pending Invitations</h2>
+                  <h2 style={{ marginBottom: 'var(--spacing-md)', fontSize: '1.25rem', fontWeight: 600 }}>Pending Invitations</h2>
                   <div className="table-container glass-panel">
                     <table className="users-table">
                       <thead>
@@ -336,7 +336,7 @@ export const Team: React.FC = () => {
                                 {i.status === 'PENDING' && (
                                   <button
                                     className="btn btn-ghost"
-                                    style={{ color: 'var(--color-danger)', padding: '0.25rem 0.5rem' }}
+                                    style={{ color: 'var(--color-danger)', padding: 'var(--spacing-xs) var(--spacing-sm)' }}
                                     onClick={() => handleRevokeInvite(i.id)}
                                   >
                                     Revoke
@@ -359,9 +359,9 @@ export const Team: React.FC = () => {
             )
           ) : activeTab === 'add-member' ? (
             <div style={{ maxWidth: '600px' }} className="glass-panel">
-              <div style={{ padding: '2rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>Invite New Team Member</h2>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '2rem' }}>
+              <div style={{ padding: 'var(--spacing-xl)' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>Invite New Team Member</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: 'var(--spacing-xl)' }}>
                   They will receive a secure registration link to create their profile and join your workspace.
                 </p>
 
@@ -380,8 +380,8 @@ export const Team: React.FC = () => {
                   </div>
 
                   <div className="form-group">
-                    <label style={{ marginBottom: '0.75rem' }}>Assign Roles</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '180px', overflowY: 'auto', padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
+                    <label style={{ marginBottom: 'var(--spacing-sm)' }}>Assign Roles</label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', maxHeight: '180px', overflowY: 'auto', padding: 'var(--spacing-sm)', border: '1px solid var(--border-color)', borderRadius: '8px' }}>
                       {roles.map((role) => (
                         <label key={role.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
                           <input
@@ -401,8 +401,8 @@ export const Team: React.FC = () => {
                     </div>
                   </div>
 
-                  <div style={{ marginTop: '2rem' }}>
-                    <button type="submit" className="btn btn-primary" style={{ padding: '0.625rem 2rem' }} disabled={isLimitReached}>
+                  <div style={{ marginTop: 'var(--spacing-xl)' }}>
+                    <button type="submit" className="btn btn-primary" style={{ padding: 'var(--spacing-sm) var(--spacing-xl)' }} disabled={isLimitReached}>
                       Send Invitation
                     </button>
                   </div>
@@ -412,21 +412,21 @@ export const Team: React.FC = () => {
           ) : activeTab === 'roles' ? (
             <RolesConfig />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-xl)' }}>
               {/* Plan Summary Card */}
-              <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Subscription & Seat Limits</h2>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 'var(--spacing-xs)' }}>Subscription & Seat Limits</h2>
                     <p style={{ color: 'var(--text-secondary)' }}>Manage your organization's subscription tier and review active workspace seat allocations.</p>
                   </div>
-                  <span className="badge badge-active" style={{ fontSize: '0.9rem', padding: '0.5rem 1rem', borderRadius: '20px' }}>
+                  <span className="badge badge-active" style={{ fontSize: '0.9rem', padding: 'var(--spacing-sm) var(--spacing-md)', borderRadius: '20px' }}>
                     Active Plan: {orgTier.toUpperCase()}
                   </span>
                 </div>
 
-                <div style={{ padding: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+                <div style={{ padding: 'var(--spacing-lg)', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-sm)', fontSize: '0.95rem' }}>
                     <span style={{ color: 'var(--text-secondary)' }}>Employee Seat Allocation</span>
                     <span style={{ fontWeight: 600 }}>{currentSeats} of {limitSeats === 9999 ? 'Unlimited' : limitSeats} seats used</span>
                   </div>
@@ -443,15 +443,15 @@ export const Team: React.FC = () => {
 
               {/* Plan Options Grid */}
               <div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem' }}>Available Workspace Tiers</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-lg)' }}>Available Workspace Tiers</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--spacing-lg)' }}>
                   {/* Starter Plan */}
-                  <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', border: orgTier === 'starter' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'starter' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
                     {orgTier === 'starter' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
-                    <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>Starter Plan</h4>
-                    <div style={{ fontSize: '2rem', fontWeight: 700, margin: '1rem 0 0.5rem' }}>$49<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span></div>
+                    <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>Starter Plan</h4>
+                    <div style={{ fontSize: '2rem', fontWeight: 700, margin: 'var(--spacing-md) 0 var(--spacing-sm)' }}>$49<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span></div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>Ideal for small teams getting started with workspace orchestration.</p>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: '1.5rem 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 'var(--spacing-lg) 0 var(--spacing-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                       <li>✓ Up to 25 seats capacity</li>
                       <li>✓ Core dashboard access</li>
                       <li>✓ Role-based permissions</li>
@@ -468,12 +468,12 @@ export const Team: React.FC = () => {
                   </div>
 
                   {/* Enterprise Plan */}
-                  <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', border: orgTier === 'enterprise' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'enterprise' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
                     {orgTier === 'enterprise' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
-                    <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>Enterprise Plan</h4>
-                    <div style={{ fontSize: '2rem', fontWeight: 700, margin: '1rem 0 0.5rem' }}>$199<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span></div>
+                    <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>Enterprise Plan</h4>
+                    <div style={{ fontSize: '2rem', fontWeight: 700, margin: 'var(--spacing-md) 0 var(--spacing-sm)' }}>$199<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span></div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>Unlimited scaling, premium support, and access to all standard plugins.</p>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: '1.5rem 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 'var(--spacing-lg) 0 var(--spacing-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                       <li>✓ Unlimited seat allocation</li>
                       <li>✓ All standard plugins included</li>
                       <li>✓ 24/7 dedicated support</li>
@@ -490,12 +490,12 @@ export const Team: React.FC = () => {
                   </div>
 
                   {/* Custom Plan */}
-                  <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', border: orgTier === 'custom' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'custom' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
                     {orgTier === 'custom' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
-                    <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>Custom Plan</h4>
-                    <div style={{ fontSize: '2rem', fontWeight: 700, margin: '1rem 0 0.5rem' }}>Custom<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}> pricing</span></div>
+                    <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>Custom Plan</h4>
+                    <div style={{ fontSize: '2rem', fontWeight: 700, margin: 'var(--spacing-md) 0 var(--spacing-sm)' }}>Custom<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}> pricing</span></div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>For large-scale organisations with customized compliance needs.</p>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: '1.5rem 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 'var(--spacing-lg) 0 var(--spacing-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                       <li>✓ Up to 1000 seat capacity</li>
                       <li>✓ Dedicated servers & infrastructure</li>
                       <li>✓ Custom plugin integrations</li>
