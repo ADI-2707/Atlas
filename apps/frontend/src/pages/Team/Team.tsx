@@ -42,7 +42,7 @@ export const Team: React.FC = () => {
   const [email, setEmail] = useState('');
   const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'members' | 'roles'>('members');
+  const [activeTab, setActiveTab] = useState<'members' | 'roles' | 'subscription'>('members');
 
   const orgTier = user?.orgTier || 'starter';
   const currentSeats = users.length + invitations.filter(i => i.status === 'PENDING').length;
@@ -131,6 +131,50 @@ export const Team: React.FC = () => {
     }
   };
 
+  const handleUpdatePlan = async (newTier: string) => {
+    if (newTier === 'starter' && currentSeats > 25) {
+      showToast(
+        'Downgrade Blocked', 
+        `Your organization currently utilizes ${currentSeats} seats. Starter plan allows max 25 seats. Remove members/invitations first.`, 
+        'error'
+      );
+      return;
+    }
+    
+    if (newTier === 'custom' && currentSeats > 1000) {
+      showToast(
+        'Downgrade Blocked', 
+        `Your organization currently utilizes ${currentSeats} seats. Custom plan allows max 1000 seats.`, 
+        'error'
+      );
+      return;
+    }
+
+    try {
+      await api.patch('/users/organization/tier', { tier: newTier });
+      showToast(
+        'Subscription Updated', 
+        `Successfully changed organization workspace plan to ${newTier.toUpperCase()}. Syncing page state...`, 
+        'success'
+      );
+      
+      const stored = localStorage.getItem('atlas_user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        parsed.orgTier = newTier;
+        localStorage.setItem('atlas_user', JSON.stringify(parsed));
+      }
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (err) {
+      showToast('Update Failed', err instanceof Error ? err.message : 'Could not change subscription plan.', 'error');
+    }
+  };
+
+
+
   const handleRoleToggle = (roleId: string) => {
     setSelectedRoleIds((prev) =>
       prev.includes(roleId) ? prev.filter((id) => id !== roleId) : [...prev, roleId],
@@ -191,6 +235,22 @@ export const Team: React.FC = () => {
           }}
         >
           Roles & Permissions
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'subscription' ? 'active' : ''}`}
+          onClick={() => setActiveTab('subscription')}
+          style={{
+            background: 'none',
+            border: 'none',
+            borderBottom: activeTab === 'subscription' ? '2px solid var(--color-primary)' : 'none',
+            color: activeTab === 'subscription' ? 'var(--text-primary)' : 'var(--text-secondary)',
+            padding: '0.75rem 1rem',
+            cursor: 'pointer',
+            fontWeight: 500,
+            fontSize: '1rem',
+          }}
+        >
+          Subscription Plan
         </button>
       </div>
 
@@ -330,8 +390,110 @@ export const Team: React.FC = () => {
           </div>
         </div>
       )
-    ) : (
+    ) : activeTab === 'roles' ? (
       <RolesConfig />
+    ) : (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        {/* Plan Summary Card */}
+        <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>Subscription & Seat Limits</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>Manage your organization's subscription tier and review active workspace seat allocations.</p>
+            </div>
+            <span className="badge badge-active" style={{ fontSize: '0.9rem', padding: '0.5rem 1rem', borderRadius: '20px' }}>
+              Active Plan: {orgTier.toUpperCase()}
+            </span>
+          </div>
+
+          <div style={{ padding: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', fontSize: '0.95rem' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Employee Seat Allocation</span>
+              <span style={{ fontWeight: 600 }}>{currentSeats} of {limitSeats === 9999 ? 'Unlimited' : limitSeats} seats used</span>
+            </div>
+            <div style={{ width: '100%', height: '8px', background: 'var(--border-color)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{
+                width: `${Math.min(100, (currentSeats / limitSeats) * 100)}%`,
+                height: '100%',
+                background: isLimitReached ? 'var(--color-danger)' : 'var(--color-primary)',
+                borderRadius: '4px'
+              }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Plan Options Grid */}
+        <div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem' }}>Available Workspace Tiers</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+            {/* Starter Plan */}
+            <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', border: orgTier === 'starter' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+              {orgTier === 'starter' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>Starter Plan</h4>
+              <div style={{ fontSize: '2rem', fontWeight: 700, margin: '1rem 0 0.5rem' }}>$49<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span></div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>Ideal for small teams getting started with workspace orchestration.</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '1.5rem 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                <li>✓ Up to 25 seats capacity</li>
+                <li>✓ Core dashboard access</li>
+                <li>✓ Role-based permissions</li>
+                <li>✓ System audit logs</li>
+              </ul>
+              <button
+                className="btn"
+                style={{ width: '100%', marginTop: 'auto', background: orgTier === 'starter' ? 'var(--border-color)' : 'var(--color-primary)', color: orgTier === 'starter' ? 'var(--text-primary)' : 'white' }}
+                disabled={orgTier === 'starter'}
+                onClick={() => handleUpdatePlan('starter')}
+              >
+                {orgTier === 'starter' ? 'Active Plan' : 'Switch to Starter'}
+              </button>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', border: orgTier === 'enterprise' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+              {orgTier === 'enterprise' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>Enterprise Plan</h4>
+              <div style={{ fontSize: '2rem', fontWeight: 700, margin: '1rem 0 0.5rem' }}>$199<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span></div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>Unlimited scaling, premium support, and access to all standard plugins.</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '1.5rem 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                <li>✓ Unlimited seat allocation</li>
+                <li>✓ All standard plugins included</li>
+                <li>✓ 24/7 dedicated support</li>
+                <li>✓ SSO & advanced audit trails</li>
+              </ul>
+              <button
+                className="btn"
+                style={{ width: '100%', marginTop: 'auto', background: orgTier === 'enterprise' ? 'var(--border-color)' : 'var(--color-primary)', color: orgTier === 'enterprise' ? 'var(--text-primary)' : 'white' }}
+                disabled={orgTier === 'enterprise'}
+                onClick={() => handleUpdatePlan('enterprise')}
+              >
+                {orgTier === 'enterprise' ? 'Active Plan' : 'Switch to Enterprise'}
+              </button>
+            </div>
+
+            {/* Custom Plan */}
+            <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', border: orgTier === 'custom' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+              {orgTier === 'custom' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
+              <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>Custom Plan</h4>
+              <div style={{ fontSize: '2rem', fontWeight: 700, margin: '1rem 0 0.5rem' }}>Custom<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}> pricing</span></div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>For large-scale organisations with customized compliance needs.</p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '1.5rem 0 2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                <li>✓ Up to 1000 seat capacity</li>
+                <li>✓ Dedicated servers & infrastructure</li>
+                <li>✓ Custom plugin integrations</li>
+                <li>✓ Service-level agreement (SLA)</li>
+              </ul>
+              <button
+                className="btn"
+                style={{ width: '100%', marginTop: 'auto', background: orgTier === 'custom' ? 'var(--border-color)' : 'var(--color-primary)', color: orgTier === 'custom' ? 'var(--text-primary)' : 'white' }}
+                disabled={orgTier === 'custom'}
+                onClick={() => handleUpdatePlan('custom')}
+              >
+                {orgTier === 'custom' ? 'Active Plan' : 'Switch to Custom'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     )}
 
       {showModal && (

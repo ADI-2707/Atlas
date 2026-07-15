@@ -13,6 +13,35 @@ export class UsersService {
   ) {}
 
   async create(dto: CreateUserDto, organizationId: string, callerId: string) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: { tier: true },
+    });
+    if (!org) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    const activeCount = await this.prisma.user.count({
+      where: { organizationId },
+    });
+
+    const pendingCount = await this.prisma.invitation.count({
+      where: {
+        organizationId,
+        status: 'PENDING',
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    const currentCount = activeCount + pendingCount;
+    let limit = 25;
+    if (org.tier === 'enterprise') limit = 9999;
+    else if (org.tier === 'custom') limit = 1000;
+
+    if (currentCount >= limit) {
+      throw new BadRequestException(`Organization employee capacity reached (${limit} seats limit for ${org.tier.toUpperCase()} plan). Please upgrade your subscription.`);
+    }
+
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -201,5 +230,27 @@ export class UsersService {
     });
 
     return { message: 'User deleted successfully' };
+  }
+
+  async updateOrgTier(organizationId: string, tier: string, callerId: string) {
+    const validTiers = ['starter', 'enterprise', 'custom'];
+    if (!validTiers.includes(tier)) {
+      throw new BadRequestException('Invalid subscription tier');
+    }
+
+    const org = await this.prisma.organization.update({
+      where: { id: organizationId },
+      data: { tier },
+    });
+
+    await this.auditService.createLog({
+      userId: callerId,
+      organizationId,
+      action: 'organization.update_tier',
+      result: 'SUCCESS',
+      details: { newTier: tier },
+    });
+
+    return { success: true, tier: org.tier };
   }
 }
