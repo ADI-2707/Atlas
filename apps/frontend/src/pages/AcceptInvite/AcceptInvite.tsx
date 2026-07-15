@@ -114,6 +114,7 @@ export const AcceptInvite: React.FC = () => {
         role: backendUser.roles[0] || 'User',
         hasCompletedSetup: backendUser.hasCompletedSetup ?? true,
         orgSlug: backendUser.orgSlug,
+        orgTier: backendUser.orgTier,
         permissions: backendUser.permissions || [],
       };
       

@@ -8,6 +8,7 @@ export interface User {
   role: string;
   hasCompletedSetup?: boolean;
   orgSlug?: string;
+  orgTier?: string;
   permissions?: string[];
 }
 
@@ -69,6 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = 
       role: backendUser.roles[0] || 'User',
       hasCompletedSetup: backendUser.hasCompletedSetup ?? false,
       orgSlug: backendUser.orgSlug,
+      orgTier: backendUser.orgTier,
       permissions: backendUser.permissions || []
     };
 

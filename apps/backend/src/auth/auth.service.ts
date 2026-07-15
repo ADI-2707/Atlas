@@ -43,6 +43,7 @@ export class AuthService {
           name: dto.orgName,
           slug: dto.orgSlug,
           status: 'ACTIVE',
+          tier: dto.tier || 'starter',
         },
       });
 
@@ -230,6 +231,7 @@ export class AuthService {
           lastName: user.lastName,
           organizationId: user.organizationId,
           orgSlug: user.organization?.slug,
+          orgTier: user.organization?.tier || 'starter',
           roles: user.roles.map((r: any) => r.name),
           permissions: Array.from(
             new Set(user.roles.flatMap((r: any) => r.permissions.map((p: any) => p.code)))
@@ -517,6 +519,7 @@ export class AuthService {
           lastName: user.lastName,
           organizationId: user.organizationId,
           orgSlug: user.organization?.slug,
+          orgTier: user.organization?.tier || 'starter',
           roles: user.roles.map((r: any) => r.name),
           permissions: Array.from(
             new Set(user.roles.flatMap((r: any) => r.permissions.map((p: any) => p.code)))

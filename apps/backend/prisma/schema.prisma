@@ -15,6 +15,7 @@ model Organization {
   name      String
   slug      String   @unique
   status    String   @default("ACTIVE") // ACTIVE, INACTIVE
+  tier      String   @default("starter") // starter, enterprise, custom
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
