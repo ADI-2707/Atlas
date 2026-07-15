@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
+import { useAuth } from '@atlas/auth';
+import { useToast } from '../../lib/toast/ToastContext';
 import { RolesConfig } from './RolesConfig';
 import './Team.css';
 
@@ -29,6 +31,9 @@ interface Invitation {
 }
 
 export const Team: React.FC = () => {
+  const { user } = useAuth();
+  const { showToast } = useToast();
+
   const [users, setUsers] = useState<User[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -38,6 +43,15 @@ export const Team: React.FC = () => {
   const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'members' | 'roles'>('members');
+
+  const orgTier = user?.orgTier || 'starter';
+  const currentSeats = users.length + invitations.filter(i => i.status === 'PENDING').length;
+  
+  let limitSeats = 25;
+  if (orgTier === 'enterprise') limitSeats = 9999;
+  else if (orgTier === 'custom') limitSeats = 1000;
+  
+  const isLimitReached = currentSeats >= limitSeats;
 
   const fetchUsers = async () => {
     try {
@@ -80,6 +94,12 @@ export const Team: React.FC = () => {
     e.preventDefault();
     setError('');
 
+    if (isLimitReached) {
+      setError(`Seat limit reached for your current plan (${orgTier.toUpperCase()}). Please upgrade.`);
+      showToast('Capacity Limit Reached', `You have used ${currentSeats} of ${limitSeats} seats. Upgrade to add more users.`, 'error');
+      return;
+    }
+
     if (selectedRoleIds.length === 0) {
       setError('Please select at least one role.');
       return;
@@ -90,6 +110,7 @@ export const Team: React.FC = () => {
         email,
         roleIds: selectedRoleIds,
       });
+      showToast('Invitation Sent', `A secure onboarding link has been sent to ${email}`, 'success');
       setShowModal(false);
       setEmail('');
       setSelectedRoleIds([]);
@@ -103,9 +124,10 @@ export const Team: React.FC = () => {
     if (!window.confirm('Are you sure you want to revoke this invitation?')) return;
     try {
       await api.delete(`/invitations/${id}`);
+      showToast('Invitation Revoked', 'The pending onboarding invitation has been revoked.', 'warning');
       loadData();
     } catch (err) {
-      console.error('Failed to revoke invitation:', err);
+      showToast('Error', 'Failed to revoke invitation.', 'error');
     }
   };
 
@@ -175,6 +197,28 @@ export const Team: React.FC = () => {
       {activeTab === 'members' ? (
         loading ? (
           <div className="loading">Loading team...</div>
+        ) : users.length <= 1 && invitations.length === 0 ? (
+          <div className="team-empty-state glass-panel">
+            <div className="empty-state-icon-wrapper">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <h3>Assemble Your Dream Team</h3>
+            <p>
+              Invite developers, administrators, and collaborators to join your organization on Atlas. 
+              Assign roles, manage access controls, and build together.
+            </p>
+            <button className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1rem', fontWeight: 600 }} onClick={() => setShowModal(true)} disabled={isLimitReached}>
+              Invite Your First Member
+            </button>
+            <div className="empty-state-limit">
+              <span>Plan Capacity: {currentSeats} of {limitSeats === 9999 ? 'Unlimited' : limitSeats} seats used ({orgTier.toUpperCase()} plan)</span>
+            </div>
+          </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
           
