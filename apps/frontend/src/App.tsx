@@ -31,8 +31,8 @@ const LayoutGuard: React.FC = () => {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#050505', color: '#fff' }}>Loading Atlas...</div>;
   }
 
-  // Allow access to welcome, dashboard, store, and logs even if no plugins are installed
-  if (installedPlugins.length === 0 && location.pathname !== '/' && location.pathname !== '/logs' && !location.pathname.startsWith('/store')) {
+  // Allow access to welcome, dashboard, store, team, and logs even if no plugins are installed
+  if (installedPlugins.length === 0 && location.pathname !== '/' && location.pathname !== '/logs' && location.pathname !== '/team' && !location.pathname.startsWith('/store')) {
     return <Navigate to="/welcome" replace />;
   }
   return <AppLayout />;
