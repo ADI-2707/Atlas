@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
 import { useAuth } from '@atlas/auth';
-import { useToast } from '@atlas/ui';
-import { Tabs } from '@atlas/ui';
+import { useToast, Tabs, Button } from '@atlas/ui';
 import { RolesConfig } from './RolesConfig';
 import './Team.css';
 
@@ -204,16 +203,16 @@ export const Team: React.FC = () => {
             <p className="dashboard-empty-sub" style={{ color: 'var(--text-secondary)', marginBottom: 'var(--spacing-xl)', lineHeight: '1.6', fontSize: '0.95rem' }}>
               You haven't added any team members yet. Invite your first employee to start collaborating, assigning roles, and managing permissions in your workspace.
             </p>
-            <button
-              className="dashboard-empty-btn"
+            <Button
+              variant="primary"
               onClick={() => {
                 setIsAddingFirstMember(true);
                 setActiveTab('add-member');
               }}
               disabled={isLimitReached}
             >
-              <span>+</span> Add Member
-            </button>
+              + Add Member
+            </Button>
             {isLimitReached && (
               <div style={{ marginTop: 'var(--spacing-md)', color: 'var(--color-danger)', fontSize: '0.85rem' }}>
                 Plan capacity reached. Please upgrade your plan.
@@ -223,7 +222,7 @@ export const Team: React.FC = () => {
         </div>
       ) : (
         <>
-          <div style={{ marginBottom: 'var(--spacing-xl)' }}>
+          <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
             <Tabs
               tabs={[
                 { id: 'members', label: 'Members Management' },
@@ -327,13 +326,13 @@ export const Team: React.FC = () => {
                               <td>{new Date(i.createdAt).toLocaleDateString()}</td>
                               <td style={{ textAlign: 'right' }}>
                                 {i.status === 'PENDING' && (
-                                  <button
-                                    className="btn btn-ghost"
-                                    style={{ color: 'var(--color-danger)', padding: 'var(--spacing-xs) var(--spacing-sm)' }}
+                                  <Button
+                                    variant="danger"
+                                    size="small"
                                     onClick={() => handleRevokeInvite(i.id)}
                                   >
                                     Revoke
-                                  </button>
+                                  </Button>
                                 )}
                               </td>
                             </tr>
@@ -395,9 +394,9 @@ export const Team: React.FC = () => {
                   </div>
 
                   <div style={{ marginTop: 'var(--spacing-xl)' }}>
-                    <button type="submit" className="btn btn-primary" style={{ padding: 'var(--spacing-sm) var(--spacing-xl)' }} disabled={isLimitReached}>
+                    <Button type="submit" variant="primary" disabled={isLimitReached}>
                       Send Invitation
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
@@ -439,8 +438,8 @@ export const Team: React.FC = () => {
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-lg)' }}>Available Workspace Tiers</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'var(--spacing-lg)' }}>
                   {/* Starter Plan */}
-                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'starter' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
-                    {orgTier === 'starter' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
+                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'starter' ? '2px solid var(--color-accent-active)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+                    {orgTier === 'starter' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-accent-active)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
                     <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>Starter Plan</h4>
                     <div style={{ fontSize: '2rem', fontWeight: 700, margin: 'var(--spacing-md) 0 var(--spacing-sm)' }}>$49<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span></div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>Ideal for small teams getting started with workspace orchestration.</p>
@@ -450,19 +449,19 @@ export const Team: React.FC = () => {
                       <li>✓ Role-based permissions</li>
                       <li>✓ System audit logs</li>
                     </ul>
-                    <button
-                      className="btn"
-                      style={{ width: '100%', marginTop: 'auto', background: orgTier === 'starter' ? 'var(--border-color)' : 'var(--color-primary)', color: orgTier === 'starter' ? 'var(--text-primary)' : 'white' }}
+                    <Button
+                      variant={orgTier === 'starter' ? 'secondary' : 'primary'}
                       disabled={orgTier === 'starter'}
                       onClick={() => handleUpdatePlan('starter')}
+                      style={{ width: '100%', marginTop: 'auto' }}
                     >
                       {orgTier === 'starter' ? 'Active Plan' : 'Switch to Starter'}
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Enterprise Plan */}
-                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'enterprise' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
-                    {orgTier === 'enterprise' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
+                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'enterprise' ? '2px solid var(--color-accent-active)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+                    {orgTier === 'enterprise' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-accent-active)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
                     <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>Enterprise Plan</h4>
                     <div style={{ fontSize: '2rem', fontWeight: 700, margin: 'var(--spacing-md) 0 var(--spacing-sm)' }}>$199<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span></div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>Unlimited scaling, premium support, and access to all standard plugins.</p>
@@ -472,19 +471,19 @@ export const Team: React.FC = () => {
                       <li>✓ 24/7 dedicated support</li>
                       <li>✓ SSO & advanced audit trails</li>
                     </ul>
-                    <button
-                      className="btn"
-                      style={{ width: '100%', marginTop: 'auto', background: orgTier === 'enterprise' ? 'var(--border-color)' : 'var(--color-primary)', color: orgTier === 'enterprise' ? 'var(--text-primary)' : 'white' }}
+                    <Button
+                      variant={orgTier === 'enterprise' ? 'secondary' : 'primary'}
                       disabled={orgTier === 'enterprise'}
                       onClick={() => handleUpdatePlan('enterprise')}
+                      style={{ width: '100%', marginTop: 'auto' }}
                     >
                       {orgTier === 'enterprise' ? 'Active Plan' : 'Switch to Enterprise'}
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Custom Plan */}
-                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'custom' ? '2px solid var(--color-primary)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
-                    {orgTier === 'custom' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-primary)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
+                  <div className="glass-panel" style={{ padding: 'var(--spacing-xl)', display: 'flex', flexDirection: 'column', border: orgTier === 'custom' ? '2px solid var(--color-accent-active)' : '1px solid var(--border-color)', borderRadius: '16px', position: 'relative' }}>
+                    {orgTier === 'custom' && <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--color-accent-active)', color: 'white', padding: '2px 10px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 600 }}>CURRENT PLAN</span>}
                     <h4 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>Custom Plan</h4>
                     <div style={{ fontSize: '2rem', fontWeight: 700, margin: 'var(--spacing-md) 0 var(--spacing-sm)' }}>Custom<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}> pricing</span></div>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', minHeight: '40px' }}>For large-scale organisations with customized compliance needs.</p>
@@ -494,14 +493,14 @@ export const Team: React.FC = () => {
                       <li>✓ Custom plugin integrations</li>
                       <li>✓ Service-level agreement (SLA)</li>
                     </ul>
-                    <button
-                      className="btn"
-                      style={{ width: '100%', marginTop: 'auto', background: orgTier === 'custom' ? 'var(--border-color)' : 'var(--color-primary)', color: orgTier === 'custom' ? 'var(--text-primary)' : 'white' }}
+                    <Button
+                      variant={orgTier === 'custom' ? 'secondary' : 'primary'}
                       disabled={orgTier === 'custom'}
                       onClick={() => handleUpdatePlan('custom')}
+                      style={{ width: '100%', marginTop: 'auto' }}
                     >
                       {orgTier === 'custom' ? 'Active Plan' : 'Switch to Custom'}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
