@@ -469,6 +469,34 @@ export class AuthService {
       return createdUser;
     });
 
+    try {
+      const admins = await this.prisma.user.findMany({
+        where: {
+          organizationId: user.organizationId,
+          id: { not: user.id },
+          roles: {
+            some: {
+              name: { in: ['Super Admin', 'Admin', 'SYSTEM_ADMIN'] },
+            },
+          },
+        },
+      });
+
+      if (admins.length > 0) {
+        await this.prisma.notification.createMany({
+          data: admins.map((admin: any) => ({
+            userId: admin.id,
+            title: 'Team Member Onboarded',
+            message: `${user.firstName} ${user.lastName} has accepted the invitation and joined the workspace.`,
+            type: 'SUCCESS',
+            actionUrl: '/team',
+          })),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to create onboarding notifications:', err);
+    }
+
     const sessionId = randomUUID();
     const payload = {
       email: user.email,

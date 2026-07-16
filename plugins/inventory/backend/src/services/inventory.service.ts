@@ -355,6 +355,8 @@ export class InventoryService implements OnModuleInit {
       });
     }
 
+    await this.checkAndTriggerLowStockAlert(organizationId, data.productId, data.warehouseId, data.quantity);
+
     return stock;
   }
 
@@ -574,6 +576,40 @@ export class InventoryService implements OnModuleInit {
     const { organizationId, payload } = event;
     const defaultWh = await this.getOrCreateDefaultWarehouse(organizationId);
 
+    // Notify the user who closed the deal or the admins
+    try {
+      const targetUserIds = [];
+      if (payload.userId) {
+        targetUserIds.push(payload.userId);
+      } else {
+        const admins = await this.corePrisma.user.findMany({
+          where: {
+            organizationId,
+            roles: {
+              some: {
+                name: { in: ['Super Admin', 'Admin', 'SYSTEM_ADMIN'] },
+              },
+            },
+          },
+        });
+        targetUserIds.push(...admins.map((a: any) => a.id));
+      }
+
+      if (targetUserIds.length > 0) {
+        await this.corePrisma.notification.createMany({
+          data: targetUserIds.map((uId) => ({
+            userId: uId,
+            title: `Deal Won: ${payload.dealTitle}`,
+            message: `CRM Deal closed won. Stock adjusted for products in the default warehouse.`,
+            type: 'SUCCESS',
+            actionUrl: '/inventory',
+          })),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to create deal closed won notifications:', err);
+    }
+
     for (const item of payload.lineItems) {
       const stockEntry = await this.inventoryPrisma.stock.findUnique({
         where: {
@@ -615,6 +651,53 @@ export class InventoryService implements OnModuleInit {
           userId: payload.userId || null,
         },
       });
+
+      await this.checkAndTriggerLowStockAlert(organizationId, item.productId, defaultWh.id, nextQty);
+    }
+  }
+
+  private async checkAndTriggerLowStockAlert(organizationId: string, productId: string, warehouseId: string, nextQty: number) {
+    if (nextQty >= 10) return;
+
+    try {
+      const [product, warehouse] = await Promise.all([
+        this.inventoryPrisma.product.findUnique({
+          where: { id: productId },
+          select: { name: true },
+        }),
+        this.inventoryPrisma.warehouse.findUnique({
+          where: { id: warehouseId },
+          select: { name: true },
+        }),
+      ]);
+
+      if (!product || !warehouse) return;
+
+      const admins = await this.corePrisma.user.findMany({
+        where: {
+          organizationId,
+          roles: {
+            some: {
+              name: { in: ['Super Admin', 'Admin', 'SYSTEM_ADMIN'] },
+            },
+          },
+        },
+        select: { id: true },
+      });
+
+      if (admins.length > 0) {
+        await this.corePrisma.notification.createMany({
+          data: admins.map((admin) => ({
+            userId: admin.id,
+            title: 'Low Stock Alert',
+            message: `Product "${product.name}" has only ${nextQty} left in "${warehouse.name}".`,
+            type: 'WARNING',
+            actionUrl: '/inventory',
+          })),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to trigger low stock warning notification:', err);
     }
   }
 }
