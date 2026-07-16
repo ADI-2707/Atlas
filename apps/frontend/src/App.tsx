@@ -57,6 +57,7 @@ const SetupGuard: React.FC<{ children: React.ReactNode, requireSetup?: boolean }
 
 const AnalyticsWrapper: React.FC = () => {
   const { allPlugins } = usePlugins();
+  const { user } = useAuth();
   const analyticsPlugin = allPlugins.find(p => p.id === 'analytics');
   const activeBackendTier = analyticsPlugin?.config?.tier || 'free';
 
@@ -65,7 +66,7 @@ const AnalyticsWrapper: React.FC = () => {
   else if (activeBackendTier === 'tier2') tier = 'business';
   else if (activeBackendTier === 'tier3') tier = 'enterprise';
 
-  return <Analytics tier={tier} />;
+  return <Analytics tier={tier} organizationId={user?.organizationId} />;
 };
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';

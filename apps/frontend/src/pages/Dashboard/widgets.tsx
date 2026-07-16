@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@atlas/ui';
+import { useAuth } from '@atlas/auth';
 
 const formatCurrency = (value: number) =>
   value.toLocaleString(undefined, {
@@ -195,15 +196,17 @@ export const AnalyticsWidget: React.FC = () => {
   const [stats, setStats] = useState<AnalyticsOverview | null>(null);
   const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
-    api.get<ApiResponse<AnalyticsResponse>>('/analytics/dashboard?org_id=org_default_123')
+    if (!user?.organizationId) return;
+    api.get<ApiResponse<AnalyticsResponse>>(`/analytics/dashboard?org_id=${user.organizationId}`)
       .then(res => setStats(res.data.overview))
       .catch(err => {
         console.error(err);
         setError(true);
       });
-  }, []);
+  }, [user?.organizationId]);
 
   if (error) {
     return (

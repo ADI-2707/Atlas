@@ -9,6 +9,7 @@ export interface User {
   hasCompletedSetup?: boolean;
   orgSlug?: string;
   orgTier?: string;
+  organizationId?: string;
   permissions?: string[];
 }
 
@@ -71,6 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode; apiUrl?: string }> = 
       hasCompletedSetup: backendUser.hasCompletedSetup ?? false,
       orgSlug: backendUser.orgSlug,
       orgTier: backendUser.orgTier,
+      organizationId: backendUser.organizationId,
       permissions: backendUser.permissions || []
     };
 

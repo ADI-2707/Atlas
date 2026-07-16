@@ -35,7 +35,15 @@ last_sync_times = {}
 
 def nightly_ml_batch_job():
     logger.info("Running nightly ML batch job...")
-    run_etl_pipeline('org_default_123')
+    with engine.begin() as conn:
+        result = conn.execute(text("SELECT id FROM atlas_core.organizations WHERE status = 'ACTIVE'"))
+        org_ids = [row[0] for row in result]
+    for org_id in org_ids:
+        try:
+            run_etl_pipeline(org_id)
+            logger.info(f"ETL completed for org: {org_id}")
+        except Exception as e:
+            logger.error(f"ETL failed for org {org_id}: {e}")
     logger.info("Nightly batch job completed.")
 
 @app.on_event("startup")
