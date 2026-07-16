@@ -13,6 +13,7 @@ import { PluginsModule } from './plugins/plugins.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AdminModule } from './admin/admin.module';
 import { PluginActiveGuard } from './plugins/guards/plugin-active.guard';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PluginActiveGuard } from './plugins/guards/plugin-active.guard';
     InvitationsModule,
     PluginsModule.register(),
     AdminModule,
+    NotificationsModule,
   ],
   providers: [
     {
