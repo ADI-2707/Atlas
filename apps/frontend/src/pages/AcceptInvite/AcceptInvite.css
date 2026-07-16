@@ -104,19 +104,21 @@
   color: #fff;
 }
 
-.atlas-brand-content {
+.accept-invite-layout .atlas-brand-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
 }
 
-.atlas-logo-wrapper {
+.accept-invite-layout .atlas-logo-wrapper {
   transform: scale(1);
   opacity: 1;
 }
 
-.atlas-brand-text {
+.accept-invite-layout .atlas-brand-text {
+  position: absolute;
+  top: 100%;
   margin-top: 2rem;
   text-align: center;
   width: max-content;
@@ -124,7 +126,7 @@
   transform: translateY(0);
 }
 
-.atlas-brand-title {
+.accept-invite-layout .atlas-brand-title {
   font-size: 3rem;
   font-weight: 700;
   color: #fff;
@@ -132,19 +134,19 @@
   margin-bottom: 0.5rem;
 }
 
-.atlas-brand-subtitle {
+.accept-invite-layout .atlas-brand-subtitle {
   font-size: 1.25rem;
   font-weight: 500;
   color: #d1d5db;
   margin-bottom: 1.5rem;
 }
 
-.atlas-brand-description {
+.accept-invite-layout .atlas-brand-description {
   color: #9ca3af;
   font-size: 1rem;
   line-height: 1.6;
 }
 
-.atlas-brand-description strong {
+.accept-invite-layout .atlas-brand-description strong {
   color: #fff;
 }
