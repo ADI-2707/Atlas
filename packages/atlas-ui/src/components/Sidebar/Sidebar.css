@@ -121,12 +121,11 @@
 }
 
 .atlas-sidebar-footer {
-  padding: 0 var(--spacing-md) var(--spacing-md);
+  padding: var(--spacing-md);
   border-top: 1px solid var(--border-color);
   position: relative;
 }
 
-/* Tooltips */
 .atlas-sidebar--collapsed .atlas-sidebar-item {
   position: relative;
 }
