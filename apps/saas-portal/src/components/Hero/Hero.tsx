@@ -66,7 +66,7 @@ export const Hero = () => {
           transition={{ duration: 0.6, delay: 0.72, ease: [0.16, 1, 0.3, 1] }}
         >
           Replace your fragmented software stack with one unified, incredibly fast platform.
-          CRM, HR, Inventory, and Analytics — seamlessly connected.
+          CRM, HR, Inventory, Projects, and Analytics — seamlessly connected.
         </motion.p>
 
         <motion.div

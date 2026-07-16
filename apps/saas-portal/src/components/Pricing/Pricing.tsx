@@ -18,7 +18,7 @@ const TIERS = [
     price: '$199',
     period: '/month',
     description: 'All plugins included. Built for growing organisations that need everything.',
-    features: ['Unlimited users', 'All 4 plugins (CRM, HR, Inventory, Analytics)', 'Priority support 24/7', 'Custom roles & permissions', 'SSO & advanced security', 'Dedicated onboarding'],
+    features: ['Unlimited users', 'All 5 plugins (CRM, HR, Inventory, Projects, Analytics)', 'Priority support 24/7', 'Custom roles & permissions', 'SSO & advanced security', 'Dedicated onboarding'],
     cta: 'Subscribe Now',
     plan: 'enterprise',
     highlight: true,

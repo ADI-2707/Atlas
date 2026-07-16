@@ -45,6 +45,21 @@ const FEATURES = [
   {
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="18" height="18" rx="2" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9 3v18" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M14 8h5" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M14 12h5" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    color: '#8b5cf6',
+    tag: 'Projects',
+    title: 'Project Management',
+    desc: 'Kanban boards, project timelines, milestone tracking, and task delegation. Keep your workspace operations fully aligned.',
+    metrics: ['Interactive kanban', 'Gantt charts', 'Milestone tracking'],
+  },
+  {
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="#fbbc04" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
