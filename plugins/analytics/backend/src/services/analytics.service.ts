@@ -87,4 +87,26 @@ export class AnalyticsService {
       throw error;
     }
   }
+
+  async getTimeseries(organizationId: string) {
+    try {
+      const cacheKey = `analytics:timeseries:${organizationId}`;
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+
+      const response = await fetch(`${this.ENGINE_URL}/timeseries?org_id=${organizationId}`);
+      if (!response.ok) {
+        throw new Error(`Python Engine timeseries returned ${response.status}`);
+      }
+      
+      const data = await response.json();
+      await this.redis.set(cacheKey, JSON.stringify(data), 'EX', 300);
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to fetch timeseries from engine: ${error}`);
+      return {};
+    }
+  }
 }

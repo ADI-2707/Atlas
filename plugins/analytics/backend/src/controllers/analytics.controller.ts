@@ -36,4 +36,10 @@ export class AnalyticsController {
   async generateReport(@Request() req: AuthenticatedRequest) {
     return this.analyticsService.generateReport(req.user.organizationId);
   }
+
+  @Get('timeseries')
+  @RequirePermissions('analytics.read')
+  async getTimeseries(@Request() req: AuthenticatedRequest) {
+    return this.analyticsService.getTimeseries(req.user.organizationId);
+  }
 }
