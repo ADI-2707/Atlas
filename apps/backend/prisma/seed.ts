@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
+declare const process: any;
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -116,7 +118,7 @@ async function main() {
 
   // Create default admin user (pre-hashed bcrypt for 'password123')
   const adminEmail = 'admin@atlas.com';
-  const passwordHash = '$2a$10$mR3Hh.8S2t3DszpDfe09t.Pehn3J8j7hR8Xp1JtY0Y/7n21oY76nO';
+  const passwordHash = '$2a$10$d9mc1GrSOijUJdwcZ2AVke3uFvdwGMIb8eWizSe.VpriSsTUb8Ftq';
 
   const adminUser = await prisma.user.upsert({
     where: { email: adminEmail },
