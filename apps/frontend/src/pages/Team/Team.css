@@ -177,3 +177,84 @@
   gap: 1rem;
   margin-top: 2rem;
 }
+
+.badge-pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.badge-revoked {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+}
+
+.badge-accepted {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.badge-expired {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+/* Premium Empty State Styles */
+.team-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4.5rem 2rem;
+  text-align: center;
+  border-radius: 16px;
+  background: var(--bg-surface-primary);
+  border: 1px solid var(--border-color);
+  margin-top: 1rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .team-empty-state {
+  background: rgba(255, 255, 255, 0.01);
+  backdrop-filter: blur(12px);
+}
+
+.empty-state-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.08);
+  color: var(--color-primary);
+  margin-bottom: 1.75rem;
+}
+
+.team-empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.team-empty-state p {
+  max-width: 520px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 auto 2rem;
+  font-size: 0.95rem;
+}
+
+.empty-state-limit {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: var(--bg-surface-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  margin-top: 1.5rem;
+  border: 1px solid var(--border-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+

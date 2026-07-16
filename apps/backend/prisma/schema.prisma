@@ -1,7 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["atlas_core", "atlas_inventory", "atlas_crm", "atlas_hr"]
+  schemas  = ["atlas_core"]
 }
 
 generator client {
@@ -15,14 +15,17 @@ model Organization {
   name      String
   slug      String   @unique
   status    String   @default("ACTIVE") // ACTIVE, INACTIVE
+  tier      String   @default("starter") // starter, enterprise, custom
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  users          User[]
-  roles          Role[]
-  auditLogs      AuditLog[]
-  supportTickets SupportTicket[]
-  pluginData     PluginData[]
+  users                User[]
+  roles                Role[]
+  auditLogs            AuditLog[]
+  supportTickets       SupportTicket[]
+  pluginData           PluginData[]
+  invitations          Invitation[]
+  organizationPlugins  OrganizationPlugin[]
 
   healthScore Float @default(100.0) @map("health_score")
   mrr         Float @default(0.0)
@@ -44,9 +47,10 @@ model User {
   organizationId    String       @map("organization_id")
   organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  roles     Role[]     @relation("UserRoles")
-  sessions  Session[]
-  auditLogs AuditLog[]
+  roles         Role[]         @relation("UserRoles")
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
 
   @@map("users")
   @@schema("atlas_core")
@@ -110,7 +114,8 @@ model Plugin {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  data        PluginData[]
+  data                PluginData[]
+  organizationPlugins OrganizationPlugin[]
 
   @@map("plugins")
   @@schema("atlas_core")
@@ -178,6 +183,56 @@ model SupportTicket {
   updatedAt      DateTime     @updatedAt @map("updated_at")
 
   @@map("support_tickets")
+  @@schema("atlas_core")
+}
+
+model Invitation {
+  id             String       @id @default(uuid())
+  email          String
+  token          String       @unique
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  roleIds        String[]     @map("role_ids")
+  status         String       @default("PENDING") // PENDING, ACCEPTED, EXPIRED, REVOKED
+  expiresAt      DateTime     @map("expires_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@unique([email, organizationId])
+  @@map("invitations")
+  @@schema("atlas_core")
+}
+
+model OrganizationPlugin {
+  id             String       @id @default(uuid())
+  organizationId String       @map("organization_id")
+  pluginId       String       @map("plugin_id")
+  status         String       @default("ENABLED") // ENABLED, DISABLED
+  config         Json         @default("{}")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plugin         Plugin       @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, pluginId])
+  @@map("organization_plugins")
+  @@schema("atlas_core")
+}
+
+model Notification {
+  id             String       @id @default(uuid())
+  userId         String       @map("user_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String
+  message        String
+  type           String       @default("INFO") // INFO, SUCCESS, WARNING, ERROR, INVITATION
+  isRead         Boolean      @default(false) @map("is_read")
+  actionUrl      String?      @map("action_url")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@map("notifications")
   @@schema("atlas_core")
 }
 

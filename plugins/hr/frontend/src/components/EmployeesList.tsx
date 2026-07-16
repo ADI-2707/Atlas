@@ -18,7 +18,17 @@ export const EmployeesList: React.FC = () => {
       if (employeesArray.length === 0) {
         setEmployees([]);
       } else {
-        setEmployees(employeesArray);
+        const mappedEmployees = employeesArray.map((emp: any) => ({
+          id: emp.id,
+          firstName: emp.firstName,
+          lastName: emp.lastName,
+          email: emp.email,
+          department: emp.department?.name || '',
+          role: emp.jobTitle || '',
+          status: (emp.status || '').toLowerCase(),
+          joinDate: emp.hireDate || '',
+        }));
+        setEmployees(mappedEmployees);
       }
     } catch (err) {
       console.error('Failed to fetch employees', err);

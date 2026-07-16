@@ -13,6 +13,8 @@ import { Dashboard } from './pages/Dashboard/Dashboard';
 import { AuditLogs } from './pages/AuditLogs/AuditLogs';
 import { Admin } from './pages/Admin/Admin';
 import { Team } from './pages/Team/Team';
+import { AcceptInvite } from './pages/AcceptInvite/AcceptInvite';
+import { ToastProvider } from './lib/toast/ToastContext';
 
 
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
@@ -29,8 +31,8 @@ const LayoutGuard: React.FC = () => {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#050505', color: '#fff' }}>Loading Atlas...</div>;
   }
 
-  // Allow access to welcome, dashboard, store, and logs even if no plugins are installed
-  if (installedPlugins.length === 0 && location.pathname !== '/' && location.pathname !== '/logs' && !location.pathname.startsWith('/store')) {
+  // Allow access to welcome, dashboard, store, team, and logs even if no plugins are installed
+  if (installedPlugins.length === 0 && location.pathname !== '/' && location.pathname !== '/logs' && location.pathname !== '/team' && !location.pathname.startsWith('/store')) {
     return <Navigate to="/welcome" replace />;
   }
   return <AppLayout />;
@@ -55,6 +57,7 @@ const SetupGuard: React.FC<{ children: React.ReactNode, requireSetup?: boolean }
 
 const AnalyticsWrapper: React.FC = () => {
   const { allPlugins } = usePlugins();
+  const { user } = useAuth();
   const analyticsPlugin = allPlugins.find(p => p.id === 'analytics');
   const activeBackendTier = analyticsPlugin?.config?.tier || 'free';
 
@@ -63,7 +66,7 @@ const AnalyticsWrapper: React.FC = () => {
   else if (activeBackendTier === 'tier2') tier = 'business';
   else if (activeBackendTier === 'tier3') tier = 'enterprise';
 
-  return <Analytics tier={tier} />;
+  return <Analytics tier={tier} organizationId={user?.organizationId} />;
 };
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
@@ -73,51 +76,54 @@ export const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider apiUrl={apiUrl}>
         <PluginProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
+          <ToastProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/accept-invite" element={<AcceptInvite />} />
 
-              <Route path="/setup" element={
-                <ProtectedRoute fallback={<Navigate to="/login" replace />}>
-                  <SetupGuard requireSetup={false}>
-                    <Setup />
-                  </SetupGuard>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/welcome" element={
-                <ProtectedRoute fallback={<Navigate to="/login" replace />}>
-                  <SetupGuard>
-                    <Welcome />
-                  </SetupGuard>
-                </ProtectedRoute>
-              } />
-
-              <Route
-                path="/"
-                element={
+                <Route path="/setup" element={
                   <ProtectedRoute fallback={<Navigate to="/login" replace />}>
-                    <SetupGuard>
-                      <LayoutGuard />
+                    <SetupGuard requireSetup={false}>
+                      <Setup />
                     </SetupGuard>
                   </ProtectedRoute>
-                }
-              >
-                <Route index element={<Dashboard />} />
-                <Route path="team" element={<Team />} />
+                } />
 
-                <Route path="logs" element={<AuditLogs />} />
-                <Route path="admin" element={<Admin />} />
-                <Route path="store" element={<PluginStore />} />
-                <Route path="store/:pluginId" element={<PluginStore />} />
-                <Route path="inventory/*" element={<Inventory />} />
-                <Route path="crm/*" element={<CRM />} />
-                <Route path="hr/*" element={<HR />} />
-                <Route path="analytics/*" element={<AnalyticsWrapper />} />
-                <Route path="project-management/*" element={<ProjectManagement />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
+                <Route path="/welcome" element={
+                  <ProtectedRoute fallback={<Navigate to="/login" replace />}>
+                    <SetupGuard>
+                      <Welcome />
+                    </SetupGuard>
+                  </ProtectedRoute>
+                } />
+
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute fallback={<Navigate to="/login" replace />}>
+                      <SetupGuard>
+                        <LayoutGuard />
+                      </SetupGuard>
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<Dashboard />} />
+                  <Route path="team" element={<Team />} />
+
+                  <Route path="logs" element={<AuditLogs />} />
+                  <Route path="admin" element={<Admin />} />
+                  <Route path="store" element={<PluginStore />} />
+                  <Route path="store/:pluginId" element={<PluginStore />} />
+                  <Route path="inventory/*" element={<Inventory />} />
+                  <Route path="crm/*" element={<CRM />} />
+                  <Route path="hr/*" element={<HR />} />
+                  <Route path="analytics/*" element={<AnalyticsWrapper />} />
+                  <Route path="project-management/*" element={<ProjectManagement />} />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </ToastProvider>
         </PluginProvider>
       </AuthProvider>
     </ThemeProvider>

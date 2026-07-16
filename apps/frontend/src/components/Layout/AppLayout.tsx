@@ -7,6 +7,7 @@ import { usePlugins } from '@atlas/core-ui';
 import { useTheme } from '@atlas/core-ui';
 import { FullScreenLock } from '../FullScreenLock/FullScreenLock';
 import { SupportWidget } from '../SupportWidget/SupportWidget';
+import { NotificationDropdown, NotificationItem } from './NotificationDropdown';
 import './AppLayout.css';
 
 interface InventoryStats {
@@ -41,6 +42,10 @@ export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const getPageName = () => {
     const path = location.pathname;
     if (path === '/') return 'Dashboard';
@@ -63,6 +68,25 @@ export const AppLayout: React.FC = () => {
       document.title = 'Atlas';
     }
   }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get<{ success: boolean; data: any[] }>('/notifications');
+      if (res.success && res.data) {
+        setNotifications(res.data);
+        const unread = res.data.filter((n: any) => !n.isRead).length;
+        setUnreadCount(unread);
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [isInventoryLocked, setIsInventoryLocked] = useState(false);
   const [isCrmLocked, setIsCrmLocked] = useState(false);
@@ -196,17 +220,36 @@ export const AppLayout: React.FC = () => {
           </div>
         }
       >
-        {navigationItems.map((item) => (
-          <SidebarItem
-            key={item.path}
-            label={item.title}
-            icon={renderIcon(item.icon)}
-            isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
-            onClick={() => navigate(item.path)}
-          />
-        ))}
+        {navigationItems
+          .filter((item) => {
+            if (!item.permissions || item.permissions.length === 0) return true;
+            if (user?.role === 'Super Admin' || user?.role === 'SYSTEM_ADMIN') return true;
+            return item.permissions.some((perm) => user?.permissions?.includes(perm));
+          })
+          .map((item) => (
+            <SidebarItem
+              key={item.path}
+              label={item.title}
+              icon={renderIcon(item.icon)}
+              isActive={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
+              onClick={() => navigate(item.path)}
+            />
+          ))}
 
         <div style={{ flex: 1 }} />
+        <SidebarItem
+          label="Team"
+          icon={
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          }
+          isActive={location.pathname.startsWith('/team')}
+          onClick={() => navigate('/team')}
+        />
         <SidebarItem
           label="Audit Logs"
           icon={
@@ -235,6 +278,56 @@ export const AppLayout: React.FC = () => {
               <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
                 Welcome, {user?.name || 'User'}
               </span>
+
+              {/* Notification Bell */}
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <button
+                  className="notification-bell-btn"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 'var(--spacing-xs)',
+                    borderRadius: '50%',
+                    position: 'relative',
+                    transition: 'background-color 0.2s',
+                  }}
+                  title="Notifications"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '2px',
+                        right: '2px',
+                        background: 'var(--color-danger)',
+                        color: 'white',
+                        borderRadius: '50%',
+                        width: '8px',
+                        height: '8px',
+                        display: 'block',
+                      }}
+                    />
+                  )}
+                </button>
+
+                {isDropdownOpen && (
+                  <NotificationDropdown
+                    notifications={notifications}
+                    onRefresh={fetchNotifications}
+                    onClose={() => setIsDropdownOpen(false)}
+                  />
+                )}
+              </div>
 
               <div
                 className="theme-toggle-switch"

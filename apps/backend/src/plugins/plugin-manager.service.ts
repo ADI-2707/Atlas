@@ -90,12 +90,27 @@ export class PluginManagerService implements OnModuleInit {
     return plugin;
   }
 
-  async getPlugins() {
+  async getPlugins(organizationId?: string) {
     await this.discoverAndSyncPlugins();
-    return this.prisma.plugin.findMany();
+    const allPlugins = await this.prisma.plugin.findMany();
+    if (!organizationId) {
+      return allPlugins;
+    }
+    const orgPlugins = await this.prisma.organizationPlugin.findMany({
+      where: { organizationId },
+    });
+    const orgPluginMap = new Map(orgPlugins.map(op => [op.pluginId, op]));
+    return allPlugins.map(plugin => {
+      const orgPlugin = orgPluginMap.get(plugin.id);
+      return {
+        ...plugin,
+        status: orgPlugin ? orgPlugin.status : 'AVAILABLE',
+        config: orgPlugin ? orgPlugin.config : {},
+      };
+    });
   }
 
-  async installPlugin(id: string, tier?: string) {
+  async installPlugin(id: string, organizationId: string, tier?: string) {
     const plugin = await this.getOrSyncPlugin(id);
     if (!plugin) throw new Error('Plugin not found');
 
@@ -123,10 +138,44 @@ export class PluginManagerService implements OnModuleInit {
       }
     }
 
+    try {
+      const orgRoles = await this.prisma.role.findMany({
+        where: {
+          organizationId,
+          name: { in: ['Super Admin', 'Org Admin', 'User'] },
+        },
+      });
+
+      if (loaded?.permissions && Array.isArray(loaded.permissions)) {
+        const dbPerms = await this.prisma.permission.findMany({
+          where: { code: { in: loaded.permissions.map((p: any) => p.code) } },
+        });
+
+        for (const role of orgRoles) {
+          let rolePerms = dbPerms;
+          if (role.name === 'User') {
+            rolePerms = dbPerms.filter(p => p.code.endsWith('.read'));
+          }
+
+          await this.prisma.role.update({
+            where: { id: role.id },
+            data: {
+              permissions: {
+                connect: rolePerms.map(p => ({ id: p.id })),
+              },
+            },
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to auto-connect plugin permissions to roles:', e);
+    }
+
     await this.auditService.createLog({
       action: 'plugin.install',
       result: 'SUCCESS',
       pluginId: id,
+      organizationId,
       details: { id, name: plugin.name },
     });
 
@@ -134,6 +183,25 @@ export class PluginManagerService implements OnModuleInit {
     if (tier) {
       currentConfig.tier = tier;
     }
+
+    await this.prisma.organizationPlugin.upsert({
+      where: {
+        organizationId_pluginId: {
+          organizationId,
+          pluginId: id,
+        },
+      },
+      update: {
+        status: 'ENABLED',
+        config: currentConfig,
+      },
+      create: {
+        organizationId,
+        pluginId: id,
+        status: 'ENABLED',
+        config: currentConfig,
+      },
+    });
 
     return this.prisma.plugin.update({
       where: { id },
@@ -144,7 +212,7 @@ export class PluginManagerService implements OnModuleInit {
     });
   }
 
-  async enablePlugin(id: string) {
+  async enablePlugin(id: string, organizationId: string) {
     const plugin = await this.getOrSyncPlugin(id);
     if (!plugin) throw new Error('Plugin not found');
 
@@ -157,7 +225,23 @@ export class PluginManagerService implements OnModuleInit {
       action: 'plugin.enable',
       result: 'SUCCESS',
       pluginId: id,
+      organizationId,
       details: { id },
+    });
+
+    await this.prisma.organizationPlugin.upsert({
+      where: {
+        organizationId_pluginId: {
+          organizationId,
+          pluginId: id,
+        },
+      },
+      update: { status: 'ENABLED' },
+      create: {
+        organizationId,
+        pluginId: id,
+        status: 'ENABLED',
+      },
     });
 
     return this.prisma.plugin.update({
@@ -166,7 +250,7 @@ export class PluginManagerService implements OnModuleInit {
     });
   }
 
-  async disablePlugin(id: string) {
+  async disablePlugin(id: string, organizationId: string) {
     const plugin = await this.getOrSyncPlugin(id);
     if (!plugin) throw new Error('Plugin not found');
 
@@ -179,7 +263,23 @@ export class PluginManagerService implements OnModuleInit {
       action: 'plugin.disable',
       result: 'SUCCESS',
       pluginId: id,
+      organizationId,
       details: { id },
+    });
+
+    await this.prisma.organizationPlugin.upsert({
+      where: {
+        organizationId_pluginId: {
+          organizationId,
+          pluginId: id,
+        },
+      },
+      update: { status: 'DISABLED' },
+      create: {
+        organizationId,
+        pluginId: id,
+        status: 'DISABLED',
+      },
     });
 
     return this.prisma.plugin.update({
@@ -188,7 +288,7 @@ export class PluginManagerService implements OnModuleInit {
     });
   }
 
-  async upgradePlugin(id: string, tier: string) {
+  async upgradePlugin(id: string, organizationId: string, tier: string) {
     const plugin = await this.getOrSyncPlugin(id);
     if (!plugin) throw new Error('Plugin not found');
 
@@ -200,7 +300,24 @@ export class PluginManagerService implements OnModuleInit {
       action: 'plugin.upgrade',
       result: 'SUCCESS',
       pluginId: id,
+      organizationId,
       details: { id, oldTier, newTier: tier },
+    });
+
+    await this.prisma.organizationPlugin.upsert({
+      where: {
+        organizationId_pluginId: {
+          organizationId,
+          pluginId: id,
+        },
+      },
+      update: { config },
+      create: {
+        organizationId,
+        pluginId: id,
+        status: 'ENABLED',
+        config,
+      },
     });
 
     return this.prisma.plugin.update({

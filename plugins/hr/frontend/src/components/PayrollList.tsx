@@ -13,10 +13,21 @@ export const PayrollList: React.FC = () => {
   const fetchPayroll = async () => {
     try {
       setLoading(true);
-      const res = await api.get<{ data: PayrollRecord[] }>('/hr/payroll');
+      const res = await api.get<any>('/hr/payroll');
 
-      const payload = (res.data as any).data || res.data || [];
-      setRecords(Array.isArray(payload) ? payload : []);
+      const payload = res.data?.data || res.data || [];
+      const recordsArray = Array.isArray(payload) ? payload : [];
+      const mappedRecords = recordsArray.map((record: any) => ({
+        id: record.id,
+        employeeId: record.employeeId,
+        employeeName: record.employee ? `${record.employee.firstName} ${record.employee.lastName}` : record.employeeId,
+        amount: record.netPay,
+        currency: 'INR',
+        periodStart: record.periodStart,
+        periodEnd: record.periodEnd,
+        status: (record.status || '').toLowerCase(),
+      }));
+      setRecords(mappedRecords);
     } catch (err) {
       console.error('Failed to fetch payroll', err);
     } finally {
@@ -29,6 +40,7 @@ export const PayrollList: React.FC = () => {
       case 'paid': return 'badge-active';
       case 'pending': return 'badge-leave';
       case 'processed': return 'badge-active';
+      case 'draft': return 'badge-leave';
       default: return '';
     }
   };
@@ -42,7 +54,7 @@ export const PayrollList: React.FC = () => {
       <table className="hr-table">
         <thead>
           <tr>
-            <th>Employee ID</th>
+            <th>Employee</th>
             <th>Amount</th>
             <th>Period</th>
             <th>Status</th>
@@ -51,7 +63,7 @@ export const PayrollList: React.FC = () => {
         <tbody>
           {records.map(record => (
             <tr key={record.id}>
-              <td style={{ fontWeight: 500 }}>{record.employeeId}</td>
+              <td style={{ fontWeight: 500 }}>{(record as any).employeeName || record.employeeId}</td>
               <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                 {new Intl.NumberFormat('en-US', { style: 'currency', currency: record.currency }).format(record.amount)}
               </td>

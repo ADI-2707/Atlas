@@ -18,7 +18,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
             const ctx = tenantStorage.getStore();
             
             // Exclude models that are global or don't have organizationId
-            const globalModels = ['Plugin', 'SystemLog', 'Organization', 'PluginData'];
+            const globalModels = ['Plugin', 'SystemLog', 'Organization', 'PluginData', 'Notification', 'Permission'];
             
             if (ctx?.organizationId && !globalModels.includes(model as string)) {
               const readWriteOps = ['findUnique', 'findUniqueOrThrow', 'findFirst', 'findFirstOrThrow', 'findMany', 'update', 'updateMany', 'delete', 'deleteMany', 'count', 'aggregate', 'groupBy'];

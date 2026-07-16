@@ -1,10 +1,11 @@
-import { Controller, Post, Body, Ip, Req } from '@nestjs/common';
+import { Controller, Get, Query, Post, Body, Ip, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
+import { AcceptInviteDto } from './dto/accept-invite.dto';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 
@@ -75,6 +76,27 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Setup marked as completed' })
   async completeSetup(@CurrentUser() user: any) {
     return this.authService.completeSetup(user.id);
+  }
+
+  @Public()
+  @Get('invitation/verify')
+  @ApiOperation({ summary: 'Verify an invitation token' })
+  @ApiResponse({ status: 200, description: 'Token is valid' })
+  async verifyInvitation(@Query('token') token: string) {
+    return this.authService.verifyInvitation(token);
+  }
+
+  @Public()
+  @Post('invitation/accept')
+  @ApiOperation({ summary: 'Accept an invitation and register account' })
+  @ApiResponse({ status: 201, description: 'Invitation accepted successfully' })
+  async acceptInvitation(
+    @Body() dto: AcceptInviteDto,
+    @Ip() ip: string,
+    @Req() req: Request,
+  ) {
+    const userAgent = req.headers['user-agent'] || '';
+    return this.authService.acceptInvitation(dto, ip, userAgent);
   }
 }
 

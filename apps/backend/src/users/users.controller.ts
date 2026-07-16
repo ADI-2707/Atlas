@@ -55,4 +55,12 @@ export class UsersController {
   async remove(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: any) {
     return this.usersService.remove(id, user.organizationId, user.id);
   }
+
+  @Patch('organization/tier')
+  @RequirePermissions('users.write')
+  @ApiOperation({ summary: 'Update organization subscription tier' })
+  @ApiResponse({ status: 200, description: 'Organization subscription tier updated successfully' })
+  async updateTier(@Body() body: { tier: string }, @CurrentUser() user: any) {
+    return this.usersService.updateOrgTier(user.organizationId, body.tier, user.id);
+  }
 }

@@ -25,14 +25,14 @@
   width: 50%;
 }
 
-.atlas-brand-content {
+.atlas-login-layout .atlas-brand-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
 }
 
-.atlas-logo-wrapper {
+.atlas-login-layout .atlas-logo-wrapper {
   transform: scale(0);
   opacity: 0;
   transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
@@ -55,11 +55,13 @@
   opacity: 1;
 }
 
-.atlas-logo-svg {
+.atlas-login-layout .atlas-logo-svg {
   color: #fff;
 }
 
-.atlas-brand-text {
+.atlas-login-layout .atlas-brand-text {
+  position: absolute;
+  top: 100%;
   margin-top: 2rem;
   text-align: center;
   width: max-content;
@@ -74,7 +76,7 @@
   transition-delay: 0.3s;
 }
 
-.atlas-brand-title {
+.atlas-login-layout .atlas-brand-title {
   font-size: 3rem;
   font-weight: 700;
   color: #fff;
@@ -82,14 +84,14 @@
   margin-bottom: 0.5rem;
 }
 
-.atlas-brand-subtitle {
+.atlas-login-layout .atlas-brand-subtitle {
   font-size: 1.25rem;
   font-weight: 500;
   color: #d1d5db;
   margin-bottom: 1.5rem;
 }
 
-.atlas-brand-description {
+.atlas-login-layout .atlas-brand-description {
   color: #9ca3af;
   font-size: 1rem;
   line-height: 1.6;
@@ -111,7 +113,7 @@
   width: 50%;
 }
 
-.atlas-login-card-wrapper {
+.atlas-login-layout .atlas-login-card-wrapper {
   min-width: 440px;
   padding: 2rem;
   opacity: 0;

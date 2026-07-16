@@ -74,10 +74,11 @@ export const AnalyticsDashboard: React.FC<DashboardProps> = ({ organizationId = 
     setSyncing(true);
     setSyncMsg('');
     try {
-      const res = await api.post<{ data: any }>(`/analytics/sync?org_id=${organizationId}`);
-      const data = res.data || {};
-      setSyncMsg(data.message || (data.status === 'success' ? 'Sync successful.' : 'Sync failed.'));
-      if (data.status === 'success') {
+      const res = await api.post<any>(`/analytics/sync?org_id=${organizationId}`);
+      const isSuccess = res.success || res.status === 'success' || (res.data && res.data.status === 'success');
+      const msg = res.message || (res.data && res.data.message);
+      setSyncMsg(msg || (isSuccess ? 'Sync successful.' : 'Sync failed.'));
+      if (isSuccess) {
         fetchData();
       }
     } catch (e) {

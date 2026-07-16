@@ -13,7 +13,7 @@ export const mockPlugins: MockPlugin[] = [
     name: 'Inventory Management',
     description: 'Track and manage your enterprise assets across multiple warehouses.',
     navigation: [
-      { title: 'Inventory', path: '/inventory', icon: 'inventory' }
+      { title: 'Inventory', path: '/inventory', icon: 'inventory', permissions: ['inventory.read'] }
     ]
   },
   {
@@ -21,7 +21,7 @@ export const mockPlugins: MockPlugin[] = [
     name: 'CRM',
     description: 'Manage customer relationships, sales pipelines, and support tickets.',
     navigation: [
-      { title: 'CRM', path: '/crm', icon: 'crm' }
+      { title: 'CRM', path: '/crm', icon: 'crm', permissions: ['crm.read'] }
     ]
   },
   {
@@ -29,7 +29,7 @@ export const mockPlugins: MockPlugin[] = [
     name: 'Analytics Engine',
     description: 'Real-time data processing and visual insights for your business metrics.',
     navigation: [
-      { title: 'Analytics', path: '/analytics', icon: 'analytics' }
+      { title: 'Analytics', path: '/analytics', icon: 'analytics', permissions: ['analytics.read'] }
     ]
   },
   {
@@ -37,7 +37,7 @@ export const mockPlugins: MockPlugin[] = [
     name: 'Human Resources',
     description: 'Manage payroll, employee records, and recruitment processes.',
     navigation: [
-      { title: 'HR Portal', path: '/hr', icon: 'hr' }
+      { title: 'HR Portal', path: '/hr', icon: 'hr', permissions: ['hr.read'] }
     ]
   },
   {
@@ -45,7 +45,7 @@ export const mockPlugins: MockPlugin[] = [
     name: 'Project Management',
     description: 'Enterprise project management and issue tracking plugin.',
     navigation: [
-      { title: 'Projects', path: '/project-management', icon: 'pm' }
+      { title: 'Projects', path: '/project-management', icon: 'pm', permissions: ['project-management.read'] }
     ]
   }
 ];

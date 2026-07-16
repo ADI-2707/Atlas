@@ -7,8 +7,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
 const APP_URL = import.meta.env.VITE_APP_URL || 'http://localhost:5173';
 
 const PLANS = [
-  { id: 'starter', name: 'Starter', price: '$49/mo', features: ['25 users', 'Core dashboard', 'Audit logs'] },
+  { id: 'starter', name: 'Starter', price: '$49/mo', features: ['Up to 25 users', 'Core dashboard', 'Audit logs'] },
   { id: 'enterprise', name: 'Enterprise', price: '$199/mo', features: ['Unlimited users', 'All plugins', '24/7 support'], highlight: true },
+  { id: 'custom', name: 'Custom', price: 'Custom', features: ['Up to 1000 users', 'Dedicated instance', 'Custom integrations'] },
 ];
 
 const slugify = (s: string) =>
@@ -79,6 +80,7 @@ export const Signup = () => {
           lastName: form.lastName,
           email: form.email,
           password: form.password,
+          tier: plan,
         }),
       });
       const data = await res.json();

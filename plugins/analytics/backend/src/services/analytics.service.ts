@@ -87,4 +87,47 @@ export class AnalyticsService {
       throw error;
     }
   }
+
+  async getTimeseries(organizationId: string) {
+    try {
+      const cacheKey = `analytics:timeseries:${organizationId}`;
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+
+      const response = await fetch(`${this.ENGINE_URL}/timeseries?org_id=${organizationId}`);
+      if (!response.ok) {
+        throw new Error(`Python Engine timeseries returned ${response.status}`);
+      }
+      
+      const data = await response.json();
+      await this.redis.set(cacheKey, JSON.stringify(data), 'EX', 300);
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to fetch timeseries from engine: ${error}`);
+      return {};
+    }
+  }
+
+  async forceSync(organizationId: string) {
+    try {
+      const response = await fetch(`${this.ENGINE_URL}/sync?org_id=${organizationId}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error(`Python Engine sync returned ${response.status}`);
+      }
+      const data = await response.json();
+      // Invalidate all caches for this org so next request fetches fresh data
+      await this.redis.del(`analytics:dashboard:${organizationId}`);
+      await this.redis.del(`analytics:timeseries:${organizationId}`);
+      await this.redis.del(`analytics:anomalies:${organizationId}`);
+      await this.redis.del(`analytics:forecasts:${organizationId}`);
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to trigger sync: ${error}`);
+      throw error;
+    }
+  }
 }

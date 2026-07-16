@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Matches, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
@@ -6,6 +6,11 @@ export class RegisterDto {
   @IsString()
   @IsNotEmpty()
   orgName!: string;
+
+  @ApiProperty({ example: 'starter', description: 'Subscription tier of the organization', required: false })
+  @IsString()
+  @IsOptional()
+  tier?: string;
 
   @ApiProperty({ example: 'atlas-corp', description: 'Unique URL friendly slug for the organization' })
   @IsString()
