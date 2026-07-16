@@ -47,9 +47,10 @@ model User {
   organizationId    String       @map("organization_id")
   organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  roles     Role[]     @relation("UserRoles")
-  sessions  Session[]
-  auditLogs AuditLog[]
+  roles         Role[]         @relation("UserRoles")
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
 
   @@map("users")
   @@schema("atlas_core")
@@ -216,6 +217,22 @@ model OrganizationPlugin {
 
   @@unique([organizationId, pluginId])
   @@map("organization_plugins")
+  @@schema("atlas_core")
+}
+
+model Notification {
+  id             String       @id @default(uuid())
+  userId         String       @map("user_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String
+  message        String
+  type           String       @default("INFO") // INFO, SUCCESS, WARNING, ERROR, INVITATION
+  isRead         Boolean      @default(false) @map("is_read")
+  actionUrl      String?      @map("action_url")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@map("notifications")
   @@schema("atlas_core")
 }
 
