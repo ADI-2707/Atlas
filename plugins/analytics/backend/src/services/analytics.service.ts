@@ -109,4 +109,25 @@ export class AnalyticsService {
       return {};
     }
   }
+
+  async forceSync(organizationId: string) {
+    try {
+      const response = await fetch(`${this.ENGINE_URL}/sync?org_id=${organizationId}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error(`Python Engine sync returned ${response.status}`);
+      }
+      const data = await response.json();
+      // Invalidate all caches for this org so next request fetches fresh data
+      await this.redis.del(`analytics:dashboard:${organizationId}`);
+      await this.redis.del(`analytics:timeseries:${organizationId}`);
+      await this.redis.del(`analytics:anomalies:${organizationId}`);
+      await this.redis.del(`analytics:forecasts:${organizationId}`);
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to trigger sync: ${error}`);
+      throw error;
+    }
+  }
 }

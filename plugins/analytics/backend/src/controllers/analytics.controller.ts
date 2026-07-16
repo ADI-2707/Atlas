@@ -42,4 +42,10 @@ export class AnalyticsController {
   async getTimeseries(@Request() req: AuthenticatedRequest) {
     return this.analyticsService.getTimeseries(req.user.organizationId);
   }
+
+  @Post('sync')
+  @RequirePermissions('analytics.read')
+  async forceSync(@Request() req: AuthenticatedRequest) {
+    return this.analyticsService.forceSync(req.user.organizationId);
+  }
 }
