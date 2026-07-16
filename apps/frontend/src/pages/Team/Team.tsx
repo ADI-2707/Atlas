@@ -223,13 +223,6 @@ export const Team: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="page-header" style={{ marginBottom: 'var(--spacing-lg)' }}>
-            <div>
-              <h1>Team Management</h1>
-              <p>Manage your organization's employees, pending invites, and access roles.</p>
-            </div>
-          </div>
-
           <div style={{ marginBottom: 'var(--spacing-xl)' }}>
             <Tabs
               tabs={[
