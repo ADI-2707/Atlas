@@ -60,8 +60,6 @@
 }
 
 .atlas-login-layout .atlas-brand-text {
-  position: absolute;
-  top: 100%;
   margin-top: 2rem;
   text-align: center;
   width: max-content;
