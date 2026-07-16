@@ -17,6 +17,29 @@ const LockIcon = () => (
   </svg>
 );
 
+const EnvelopeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+  </svg>
+);
+
+const EyeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+  </svg>
+);
+
+const EyeOffIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+    <line x1="2" y1="2" x2="22" y2="22"></line>
+  </svg>
+);
+
 const AtlasLogo = () => (
   <svg width="64" height="64" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="atlas-logo-svg">
     <g transform="translate(24, 24) rotate(45)">
@@ -46,6 +69,8 @@ export const AcceptInvite: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -188,6 +213,7 @@ export const AcceptInvite: React.FC = () => {
                     type="email"
                     label="Email Address"
                     value={email}
+                    icon={<EnvelopeIcon />}
                     disabled
                   />
                 </div>
@@ -215,24 +241,34 @@ export const AcceptInvite: React.FC = () => {
 
                 <div>
                   <Input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     label="Password"
                     placeholder="••••••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     icon={<LockIcon />}
+                    trailingIcon={
+                      <span onClick={() => setShowPassword(!showPassword)} style={{ display: 'flex' }}>
+                        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                      </span>
+                    }
                     required
                   />
                 </div>
 
                 <div>
                   <Input
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     label="Confirm Password"
                     placeholder="••••••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     icon={<LockIcon />}
+                    trailingIcon={
+                      <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{ display: 'flex' }}>
+                        {showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
+                      </span>
+                    }
                     required
                   />
                 </div>
