@@ -1,5 +1,5 @@
 import React from 'react';
-import { Toast } from '@atlas/ui';
+import { Toast } from './Toast';
 import { ToastMessage } from './ToastContext';
 import './Toast.css';
 

@@ -14,7 +14,7 @@ import { AuditLogs } from './pages/AuditLogs/AuditLogs';
 import { Admin } from './pages/Admin/Admin';
 import { Team } from './pages/Team/Team';
 import { AcceptInvite } from './pages/AcceptInvite/AcceptInvite';
-import { ToastProvider } from './lib/toast/ToastContext';
+import { ToastProvider } from '@atlas/ui';
 
 
 import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';

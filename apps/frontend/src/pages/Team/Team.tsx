@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
 import { useAuth } from '@atlas/auth';
-import { useToast } from '../../lib/toast/ToastContext';
+import { useToast } from '@atlas/ui';
 import { Tabs } from '@atlas/ui';
 import { RolesConfig } from './RolesConfig';
 import './Team.css';
