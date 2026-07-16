@@ -51,6 +51,7 @@ export const AppLayout: React.FC = () => {
     if (path === '/') return 'Dashboard';
     if (path.startsWith('/crm')) return 'CRM Management';
     if (path.startsWith('/inventory')) return 'Inventory Management';
+    if (path.startsWith('/team')) return 'Team Management';
     if (path.startsWith('/store')) return 'Plugin Marketplace';
     const parts = path.split('/').filter(Boolean);
     if (parts.length === 0) return 'Atlas';

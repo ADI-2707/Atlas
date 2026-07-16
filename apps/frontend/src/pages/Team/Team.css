@@ -1,7 +1,13 @@
 .team-page {
-  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.glass-panel {
+  background: var(--bg-surface-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
 }
 
 .page-header {

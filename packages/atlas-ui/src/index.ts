@@ -6,7 +6,7 @@ export * from './components/Input/Input';
 export * from './components/Badge/Badge';
 export * from './components/Checkbox/Checkbox';
 export * from './components/Loader/Loader';
-export * from './components/Toast/Toast';
+export * from './components/Toast';
 export * from './components/Modal/Modal';
 export * from './components/Sidebar/Sidebar';
 export * from './components/Navbar/Navbar';
