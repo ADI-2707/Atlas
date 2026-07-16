@@ -7,6 +7,7 @@ import { usePlugins } from '@atlas/core-ui';
 import { useTheme } from '@atlas/core-ui';
 import { FullScreenLock } from '../FullScreenLock/FullScreenLock';
 import { SupportWidget } from '../SupportWidget/SupportWidget';
+import { NotificationDropdown, NotificationItem } from './NotificationDropdown';
 import './AppLayout.css';
 
 interface InventoryStats {
@@ -41,6 +42,10 @@ export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const getPageName = () => {
     const path = location.pathname;
     if (path === '/') return 'Dashboard';
@@ -63,6 +68,25 @@ export const AppLayout: React.FC = () => {
       document.title = 'Atlas';
     }
   }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get<{ success: boolean; data: any[] }>('/notifications');
+      if (res.success && res.data) {
+        setNotifications(res.data);
+        const unread = res.data.filter((n: any) => !n.isRead).length;
+        setUnreadCount(unread);
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [isInventoryLocked, setIsInventoryLocked] = useState(false);
   const [isCrmLocked, setIsCrmLocked] = useState(false);
@@ -254,6 +278,56 @@ export const AppLayout: React.FC = () => {
               <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
                 Welcome, {user?.name || 'User'}
               </span>
+
+              {/* Notification Bell */}
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <button
+                  className="notification-bell-btn"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 'var(--spacing-xs)',
+                    borderRadius: '50%',
+                    position: 'relative',
+                    transition: 'background-color 0.2s',
+                  }}
+                  title="Notifications"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '2px',
+                        right: '2px',
+                        background: 'var(--color-danger)',
+                        color: 'white',
+                        borderRadius: '50%',
+                        width: '8px',
+                        height: '8px',
+                        display: 'block',
+                      }}
+                    />
+                  )}
+                </button>
+
+                {isDropdownOpen && (
+                  <NotificationDropdown
+                    notifications={notifications}
+                    onRefresh={fetchNotifications}
+                    onClose={() => setIsDropdownOpen(false)}
+                  />
+                )}
+              </div>
 
               <div
                 className="theme-toggle-switch"
