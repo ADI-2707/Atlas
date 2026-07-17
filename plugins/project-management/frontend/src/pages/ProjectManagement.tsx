@@ -9,6 +9,7 @@ import { usePlugins } from '@atlas/core-ui';
 import { TimelineView } from '../components/TimelineView';
 import { ErrorTrackingView } from '../components/ErrorTrackingView';
 import { LineupView } from '../components/LineupView';
+import './ProjectManagement.css';
 
 export const ProjectManagement: React.FC = () => {
   const { setWorkspaceLock } = usePlugins();
