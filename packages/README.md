@@ -19,13 +19,13 @@ Each package contains its own dedicated documentation:
 | `atlas-logger`     | `@atlas/logger`     | [atlas-logger/README.md](atlas-logger/README.md)         | ✅ Implemented | Structured logging utility                                 |
 | `atlas-plugin-sdk` | `@atlas/plugin-sdk` | [atlas-plugin-sdk/README.md](atlas-plugin-sdk/README.md) | ✅ Implemented | Types & helpers for authoring a plugin                     |
 | `atlas-utils`      | `@atlas/utils`      | [atlas-utils/README.md](atlas-utils/README.md)           | ✅ Implemented | Shared formatting, validation & pagination helpers         |
-| `atlas-config`     | `@atlas/config`     | [atlas-config/README.md](atlas-config/README.md)         | 🚧 Scaffolded  | Configuration framework — not yet implemented              |
+| `atlas-config`     | `@atlas/config`     | [atlas-config/README.md](atlas-config/README.md)         | ✅ Implemented | Singleton config manager & feature flag system             |
 | `atlas-core-ui`    | `@atlas/core-ui`    | [atlas-core-ui/README.md](atlas-core-ui/README.md)       | ✅ Implemented | Core layout modules and panels                             |
-| `atlas-dashboard`  | `@atlas/dashboard`  | [atlas-dashboard/README.md](atlas-dashboard/README.md)   | 🚧 Scaffolded  | Dashboard engine — not yet implemented                     |
-| `atlas-forms`      | `@atlas/forms`      | [atlas-forms/README.md](atlas-forms/README.md)           | 🚧 Scaffolded  | Form framework — not yet implemented                       |
-| `atlas-grid`       | `@atlas/grid`       | [atlas-grid/README.md](atlas-grid/README.md)             | 🚧 Scaffolded  | Enterprise data grid — not yet implemented                 |
-| `atlas-storage`    | `@atlas/storage`    | [atlas-storage/README.md](atlas-storage/README.md)       | 🚧 Scaffolded  | Storage abstraction layer — not yet implemented            |
-| `atlas-widgets`    | `@atlas/widgets`    | [atlas-widgets/README.md](atlas-widgets/README.md)       | 🚧 Scaffolded  | Dashboard widget framework — not yet implemented           |
+| `atlas-dashboard`  | `@atlas/dashboard`  | [atlas-dashboard/README.md](atlas-dashboard/README.md)   | ✅ Implemented | Drag-and-drop dashboard engine (react-grid-layout)         |
+| `atlas-forms`      | `@atlas/forms`      | [atlas-forms/README.md](atlas-forms/README.md)           | ✅ Implemented | Schema-driven form builder (react-hook-form + Zod)         |
+| `atlas-grid`       | `@atlas/grid`       | [atlas-grid/README.md](atlas-grid/README.md)             | ✅ Implemented | Sortable, paginated enterprise data grid                   |
+| `atlas-storage`    | `@atlas/storage`    | [atlas-storage/README.md](atlas-storage/README.md)       | ✅ Implemented | File storage abstraction with pluggable providers           |
+| `atlas-widgets`    | `@atlas/widgets`    | [atlas-widgets/README.md](atlas-widgets/README.md)       | ✅ Implemented | Widget registry framework for dashboard plugins            |
 
 ---
 
