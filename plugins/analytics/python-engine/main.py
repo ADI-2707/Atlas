@@ -1,5 +1,7 @@
+import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -12,6 +14,15 @@ from apscheduler.triggers.cron import CronTrigger
 from reportlab.pdfgen import canvas  # type: ignore[import]
 import logging
 from etl import run_etl_pipeline
+
+security = HTTPBearer()
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    expected_token = os.getenv("ANALYTICS_API_KEY")
+    if expected_token and token != expected_token:
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid Analytics API Key")
+    return token
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -67,13 +78,13 @@ def health_check(db: Session = Depends(get_db)):
         db_status = f"error: {str(e)}"
     return {"status": "healthy", "service": "analytics-engine", "db_status": db_status}
 
-@app.post("/sync")
+@app.post("/sync", dependencies=[Depends(verify_token)])
 def force_sync(org_id: str):
     logger.info(f"Force sync requested for org: {org_id}")
     run_etl_pipeline(org_id)
     return {"status": "success", "message": "ETL pipeline completed successfully."}
 
-@app.get("/dashboard")
+@app.get("/dashboard", dependencies=[Depends(verify_token)])
 def get_dashboard(org_id: str):
     logger.info(f"Dashboard requested for org: {org_id}")
     
@@ -97,7 +108,7 @@ def get_dashboard(org_id: str):
         "metrics": metrics
     }
 
-@app.get("/timeseries")
+@app.get("/timeseries", dependencies=[Depends(verify_token)])
 def get_timeseries(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(  # type: ignore[call-overload]
@@ -116,7 +127,7 @@ def get_timeseries(org_id: str):
         
     return result
 
-@app.get("/anomalies")
+@app.get("/anomalies", dependencies=[Depends(verify_token)])
 def get_anomalies(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(  # type: ignore[call-overload]
@@ -134,7 +145,7 @@ def get_anomalies(org_id: str):
     
     return all_anomalies
 
-@app.get("/forecast")
+@app.get("/forecast", dependencies=[Depends(verify_token)])
 def get_forecast(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(  # type: ignore[call-overload]
@@ -152,7 +163,7 @@ def get_forecast(org_id: str):
     
     return all_forecasts
 
-@app.post("/reports/generate")
+@app.post("/reports/generate", dependencies=[Depends(verify_token)])
 def generate_report(org_id: str):
     filename = f"report_{org_id}.pdf"
     c = canvas.Canvas(filename)
