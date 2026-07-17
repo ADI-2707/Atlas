@@ -14,6 +14,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { AdminModule } from './admin/admin.module';
 import { PluginActiveGuard } from './plugins/guards/plugin-active.guard';
 import { NotificationsModule } from './notifications/notifications.module';
+import { QueuesModule } from './queues/queues.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     PluginsModule.register(),
     AdminModule,
     NotificationsModule,
+    QueuesModule,
   ],
   providers: [
     {

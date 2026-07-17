@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
+import { QueuesService } from '../queues/queues.service';
 
 export interface AuditLogPayload {
   userId?: string;
@@ -17,45 +17,12 @@ export interface AuditLogPayload {
 export class AuditService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly eventEmitter: EventEmitter2
+    private readonly queuesService: QueuesService
   ) { }
 
   async createLog(params: AuditLogPayload) {
-    this.eventEmitter.emit('audit.log', params);
+    await this.queuesService.addAuditJob(params);
     return true;
-  }
-
-  @OnEvent('audit.log', { async: true })
-  async handleAuditLogEvent(payload: AuditLogPayload) {
-    try {
-      await this.prisma.auditLog.create({
-        data: {
-          userId: payload.userId,
-          organizationId: payload.organizationId,
-          pluginId: payload.pluginId,
-          action: payload.action,
-          result: payload.result,
-          ipAddress: payload.ipAddress,
-          sessionId: payload.sessionId,
-          details: payload.details || {},
-        },
-      });
-
-      await this.prisma.systemLog.create({
-        data: {
-          level: 'INFO',
-          source: 'AUDIT',
-          message: `User ${payload.userId || 'Unknown'} performed ${payload.action} with result ${payload.result} in Org ${payload.organizationId || 'None'}`,
-          metadata: {
-            pluginId: payload.pluginId,
-            ipAddress: payload.ipAddress,
-            details: payload.details,
-          },
-        },
-      });
-    } catch (error) {
-      console.error('Failed to write audit log from event:', error);
-    }
   }
 
   async getLogs(organizationId: string, options: { skip: number, take: number, search?: string }, coreOnly: boolean = false) {
