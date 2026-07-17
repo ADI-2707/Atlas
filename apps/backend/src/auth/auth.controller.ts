@@ -8,8 +8,10 @@ import { RefreshDto } from './dto/refresh.dto';
 import { AcceptInviteDto } from './dto/accept-invite.dto';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Authentication')
+@Throttle({ default: { limit: 10, ttl: 60000 } })
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
