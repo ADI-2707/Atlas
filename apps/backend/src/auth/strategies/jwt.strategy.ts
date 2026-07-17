@@ -7,10 +7,15 @@ import { configManager } from '@atlas/config';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly prisma: PrismaService) {
+    const secret = configManager.has('JWT_SECRET') ? configManager.get<string>('JWT_SECRET') : null;
+    if (!secret && process.env.NODE_ENV === 'production') {
+      throw new Error('FATAL: JWT_SECRET environment variable is missing or empty in production!');
+    }
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configManager.has('JWT_SECRET') ? configManager.get<string>('JWT_SECRET') : 'atlas-dev-secret-key-change-in-production',
+      secretOrKey: secret || 'atlas-dev-secret-key-change-in-production',
     });
   }
 

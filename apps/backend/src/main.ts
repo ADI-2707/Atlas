@@ -26,6 +26,14 @@ async function bootstrap() {
     baseUrl: '/uploads'
   }));
 
+  // Validate critical configuration fields
+  if (!configManager.has('JWT_SECRET') || !configManager.get<string>('JWT_SECRET')?.trim()) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('FATAL: JWT_SECRET environment variable is missing or empty in production!');
+      process.exit(1);
+    }
+  }
+
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api/v1');
