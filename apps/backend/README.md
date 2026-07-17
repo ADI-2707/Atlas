@@ -36,6 +36,7 @@ backend/
     ├── audit/                  # audit log read/write + support tickets
     ├── health/                 # health check endpoint
     ├── prisma/                  # PrismaService/PrismaModule
+    ├── queues/                  # QueuesModule & QueuesService (BullMQ job producers)
     └── common/                   # global exception filter & response interceptor
 ```
 
@@ -99,6 +100,10 @@ Platform-level (cross-tenant) endpoints backing the `saas-portal` admin console 
 ### `audit`
 
 Central audit log, queryable per organization, plus a lightweight support ticket API (`GET/POST /audit/tickets`).
+
+### `queues`
+
+Implements global job producers utilizing BullMQ. Offloads audit logging (`audit-log` queue) and alerts (`notification` queue) from the request lifecycle, publishing tasks to Redis for background execution.
 
 ### `health`, `common`
 
