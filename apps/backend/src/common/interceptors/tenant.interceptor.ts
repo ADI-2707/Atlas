@@ -1,6 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { tenantStorage } from '../tenant.context';
+import { tenantStorage } from '@atlas/plugin-sdk';
 
 @Injectable()
 export class TenantInterceptor implements NestInterceptor {

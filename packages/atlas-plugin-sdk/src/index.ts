@@ -78,3 +78,11 @@ export interface AtlasPluginConfig {
 export function AtlasPlugin(config: AtlasPluginConfig): AtlasPluginConfig {
   return config;
 }
+
+import { AsyncLocalStorage } from 'async_hooks';
+
+export interface TenantContext {
+  organizationId: string;
+}
+
+export const tenantStorage = new AsyncLocalStorage<TenantContext>();

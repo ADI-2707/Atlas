@@ -478,7 +478,11 @@ importers:
 
   packages/atlas-logger: {}
 
-  packages/atlas-plugin-sdk: {}
+  packages/atlas-plugin-sdk:
+    devDependencies:
+      '@types/node':
+        specifier: 22.10.2
+        version: 22.10.2
 
   packages/atlas-storage:
     devDependencies:
