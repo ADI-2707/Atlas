@@ -17,11 +17,11 @@ import { AcceptInvite } from './pages/AcceptInvite/AcceptInvite';
 import { ToastProvider } from '@atlas/ui';
 
 
-import { InventoryDashboard as Inventory } from '../../../plugins/inventory/frontend/src';
+import Inventory from '../../../plugins/inventory/frontend/src';
 import CRM from '../../../plugins/crm/frontend/src';
 import HR from '../../../plugins/hr/frontend/src';
 import Analytics from '../../../plugins/analytics/frontend/src';
-import { ProjectManagement } from '../../../plugins/project-management/frontend/src';
+import ProjectManagement from '../../../plugins/project-management/frontend/src';
 
 const LayoutGuard: React.FC = () => {
   const { installedPlugins, isLoadingPlugins } = usePlugins();
