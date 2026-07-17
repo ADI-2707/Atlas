@@ -2,5 +2,23 @@
   "name": "@atlas/worker",
   "version": "1.0.0",
   "description": "Atlas Background Worker Service",
-  "private": true
+  "private": true,
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "rimraf dist && tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@atlas/utils": "workspace:*",
+    "@prisma/client": "5.22.0",
+    "bullmq": "5.31.0",
+    "dotenv": "17.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.9",
+    "nodemon": "3.1.7",
+    "rimraf": "6.0.1",
+    "ts-node": "10.9.2",
+    "typescript": "5.7.2"
+  }
 }
