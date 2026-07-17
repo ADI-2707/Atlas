@@ -5,10 +5,25 @@
   Subscribe, spin up your own organization, and extend it with independently deployable plugins — all on a shared, event-driven core.
 </p>
 
-<p align="center">
-  <img src="docs/images/saas-landing.png" width="48%" />
-  <img src="docs/images/saas-signup.png" width="48%" />
-</p>
+---
+
+## 📸 Workspace Previews
+
+### Onboarding & SaaS Landing Page
+
+![SaaS Portal Landing Page Preview](docs/images/saas-landing.png)
+_SaaS Portal Homepage featuring modular pricing and plans_
+
+![SaaS Portal Signup Flow Preview](docs/images/saas-signup.png)
+_4-step subscription onboarding flow for client workspaces creation_
+
+### Multitenant Workspace (Theme & Adaptability Preview)
+
+![Enterprise Client Dark Mode Dashboard](docs/images/org1/dashboard.png)
+_Enterprise plan client dashboard running in dark mode with all plugins enabled_
+
+![Starter Client Light Mode Dashboard](docs/images/org2/dashboard.png)
+_Starter plan client dashboard running in light mode featuring metrics widgets limits_
 
 ---
 
@@ -32,22 +47,22 @@ Atlas separates enterprise software into five layers, with subscription/tenant m
 │                SaaS Layer (Portal & Subscriptions)           │
 │   Marketing Site  │  Signup & Onboarding  │  Platform Admin  │
 └─────────────────────────────┬───────────────────────────────┘
-                              │
+                               │
 ┌─────────────────────────────▼───────────────────────────────┐
 │              Business Application Layer (Plugins)            │
 │   Inventory  │  CRM  │  HR  │  Analytics  │  ...more         │
 └─────────────────────────────┬───────────────────────────────┘
-                              │
+                               │
 ┌─────────────────────────────▼───────────────────────────────┐
 │                    Atlas Framework Layer                     │
 │  @atlas/ui  │  forms  │  grid  │  api  │  events  │  sdk     │
 └─────────────────────────────┬───────────────────────────────┘
-                              │
+                               │
 ┌─────────────────────────────▼───────────────────────────────┐
-│                     Core Platform Layer                      │
+│                      Core Platform Layer                     │
 │  Auth  │  Organizations  │  Users  │  Plugins  │  Audit      │
 └─────────────────────────────┬───────────────────────────────┘
-                              │
+                               │
 ┌─────────────────────────────▼───────────────────────────────┐
 │                    Infrastructure Layer                      │
 │  PostgreSQL  │  Redis  │  Docker  │  BullMQ  │  Nginx        │
@@ -55,6 +70,7 @@ Atlas separates enterprise software into five layers, with subscription/tenant m
 ```
 
 **How it fits together:**
+
 1. A prospective customer subscribes through the **SaaS portal**, choosing a plan.
 2. This provisions a new **Organization** (tenant) with its own isolated data.
 3. The org's admin enables the **plugins** included in their plan from the plugin manager.
@@ -65,68 +81,39 @@ Atlas separates enterprise software into five layers, with subscription/tenant m
 
 ## 📦 Monorepo Structure
 
-```
-atlas/
-├── apps/
-│   ├── saas-portal/       # Marketing site, pricing, signup & platform admin console
-│   ├── frontend/          # Core product app used by subscribed organizations
-│   ├── backend/           # NestJS API — auth, organizations, users, roles, plugins, audit
-│   └── worker/            # BullMQ background worker
-│
-├── packages/
-│   ├── atlas-ui/          # Enterprise UI Component Library
-│   ├── atlas-forms/       # Form Framework
-│   ├── atlas-grid/        # Enterprise Data Grid
-│   ├── atlas-api/         # HTTP Client & Request Framework
-│   ├── atlas-events/      # Event System
-│   ├── atlas-logger/      # Logging Framework
-│   ├── atlas-storage/     # Storage Abstraction Layer
-│   ├── atlas-dashboard/   # Dashboard Engine
-│   ├── atlas-widgets/     # Widget Framework
-│   ├── atlas-plugin-sdk/  # Plugin Development SDK
-│   ├── atlas-config/      # Configuration Framework
-│   ├── atlas-auth/        # Authentication Utilities
-│   └── atlas-utils/       # Shared Utilities
-│
-├── plugins/
-│   ├── inventory/         # Inventory Management Plugin
-│   ├── crm/               # Customer Relationship Management Plugin
-│   ├── hr/                # HR & Payroll Management Plugin
-│   └── analytics/         # Real-time Analytics & Forecasting Plugin
-│
-├── infrastructure/
-│   ├── docker/            # Dockerfiles
-│   ├── nginx/             # Nginx configuration
-│   └── scripts/           # Operational scripts
-│
-├── docs/                  # Architecture documentation
-└── tests/                 # Integration & E2E tests
-```
+Detailed descriptions are provided in their respective folder index:
+
+- **Deployable Applications:** [apps/README.md](apps/README.md)
+  - SaaS Portal: [saas-portal](apps/saas-portal/README.md)
+  - Product Frontend: [frontend](apps/frontend/README.md)
+  - Backend API: [backend](apps/backend/README.md)
+  - Background Worker: [worker](apps/worker/README.md)
+- **Shared Packages Framework:** [packages/README.md](packages/README.md)
+- **Business Plugins Modules:** [plugins/README.md](plugins/README.md)
 
 ---
 
 ## 💳 Plans & Plugins
 
-| Plan | Price | Plugins & Limits |
-|---|---|---|
-| **Starter** | $49/mo | Core platform, limited seats, pick your plugins |
-| **Enterprise** | $199/mo | Unlimited users, all plugins (CRM, HR, Inventory, Analytics), priority 24/7 support, custom roles & permissions, SSO |
-| **Custom** | Contact us | Tailored limits, plugins, and support for large organizations |
-
+| Plan           | Price      | Plugins & Limits                                                                                                     |
+| -------------- | ---------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Starter**    | $49/mo     | Core platform, limited seats, pick your plugins                                                                      |
+| **Enterprise** | $199/mo    | Unlimited users, all plugins (CRM, HR, Inventory, Analytics), priority 24/7 support, custom roles & permissions, SSO |
+| **Custom**     | Contact us | Tailored limits, plugins, and support for large organizations                                                        |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| SaaS Portal | React, TypeScript, Vite |
-| Frontend | React, TypeScript, Vite, React Router |
-| Backend | NestJS, TypeScript, Prisma (multi-schema, multi-tenant) |
-| Database | PostgreSQL |
-| Cache | Redis |
-| Queue | BullMQ |
-| Containers | Docker, Docker Compose |
+| Layer       | Technology                                              |
+| ----------- | ------------------------------------------------------- |
+| SaaS Portal | React, TypeScript, Vite                                 |
+| Frontend    | React, TypeScript, Vite, React Router                   |
+| Backend     | NestJS, TypeScript, Prisma (multi-schema, multi-tenant) |
+| Database    | PostgreSQL                                              |
+| Cache       | Redis                                                   |
+| Queue       | BullMQ                                                  |
+| Containers  | Docker, Docker Compose                                  |
 
 ---
 
@@ -148,16 +135,17 @@ pnpm install
 docker compose up -d
 
 # Run database migrations
-pnpm --filter backend db:migrate
+pnpm --filter @atlas/backend db:migrate
 
 # Seed database
-pnpm --filter backend db:seed
+pnpm --filter @atlas/backend db:seed
 
 # Start development servers (saas-portal, frontend, backend)
 pnpm dev
 ```
 
 By default:
+
 - **SaaS portal** (marketing, pricing, signup, platform admin) → `http://localhost:5174`
 - **Product frontend** (used by subscribed organizations) → `http://localhost:5173`
 - **Backend API** → `http://localhost:3000`
@@ -176,4 +164,4 @@ MIT
 
 ---
 
-**Atlas** — *Build enterprise platforms, not enterprise applications.*
+**Atlas** — _Build enterprise platforms, not enterprise applications._

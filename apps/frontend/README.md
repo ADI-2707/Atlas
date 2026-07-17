@@ -9,6 +9,38 @@ The product itself — the workspace an organization's users log into once their
 
 ---
 
+## Previews (Theme & Tier Adaptability)
+
+The frontend adapts its theme (Light vs. Dark) and layout dynamically depending on the tenant's user preference and subscription limits.
+
+### 1. Enterprise Workspace View (Dark Mode)
+
+![Enterprise Organization Dashboard](../../docs/images/org1/dashboard.png)
+_Fully unlocked Enterprise dashboard with CRM, HR, Inventory, and Analytics plugins active_
+
+```carousel
+![Enterprise Team Directory Page](../../docs/images/org1/team.png)
+<!-- slide -->
+![Enterprise Workspace Audit Trail Logs](../../docs/images/org1/audit-logs.png)
+```
+
+_Enterprise plan workspace showing unlimited member seats capacity and organizational audit trail logs_
+
+### 2. Starter Workspace View (Light Mode)
+
+![Starter Organization Dashboard](../../docs/images/org2/dashboard.png)
+_Starter plan workspace showing minimal metrics widget configuration_
+
+```carousel
+![Starter Workspace Plugin Store](../../docs/images/org2/store.png)
+<!-- slide -->
+![Starter Workspace Team Seat Limits Alert](../../docs/images/org2/team-limit.png)
+```
+
+_Starter plan showing active plugin store upgrade prompts and seat limit warnings (25 seats max)_
+
+---
+
 ## Structure
 
 ```
@@ -48,22 +80,22 @@ This is worth being precise about, since "plugin" gets used at both build time a
   - `plugins/mock-plugins.ts` supplies the sidebar navigation item (title/path/icon) for each installed plugin id — despite the name, this isn't test/mock data, it's the real source of nav metadata today (there's no `manifest.json`-driven nav yet on the frontend).
   - `LayoutGuard` in `App.tsx` redirects users with zero enabled plugins to `/welcome` instead of the dashboard.
   - `FullScreenLock` is shown in place of a plugin's UI when `workspaceLock` is set (e.g. the org hasn't unlocked that plugin's tier).
-- Each plugin can additionally have its own **tier** (`free` / `pro` / `business` / `enterprise`) independent of the org's overall subscription plan — see `PluginStore.tsx`'s `getPluginTiers()` and the `AnalyticsWrapper` in `App.tsx`, which reads `analyticsPlugin.config.tier` and maps it to a feature tier passed into the plugin component. So an Enterprise-plan org can still have, say, the Inventory plugin on its `free` tier with lower limits, and upgrade it independently via the Store.
+- Each plugin can additionally have its own **tier** (`free` / `pro` / `business` / `enterprise`) independent of the org's overall subscription plan — see `PluginStore.tsx`s `getPluginTiers()` and the `AnalyticsWrapper` in `App.tsx`, which reads `analyticsPlugin.config.tier` and maps it to a feature tier passed into the plugin component. So an Enterprise-plan org can still have, say, the Inventory plugin on its `free` tier with lower limits, and upgrade it independently via the Store.
 
 ---
 
 ## Key pages
 
-| Page | Route | Notes |
-|---|---|---|
-| Login | `/login` | Public |
-| Setup | `/setup` | Shown once, before `hasCompletedSetup` is true |
-| Welcome | `/welcome` | Landing page when no plugins are enabled |
-| Dashboard | `/` | Home |
-| Team | `/team` | Lists org users via `GET /users` |
-| Plugin Store | `/store`, `/store/:pluginId` | Enable/upgrade/disable plugins per tier |
-| Audit Logs | `/logs` | Org-scoped audit trail |
-| Admin | `/admin` | Metrics view — see note below |
+| Page         | Route                        | Notes                                          |
+| ------------ | ---------------------------- | ---------------------------------------------- |
+| Login        | `/login`                     | Public                                         |
+| Setup        | `/setup`                     | Shown once, before `hasCompletedSetup` is true |
+| Welcome      | `/welcome`                   | Landing page when no plugins are enabled       |
+| Dashboard    | `/`                          | Home                                           |
+| Team         | `/team`                      | Lists org users via `GET /users`               |
+| Plugin Store | `/store`, `/store/:pluginId` | Enable/upgrade/disable plugins per tier        |
+| Audit Logs   | `/logs`                      | Org-scoped audit trail                         |
+| Admin        | `/admin`                     | Metrics view — see note below                  |
 
 ---
 

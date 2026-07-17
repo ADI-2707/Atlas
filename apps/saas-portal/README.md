@@ -9,6 +9,31 @@ The public front door to Atlas as a product: marketing site, plan comparison, or
 
 ---
 
+## Previews
+
+### Landing Page & Signup Flow
+
+![SaaS Portal Landing Page](../../docs/images/saas-landing.png)
+_Marketing landing page showcasing modular plugin pricing options_
+
+![Organization Onboarding Signup Wizard](../../docs/images/saas-signup.png)
+_4-step subscription and billing onboarding flow for new workspace creation_
+
+### Platform God View Console (`/admin`)
+
+![Admin Overview Dashboard](../../docs/images/admin/overview.png)
+_Cross-tenant metrics showing active client lists, MRR tracking, and organization health indexes_
+
+```carousel
+![Admin Console Global Event Logs](../../docs/images/admin/logs.png)
+<!-- slide -->
+![Admin Console Support Tickets Inbox](../../docs/images/admin/tickets.png)
+```
+
+_Cross-tenant event monitoring logs feed and global support tickets dispatch desk_
+
+---
+
 ## Structure
 
 ```
@@ -33,11 +58,11 @@ saas-portal/
 
 ## Routes
 
-| Route | Purpose |
-|---|---|
-| `/` | Marketing landing page (Hero → About → Pricing → Solutions → Testimonials → Contact) |
+| Route     | Purpose                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------- |
+| `/`       | Marketing landing page (Hero → About → Pricing → Solutions → Testimonials → Contact)        |
 | `/signup` | Organization signup wizard, optionally pre-selecting a plan via `?plan=starter\|enterprise` |
-| `/admin` | Platform admin console ("God View") — separate login, separate data, not org-scoped |
+| `/admin`  | Platform admin console ("God View") — separate login, separate data, not org-scoped         |
 
 ---
 
@@ -47,10 +72,10 @@ A 4-step wizard: **Plan → Account → Billing → Done**.
 
 1. **Plan** — choose Starter ($49/mo) or Enterprise ($199/mo); pre-selected if the user arrived via a `?plan=` link from the pricing section.
 2. **Account** — org name (auto-slugified into a URL-safe `orgSlug`, editable), admin's name/email, and a password with live strength feedback.
-3. **Billing** — currently a **mocked** Stripe-style card entry UI; the copy is explicit that *"Billing integration coming soon — no charges will be made during setup."* No real payment provider is wired in yet.
+3. **Billing** — currently a **mocked** Stripe-style card entry UI; the copy is explicit that _"Billing integration coming soon — no charges will be made during setup."_ No real payment provider is wired in yet.
 4. **Done** — on success, opens `${APP_URL}/login?registered=true` (the product frontend) in a new tab.
 
-The actual account creation happens in one call: `POST {API_URL}/api/v1/auth/register`, which creates both the `Organization` and its first admin `User` on the backend (see `apps/backend/README.md`).
+The actual account creation happens in one call: `POST {API_URL}/api/v1/auth/register`, which creates both the `Organization` and its first admin `User` on the backend (see [backend README.md](../backend/README.md)).
 
 ---
 
@@ -63,7 +88,7 @@ A separate, self-contained dashboard for Atlas platform staff, not exposed to or
 - **Global Event Logs tab:** cross-tenant system log feed (`GET /admin/logs`).
 - **Support Inbox tab:** cross-tenant support tickets (`GET /admin/tickets`), with a "mark resolved" action.
 
-This is the actual "SaaS control tower" for the business — organization health, revenue, and support all in one place — and it's what makes the `healthScore`/`mrr` fields on the `Organization` model (see `apps/backend/README.md`) meaningful.
+This is the actual "SaaS control tower" for the business — organization health, revenue, and support all in one place — and it's what makes the `healthScore`/`mrr` fields on the `Organization` model (see [backend README.md](../backend/README.md)) meaningful.
 
 ---
 
@@ -76,7 +101,7 @@ pnpm --filter saas-portal dev
 
 ### Environment
 
-| Variable | Purpose | Default if unset |
-|---|---|---|
-| `VITE_API_URL` | Backend base URL | `http://localhost:3001` (see port-mismatch note in `apps/frontend/README.md` — confirm this against your backend's actual `APP_PORT`) |
-| `VITE_APP_URL` | Product frontend URL, used for the navbar's "Sign In" link and the post-signup redirect | `http://localhost:5173` |
+| Variable       | Purpose                                                                                 | Default if unset                                                                |
+| -------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `VITE_API_URL` | Backend base URL                                                                        | `http://localhost:3001` (confirm this against your backend's actual `APP_PORT`) |
+| `VITE_APP_URL` | Product frontend URL, used for the navbar's "Sign In" link and the post-signup redirect | `http://localhost:5173`                                                         |

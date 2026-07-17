@@ -2,12 +2,37 @@
 
 Business modules that organizations enable on top of the Atlas core platform, based on their subscription plan. Every plugin is self-contained — it ships its own backend module, frontend UI, and manifest — and plugs into the platform via the **Plugin Manager** (`apps/backend/src/plugins`) and the **frontend plugin host** (`apps/frontend/src/plugins`).
 
-| Plugin | Included in | What it does |
-|---|---|---|
-| [`inventory`](#inventory) | Starter (opt-in) · Enterprise | Products, warehouses, stock levels & transactions |
-| [`crm`](#crm) | Starter (opt-in) · Enterprise | Customers, deals pipeline, contact import/export |
-| [`hr`](#hr) | Starter (opt-in) · Enterprise | Employees, leave, payroll |
-| [`analytics`](#analytics) | Starter (opt-in) · Enterprise | Cross-plugin dashboards, anomaly detection, AI forecasting |
+---
+
+## Active Workspace Plugin Previews
+
+Below are screenshots showing the plugins rendering natively inside the client's workspace:
+
+```carousel
+![CRM Deals Pipeline](../docs/images/plugins/crm.png)
+<!-- slide -->
+![Inventory Product Catalog Grid](../docs/images/plugins/inventory.png)
+<!-- slide -->
+![HR Payroll Directory](../docs/images/plugins/hr.png)
+<!-- slide -->
+![Analytics Prediction Engine](../docs/images/plugins/analytics.png)
+```
+
+_A modular catalog of light/dark themed business applications_
+
+---
+
+## Plugin Directory List
+
+Every plugin maintains its own dedicated documentation file:
+
+| Plugin               | Documentation                                                | Included in                   | What it does                                               |
+| -------------------- | ------------------------------------------------------------ | ----------------------------- | ---------------------------------------------------------- |
+| `inventory`          | [inventory/README.md](inventory/README.md)                   | Starter (opt-in) · Enterprise | Products, warehouses, stock levels & transactions          |
+| `crm`                | [crm/README.md](crm/README.md)                               | Starter (opt-in) · Enterprise | Customers, deals pipeline, contact import/export           |
+| `hr`                 | [hr/README.md](hr/README.md)                                 | Starter (opt-in) · Enterprise | Employees, leave, payroll                                  |
+| `analytics`          | [analytics/README.md](analytics/README.md)                   | Starter (opt-in) · Enterprise | Cross-plugin dashboards, anomaly detection, AI forecasting |
+| `project-management` | [project-management/README.md](project-management/README.md) | Enterprise                    | Kanban task boards, milestones, deadlines tracking         |
 
 ---
 
@@ -37,57 +62,6 @@ Every plugin follows the same shape:
 3. When an org admin enables the plugin from the **Store** (`apps/frontend`), its frontend entry is mounted into the workspace and its routes/nav items (declared in `manifest.json`) become visible to that organization's users.
 4. Plugins talk to each other only through `@atlas/events` (the shared event bus) — never by importing one another directly — so they stay independently deployable.
 5. All shared framework code (`@atlas/ui`, `@atlas/plugin-sdk`, `@atlas/utils`, `@atlas/events`, …) comes from `packages/`.
-
----
-
-## `inventory`
-
-Product, warehouse, and stock management.
-
-- **Data model:** `InventoryTable` (custom schema per org), `Product`, `Warehouse`, `Stock`, `StockTransaction`
-- **API** (`/api/v1/inventory`): stats, dynamic table schema (`tables`, `tables/:id/schema`), products, warehouses, stock adjustments (`stock/adjust`), stock transactions, CSV import/export (`tables/:id/export`, `tables/:id/import`)
-- **Frontend:** `InventoryDashboard`, with `ProductForm`, `WarehouseManager`, `AdjustmentLogs`
-- **Permissions:** none declared yet in `manifest.json` (open item — see note below)
-
-## `crm`
-
-Customer relationship management — the module that reduced manual reconciliation work in earlier standalone versions of this idea, now generalized as a subscribable plugin.
-
-- **Data model:** `Customer`, `Deal`, `DealItem`
-- **API** (`/api/v1/crm`): plan-based `limits`, customers CRUD, deals pipeline CRUD, custom field `schema`, contact CSV import/export, `audit-logs`
-- **Frontend:** `CrmDashboard`, with `CustomersList`, `DealsPipeline`, `CrmActivityLogs`
-- **Permissions:** none declared yet in `manifest.json`
-
-## `hr`
-
-Employee and payroll management.
-
-- **Data model:** `Employee`, `Department`, `LeaveRequest`, `LeaveBalance`, `PayrollRecord`
-- **API** (`/api/v1/hr`): employees CRUD, `payroll` (list & run)
-- **Frontend:** `HrDashboard`, with `EmployeesList`, `AddEmployeeModal`, `PayrollList`, `RunPayrollModal`
-- **Shared:** `hr/shared/index.ts` — types shared between the plugin's own backend and frontend
-- **Permissions:** `hr.read`, `hr.create`, `hr.update`, `hr.delete`, `hr.payroll.read`, `hr.payroll.write`
-
-## `analytics`
-
-The only plugin with its own backend microservice — a Python (FastAPI) engine alongside the standard NestJS module, since ML forecasting doesn't belong in the Node runtime.
-
-- **NestJS layer** (`/api/v1/analytics`): `dashboard`, `anomalies`, `forecasts`, `reports/generate` — mostly proxies/aggregates for the Python engine
-- **Python engine** (`python-engine/`, FastAPI, proxied in dev via `/api/analytics` → `http://127.0.0.1:8000`):
-  - `main.py` — FastAPI app & routes
-  - `etl.py` — pulls data out of the other plugins' schemas for processing
-  - `ml.py` — `detect_anomalies`, `forecast_metric` (scikit-learn / statsmodels)
-  - `database.py` — SQLAlchemy session against the shared Postgres instance
-  - Scheduled jobs via `APScheduler`; PDF report generation via `reportlab`
-- **Frontend:** `AnalyticsDashboard`
-- **Permissions:** `analytics.read`, `analytics.reports`, `analytics.anomalies`, `analytics.forecasts`
-
-**Running the analytics engine standalone:**
-```bash
-cd plugins/analytics/python-engine
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
 
 ---
 

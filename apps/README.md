@@ -2,12 +2,40 @@
 
 This directory contains every deployable application in the Atlas monorepo. Atlas is split into a **SaaS-facing layer** (subscriptions, tenant provisioning) and a **product layer** (the actual platform an organization uses once subscribed), plus supporting services.
 
-| App | Role | Stack | Default Port |
-|---|---|---|---|
-| [`saas-portal`](#saas-portal) | Marketing, pricing, signup & platform admin | React + TypeScript + Vite | `5174` |
-| [`frontend`](#frontend) | Product app used by subscribed organizations | React + TypeScript + Vite | `5173` |
-| [`backend`](#backend) | Core API — auth, orgs, users, roles, plugins, audit | NestJS + TypeScript + Prisma | `3000` |
-| [`worker`](#worker) | Background job processing | BullMQ (Node) | — |
+- **SaaS Portal & Admin Console:** [saas-portal](saas-portal)
+- **Product Workspace Client:** [frontend](frontend)
+- **Core API Engine:** [backend](backend)
+- **Background Worker:** [worker](worker)
+
+---
+
+## Workspace Previews
+
+### SaaS Onboarding & Landing (Light/Dark Adaptability)
+
+![SaaS Portal Landing Page Preview](../docs/images/saas-landing.png)
+_SaaS Portal Homepage featuring plans pricing matrix_
+
+### Enterprise Workspace (Dark Theme)
+
+![Enterprise Client Dashboard Preview](../docs/images/org1/dashboard.png)
+_Tenant client dashboard running in dark mode with all plugins active_
+
+### Starter Workspace (Light Theme)
+
+![Starter Client Dashboard Preview](../docs/images/org2/dashboard.png)
+_Tenant client dashboard running in light mode on the Starter tier plan_
+
+---
+
+## applications shape
+
+| App                           | Role                                                | Stack                        | Default Port |
+| ----------------------------- | --------------------------------------------------- | ---------------------------- | ------------ |
+| [`saas-portal`](#saas-portal) | Marketing, pricing, signup & platform admin         | React + TypeScript + Vite    | `5174`       |
+| [`frontend`](#frontend)       | Product app used by subscribed organizations        | React + TypeScript + Vite    | `5173`       |
+| [`backend`](#backend)         | Core API — auth, orgs, users, roles, plugins, audit | NestJS + TypeScript + Prisma | `3000`       |
+| [`worker`](#worker)           | Background job processing                           | BullMQ (Node)                | —            |
 
 ---
 
@@ -33,11 +61,13 @@ saas-portal/
 ```
 
 **Responsibilities:**
+
 - Renders the marketing site (hero, pricing, testimonials, contact).
 - Handles new organization **signup**, including plan selection (`?plan=starter|enterprise|custom`).
 - Hosts the **platform admin console** — the internal view Atlas staff use to oversee organizations, health scores, and MRR, distinct from any single tenant's own admin area.
 
 **Run it:**
+
 ```bash
 pnpm --filter saas-portal dev
 # → http://localhost:5174
@@ -67,12 +97,14 @@ frontend/
 ```
 
 **Responsibilities:**
+
 - Authenticates organization members against the backend (JWT-based).
 - Renders whichever plugins (CRM, HR, Inventory, Analytics, …) the organization has enabled, via a dynamic plugin-loading layer (`src/plugins`).
 - Provides the **Store** page for org admins to enable/disable plugins included in their subscription.
 - Surfaces org-scoped audit logs, team/role management, and dashboard widgets from `@atlas/atlas-dashboard` / `@atlas/atlas-widgets`.
 
 **Run it:**
+
 ```bash
 pnpm --filter frontend dev
 # → http://localhost:5173
@@ -98,7 +130,7 @@ backend/
     ├── roles/              # Role & permission management (RBAC)
     ├── plugins/             # Plugin discovery, registration & lifecycle (Plugin Manager)
     ├── audit/               # Audit logging across the platform
-    ├── admin/               # Platform-level admin endpoints (cross-org metrics, health, MRR)
+    ├── admin/              # Platform-level admin endpoints (cross-org metrics, health, MRR)
     ├── health/              # Health check endpoint
     ├── prisma/              # Prisma service/module
     ├── common/              # Global filters & interceptors
@@ -107,14 +139,16 @@ backend/
 ```
 
 **Responsibilities:**
+
 - **Multi-tenant data model** — Prisma's `multiSchema` feature isolates each domain (`atlas_core`, `atlas_inventory`, `atlas_crm`, `atlas_hr`) while every row is still scoped to an `Organization`.
 - **Auth & RBAC** — JWT access/refresh tokens, `@Permissions()` decorator + guard, `@Public()` for unauthenticated routes.
-- **Plugin Manager** — discovers plugins under `plugins/` at boot via each `manifest.json`, registers them in the database, and exposes them for organizations to enable per their subscription.
+- **Plugin Manager** — discovers plugins under `plugins/` at the repo root, reads each `manifest.json`, and upserts a `Plugin` row (`status: AVAILABLE | INSTALLED | ENABLED | DISABLED`).
 - **Platform Admin API** — separate from an org's own admin area; backs the `saas-portal` admin console with cross-tenant data (organization health score, MRR, support tickets).
 - **Audit** — every sensitive action is logged and queryable per organization.
 - Global API prefix: `/api/v1`. Interactive API docs (Swagger) served at `/docs`.
 
 **Run it:**
+
 ```bash
 pnpm --filter backend db:generate   # generate Prisma client
 pnpm --filter backend db:migrate    # run migrations
@@ -128,14 +162,9 @@ pnpm --filter backend dev
 
 ## `worker`
 
-Scaffolded background-processing service intended to run BullMQ queue consumers (e.g. plugin provisioning jobs, scheduled reports, notification delivery) outside the request/response cycle of the backend API.
+Background-processing service running BullMQ queue consumers (e.g. plugin provisioning jobs, scheduled reports, notification delivery) outside the request/response cycle of the backend API.
 
-```
-worker/
-└── package.json
-```
-
-> Currently a scaffold — no queue consumers are implemented yet. Reserved for async work as plugins and subscription workflows grow (e.g. usage metering, scheduled analytics jobs, email/notification delivery).
+See the dedicated [worker README.md](worker/README.md) for more details.
 
 ---
 
@@ -151,9 +180,9 @@ pnpm --filter backend db:seed
 pnpm dev                      # runs saas-portal + frontend + backend in parallel
 ```
 
-| Service | URL |
-|---|---|
-| SaaS portal (marketing, signup, platform admin) | `http://localhost:5174` |
-| Product frontend (org workspace) | `http://localhost:5173` |
-| Backend API | `http://localhost:3000/api/v1` |
-| API docs (Swagger) | `http://localhost:3000/docs` |
+| Service                                         | URL                            |
+| ----------------------------------------------- | ------------------------------ |
+| SaaS portal (marketing, signup, platform admin) | `http://localhost:5174`        |
+| Product frontend (org workspace)                | `http://localhost:5173`        |
+| Backend API                                     | `http://localhost:3000/api/v1` |
+| API docs (Swagger)                              | `http://localhost:3000/docs`   |
