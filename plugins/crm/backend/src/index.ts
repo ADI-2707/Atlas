@@ -1,22 +1,8 @@
 import { AtlasPlugin } from '@atlas/plugin-sdk';
 import { CrmController } from './controllers/crm.controller';
 import { CrmService } from './services/crm.service';
-
 import { CrmPrismaService } from './prisma/crm-prisma.service';
-
-const manifest = {
-  id: 'crm',
-  name: 'CRM Management',
-  version: '1.0.0',
-  author: 'Atlas Team',
-  description: 'Enterprise CRM management plugin.',
-  atlasVersion: '1.0.0',
-  dependencies: [],
-  permissions: ['crm.read', 'crm.write'],
-  events: [],
-  routes: ['/crm/customers'],
-  widgets: [],
-};
+import manifest from '../../manifest.json';
 
 const config = AtlasPlugin({
   manifest,

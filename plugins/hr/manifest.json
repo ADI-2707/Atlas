@@ -15,11 +15,6 @@
     "hr.payroll.write"
   ],
   "events": [],
-  "routes": [
-    {
-      "path": "/hr/*",
-      "element": "HR"
-    }
-  ],
+  "routes": ["/hr/employees", "/hr/payroll"],
   "widgets": []
 }
