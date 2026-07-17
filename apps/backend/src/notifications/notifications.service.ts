@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { QueuesService } from '../queues/queues.service';
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly queuesService: QueuesService
+  ) {}
 
   async findAll(userId: string) {
     return this.prisma.notification.findMany({
@@ -57,14 +61,13 @@ export class NotificationsService {
     type: string = 'INFO',
     actionUrl?: string,
   ) {
-    return this.prisma.notification.create({
-      data: {
-        userId,
-        title,
-        message,
-        type,
-        actionUrl,
-      },
+    await this.queuesService.addNotificationJob({
+      userId,
+      title,
+      message,
+      type,
+      actionUrl,
     });
+    return { queued: true };
   }
 }
