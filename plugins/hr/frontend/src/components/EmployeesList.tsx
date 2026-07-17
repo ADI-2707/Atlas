@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@atlas/api';
-import { Employee } from '../../../shared';
+import { Employee } from '../types/hr.types';
 
 export const EmployeesList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
