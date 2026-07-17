@@ -39,6 +39,8 @@ model Deal {
   customer  Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
   lineItems DealItem[]
 
+  @@index([organizationId])
+  @@index([customerId])
   @@map("crm_deals")
 }
 
@@ -52,5 +54,6 @@ model DealItem {
 
   deal    Deal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
 
+  @@index([dealId])
   @@map("crm_deal_items")
 }

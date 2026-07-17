@@ -54,6 +54,7 @@ model Warehouse {
   transactionsFrom StockTransaction[] @relation("WarehouseFrom")
   transactionsTo   StockTransaction[] @relation("WarehouseTo")
 
+  @@index([organizationId])
   @@map("inv_warehouses")
 }
 
@@ -70,6 +71,7 @@ model Stock {
   warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
 
   @@unique([productId, warehouseId])
+  @@index([organizationId])
   @@map("inv_stock")
 }
 
@@ -89,5 +91,7 @@ model StockTransaction {
   warehouse   Warehouse? @relation("WarehouseFrom", fields: [warehouseId], references: [id], onDelete: Cascade)
   toWarehouse Warehouse? @relation("WarehouseTo", fields: [toWarehouseId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
+  @@index([productId])
   @@map("inv_stock_transactions")
 }
