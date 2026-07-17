@@ -8,5 +8,5 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true
   },
-  "include": ["backend/src/**/*", "shared/**/*"]
+  "include": ["backend/src/**/*", "manifest.json"]
 }

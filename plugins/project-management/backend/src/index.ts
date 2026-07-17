@@ -9,4 +9,15 @@ export default AtlasPlugin({
   manifest,
   controllers: [ProjectManagementController],
   providers: [ProjectManagementService, PmPrismaService],
+  permissions: [
+    { code: 'pm.read',   name: 'Read Projects',   description: 'View projects and issues' },
+    { code: 'pm.create', name: 'Create Projects',  description: 'Create new projects and issues' },
+    { code: 'pm.update', name: 'Update Projects',  description: 'Edit projects and issues' },
+    { code: 'pm.delete', name: 'Delete Projects',  description: 'Delete projects and issues' },
+  ],
+  lifecycle: {
+    onInstall: async () => { console.log('PM plugin onInstall triggered'); },
+    onEnable:  async () => { console.log('PM plugin onEnable triggered'); },
+    onDisable: async () => { console.log('PM plugin onDisable triggered'); },
+  },
 });

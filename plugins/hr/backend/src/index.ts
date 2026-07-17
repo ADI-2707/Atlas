@@ -1,22 +1,8 @@
 import { AtlasPlugin } from '@atlas/plugin-sdk';
 import { HrController } from './controllers/hr.controller';
 import { HrService } from './services/hr.service';
-
 import { HrPrismaService } from './prisma/hr-prisma.service';
-
-const manifest = {
-  id: 'hr',
-  name: 'HR Management',
-  version: '1.0.0',
-  author: 'Atlas Team',
-  description: 'Enterprise HR management plugin.',
-  atlasVersion: '1.0.0',
-  dependencies: [],
-  permissions: ['hr.read', 'hr.create', 'hr.update', 'hr.delete', 'hr.payroll.read', 'hr.payroll.write'],
-  events: [],
-  routes: ['/hr/employees', '/hr/payroll'],
-  widgets: [],
-};
+import manifest from '../../manifest.json';
 
 const config = AtlasPlugin({
   manifest,

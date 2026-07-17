@@ -6,7 +6,7 @@
   "description": "Enterprise project management and issue tracking plugin.",
   "atlasVersion": "1.0.0",
   "dependencies": [],
-  "permissions": [],
+  "permissions": ["pm.read", "pm.create", "pm.update", "pm.delete"],
   "events": [],
   "routes": [
     "/project-management"

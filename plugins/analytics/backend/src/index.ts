@@ -1,20 +1,7 @@
 import { AtlasPlugin } from '@atlas/plugin-sdk';
 import { AnalyticsController } from './controllers/analytics.controller';
 import { AnalyticsService } from './services/analytics.service';
-
-const manifest = {
-  id: 'analytics',
-  name: 'Analytics Engine',
-  version: '1.0.0',
-  author: 'Atlas Team',
-  description: 'Real-time data processing, visual insights, and AI forecasting.',
-  atlasVersion: '1.0.0',
-  dependencies: [],
-  permissions: ['analytics.read', 'analytics.reports', 'analytics.anomalies', 'analytics.forecasts'],
-  events: [],
-  routes: ['/analytics/dashboard', '/analytics/anomalies'],
-  widgets: [],
-};
+import manifest from '../../manifest.json';
 
 const config = AtlasPlugin({
   manifest,

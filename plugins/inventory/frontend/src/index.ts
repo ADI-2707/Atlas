@@ -1,1 +1,1 @@
-export { InventoryDashboard } from './pages/InventoryDashboard';
+export { InventoryDashboard as default } from './pages/InventoryDashboard';
