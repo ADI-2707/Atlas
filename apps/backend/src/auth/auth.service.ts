@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, UnauthorizedException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, NotFoundException, BadRequestException, forwardRef, Inject } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { AcceptInviteDto } from './dto/accept-invite.dto';
 import { AuditService } from '../audit/audit.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { configManager } from '@atlas/config';
 import * as bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly auditService: AuditService,
+    @Inject(forwardRef(() => JwtStrategy)) private readonly jwtStrategy: JwtStrategy,
   ) {}
 
   async register(dto: RegisterDto, ipAddress?: string) {
@@ -352,8 +354,11 @@ export class AuthService {
         where: { id: sessionId },
       });
     } catch (e) {
-      
+      // ignore — session may already be gone
     }
+
+    // Immediately evict the Redis cache so the session cannot be reused
+    await this.jwtStrategy.invalidateSessionCache(sessionId);
 
     await this.auditService.createLog({
       userId,
