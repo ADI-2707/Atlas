@@ -12,9 +12,16 @@ export class AdminController {
   }
 
   @Get('metrics')
-  async getMetrics(@Req() req: any) {
+  async getMetrics(
+    @Req() req: any,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
     this.checkSuperAdmin(req);
-    return this.adminService.getMetrics();
+    return this.adminService.getMetrics(
+      page ? parseInt(page, 10) : 1,
+      limit ? Math.min(parseInt(limit, 10), 200) : 50,
+    );
   }
 
   @Get('logs')

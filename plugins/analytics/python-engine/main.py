@@ -1,5 +1,6 @@
 import os
 from contextlib import asynccontextmanager
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from fastapi import FastAPI, Depends, HTTPException, Security
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,18 +55,43 @@ scheduler = BackgroundScheduler()
 logger = logging.getLogger("analytics_engine")
 
 
+def _run_etl_for_org(org_id: str) -> tuple[str, bool, str]:
+    """Run ETL for a single org and return (org_id, success, error_msg)."""
+    try:
+        run_etl_pipeline(org_id)
+        return (org_id, True, "")
+    except Exception as e:
+        return (org_id, False, str(e))
+
+
+ETL_WORKER_POOL_SIZE = int(os.getenv("ETL_WORKER_POOL_SIZE", "8"))
+
 def nightly_ml_batch_job():
     logger.info("Running nightly ML batch job...")
     with engine.begin() as conn:
         result = conn.execute(text("SELECT id FROM atlas_core.organizations WHERE status = 'ACTIVE'"))
         org_ids = [row[0] for row in result]
-    for org_id in org_ids:
-        try:
-            run_etl_pipeline(org_id)
-            logger.info(f"ETL completed for org: {org_id}")
-        except Exception as e:
-            logger.error(f"ETL failed for org {org_id}: {e}")
-    logger.info("Nightly batch job completed.")
+
+    if not org_ids:
+        logger.info("No active organisations found — batch job skipped.")
+        return
+
+    logger.info(f"Starting concurrent ETL for {len(org_ids)} organisation(s) with {ETL_WORKER_POOL_SIZE} workers.")
+    success_count = 0
+    failure_count = 0
+
+    with ThreadPoolExecutor(max_workers=ETL_WORKER_POOL_SIZE) as executor:
+        futures = {executor.submit(_run_etl_for_org, org_id): org_id for org_id in org_ids}
+        for future in as_completed(futures):
+            org_id, ok, err = future.result()
+            if ok:
+                logger.info(f"ETL completed for org: {org_id}")
+                success_count += 1
+            else:
+                logger.error(f"ETL failed for org {org_id}: {err}")
+                failure_count += 1
+
+    logger.info(f"Nightly batch job completed — success: {success_count}, failed: {failure_count}.")
 
 
 

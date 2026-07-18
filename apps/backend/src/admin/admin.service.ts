@@ -5,18 +5,26 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AdminService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async getMetrics() {
-    const orgs = await this.prisma.organization.findMany({
-      include: {
-        _count: {
-          select: { users: true, auditLogs: true, supportTickets: true }
+  async getMetrics(page = 1, limit = 50) {
+    const skip = (page - 1) * limit;
+
+    const [orgs, totalCount] = await this.prisma.$transaction([
+      this.prisma.organization.findMany({
+        skip,
+        take: limit,
+        orderBy: { mrr: 'desc' },
+        include: {
+          _count: {
+            select: { users: true, auditLogs: true, supportTickets: true }
+          }
         }
-      }
+      }),
+      this.prisma.organization.count(),
+    ]);
+
+    const totalMRR = await this.prisma.organization.aggregate({
+      _sum: { mrr: true },
     });
-
-    const plugins = await this.prisma.plugin.findMany();
-
-    const totalMRR = orgs.reduce((sum, org) => sum + org.mrr, 0);
 
     const organizations = orgs.map(org => ({
       id: org.id,
@@ -31,27 +39,27 @@ export class AdminService {
       openTickets: org._count.supportTickets
     }));
 
-    // Calculate valueScore for Top 5 ranking
-    const highestMrr = Math.max(...organizations.map(o => o.mrr), 1);
-    const highestUsers = Math.max(...organizations.map(o => o.usersCount), 1);
-
-    const scoredOrgs = organizations.map(org => {
-      const mrrScore = (org.mrr / highestMrr) * 60;
-      const userScore = (org.usersCount / highestUsers) * 20;
-      const healthScore = (org.healthScore / 100) * 20;
-      const valueScore = Math.round(mrrScore + userScore + healthScore);
-      return { ...org, valueScore };
+    // Top 5 clients sorted by MRR — resolved entirely in the DB
+    const topClients = await this.prisma.organization.findMany({
+      take: 5,
+      orderBy: { mrr: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        status: true,
+        mrr: true,
+        healthScore: true,
+        _count: { select: { users: true } },
+      },
     });
 
-    const topClients = [...scoredOrgs]
-      .sort((a, b) => b.valueScore - a.valueScore)
-      .slice(0, 5);
-
     return {
-      totalOrganizations: orgs.length,
-      monthlyRecurringRevenue: totalMRR,
-      organizations: scoredOrgs,
-      topClients
+      totalOrganizations: totalCount,
+      monthlyRecurringRevenue: totalMRR._sum.mrr ?? 0,
+      pagination: { page, limit, total: totalCount, pages: Math.ceil(totalCount / limit) },
+      organizations,
+      topClients: topClients.map(o => ({ ...o, usersCount: o._count.users })),
     };
   }
 
