@@ -1,5 +1,8 @@
+import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from fastapi import FastAPI, Depends, HTTPException, Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -12,6 +15,15 @@ from apscheduler.triggers.cron import CronTrigger
 from reportlab.pdfgen import canvas  # type: ignore[import]
 import logging
 from etl import run_etl_pipeline
+
+security = HTTPBearer()
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    expected_token = os.getenv("ANALYTICS_API_KEY")
+    if expected_token and token != expected_token:
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid Analytics API Key")
+    return token
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,18 +55,43 @@ scheduler = BackgroundScheduler()
 logger = logging.getLogger("analytics_engine")
 
 
+def _run_etl_for_org(org_id: str) -> tuple[str, bool, str]:
+    """Run ETL for a single org and return (org_id, success, error_msg)."""
+    try:
+        run_etl_pipeline(org_id)
+        return (org_id, True, "")
+    except Exception as e:
+        return (org_id, False, str(e))
+
+
+ETL_WORKER_POOL_SIZE = int(os.getenv("ETL_WORKER_POOL_SIZE", "8"))
+
 def nightly_ml_batch_job():
     logger.info("Running nightly ML batch job...")
     with engine.begin() as conn:
         result = conn.execute(text("SELECT id FROM atlas_core.organizations WHERE status = 'ACTIVE'"))
         org_ids = [row[0] for row in result]
-    for org_id in org_ids:
-        try:
-            run_etl_pipeline(org_id)
-            logger.info(f"ETL completed for org: {org_id}")
-        except Exception as e:
-            logger.error(f"ETL failed for org {org_id}: {e}")
-    logger.info("Nightly batch job completed.")
+
+    if not org_ids:
+        logger.info("No active organisations found — batch job skipped.")
+        return
+
+    logger.info(f"Starting concurrent ETL for {len(org_ids)} organisation(s) with {ETL_WORKER_POOL_SIZE} workers.")
+    success_count = 0
+    failure_count = 0
+
+    with ThreadPoolExecutor(max_workers=ETL_WORKER_POOL_SIZE) as executor:
+        futures = {executor.submit(_run_etl_for_org, org_id): org_id for org_id in org_ids}
+        for future in as_completed(futures):
+            org_id, ok, err = future.result()
+            if ok:
+                logger.info(f"ETL completed for org: {org_id}")
+                success_count += 1
+            else:
+                logger.error(f"ETL failed for org {org_id}: {err}")
+                failure_count += 1
+
+    logger.info(f"Nightly batch job completed — success: {success_count}, failed: {failure_count}.")
 
 
 
@@ -67,13 +104,13 @@ def health_check(db: Session = Depends(get_db)):
         db_status = f"error: {str(e)}"
     return {"status": "healthy", "service": "analytics-engine", "db_status": db_status}
 
-@app.post("/sync")
+@app.post("/sync", dependencies=[Depends(verify_token)])
 def force_sync(org_id: str):
     logger.info(f"Force sync requested for org: {org_id}")
     run_etl_pipeline(org_id)
     return {"status": "success", "message": "ETL pipeline completed successfully."}
 
-@app.get("/dashboard")
+@app.get("/dashboard", dependencies=[Depends(verify_token)])
 def get_dashboard(org_id: str):
     logger.info(f"Dashboard requested for org: {org_id}")
     
@@ -97,7 +134,7 @@ def get_dashboard(org_id: str):
         "metrics": metrics
     }
 
-@app.get("/timeseries")
+@app.get("/timeseries", dependencies=[Depends(verify_token)])
 def get_timeseries(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(  # type: ignore[call-overload]
@@ -116,7 +153,7 @@ def get_timeseries(org_id: str):
         
     return result
 
-@app.get("/anomalies")
+@app.get("/anomalies", dependencies=[Depends(verify_token)])
 def get_anomalies(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(  # type: ignore[call-overload]
@@ -134,7 +171,7 @@ def get_anomalies(org_id: str):
     
     return all_anomalies
 
-@app.get("/forecast")
+@app.get("/forecast", dependencies=[Depends(verify_token)])
 def get_forecast(org_id: str):
     with engine.begin() as conn:
         df = pd.read_sql(  # type: ignore[call-overload]
@@ -152,7 +189,7 @@ def get_forecast(org_id: str):
     
     return all_forecasts
 
-@app.post("/reports/generate")
+@app.post("/reports/generate", dependencies=[Depends(verify_token)])
 def generate_report(org_id: str):
     filename = f"report_{org_id}.pdf"
     c = canvas.Canvas(filename)

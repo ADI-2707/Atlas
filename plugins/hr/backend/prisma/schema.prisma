@@ -68,6 +68,8 @@ model LeaveRequest {
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
+  @@index([employeeId])
   @@map("hr_leave_requests")
 }
 
@@ -83,6 +85,7 @@ model LeaveBalance {
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@unique([employeeId, leaveType, year])
+  @@index([organizationId])
   @@map("hr_leave_balances")
 }
 
@@ -100,5 +103,7 @@ model PayrollRecord {
 
   employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
+  @@index([employeeId])
   @@map("hr_payroll_records")
 }

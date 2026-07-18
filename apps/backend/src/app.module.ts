@@ -15,6 +15,7 @@ import { AdminModule } from './admin/admin.module';
 import { PluginActiveGuard } from './plugins/guards/plugin-active.guard';
 import { NotificationsModule } from './notifications/notifications.module';
 import { QueuesModule } from './queues/queues.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -23,6 +24,10 @@ import { QueuesModule } from './queues/queues.module';
       envFilePath: ['.env'],
     }),
     EventEmitterModule.forRoot(),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
     PrismaModule,
     HealthModule,
     AuthModule,
@@ -36,6 +41,10 @@ import { QueuesModule } from './queues/queues.module';
     QueuesModule,
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

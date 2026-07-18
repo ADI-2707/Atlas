@@ -6,6 +6,15 @@ export class AnalyticsService {
   private readonly logger = new Logger(AnalyticsService.name);
   private readonly ENGINE_URL = process.env.ANALYTICS_ENGINE_URL || 'http://analytics-engine:8000';
   private readonly redis = new Redis(process.env.REDIS_URL || 'redis://redis:6379');
+  private readonly API_KEY = process.env.ANALYTICS_API_KEY || '';
+
+  private getAuthHeaders(extraHeaders: Record<string, string> = {}) {
+    return {
+      'Content-Type': 'application/json',
+      ...(this.API_KEY ? { 'Authorization': `Bearer ${this.API_KEY}` } : {}),
+      ...extraHeaders,
+    };
+  }
 
   async getDashboardMetrics(organizationId: string) {
     try {
@@ -15,7 +24,9 @@ export class AnalyticsService {
         return JSON.parse(cached);
       }
 
-      const response = await fetch(`${this.ENGINE_URL}/dashboard?org_id=${organizationId}`);
+      const response = await fetch(`${this.ENGINE_URL}/dashboard?org_id=${organizationId}`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) {
         throw new Error(`Python Engine returned ${response.status}`);
       }
@@ -42,7 +53,9 @@ export class AnalyticsService {
         return JSON.parse(cached);
       }
 
-      const response = await fetch(`${this.ENGINE_URL}/anomalies?org_id=${organizationId}`);
+      const response = await fetch(`${this.ENGINE_URL}/anomalies?org_id=${organizationId}`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch anomalies');
       
       const data = await response.json();
@@ -62,7 +75,9 @@ export class AnalyticsService {
         return JSON.parse(cached);
       }
 
-      const response = await fetch(`${this.ENGINE_URL}/forecast?org_id=${organizationId}`);
+      const response = await fetch(`${this.ENGINE_URL}/forecast?org_id=${organizationId}`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch forecasts');
       
       const data = await response.json();
@@ -77,7 +92,8 @@ export class AnalyticsService {
   async generateReport(organizationId: string) {
     try {
       const response = await fetch(`${this.ENGINE_URL}/reports/generate?org_id=${organizationId}`, {
-        method: 'POST'
+        method: 'POST',
+        headers: this.getAuthHeaders(),
       });
       if (!response.ok) throw new Error('Failed to generate report');
       
@@ -96,7 +112,9 @@ export class AnalyticsService {
         return JSON.parse(cached);
       }
 
-      const response = await fetch(`${this.ENGINE_URL}/timeseries?org_id=${organizationId}`);
+      const response = await fetch(`${this.ENGINE_URL}/timeseries?org_id=${organizationId}`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) {
         throw new Error(`Python Engine timeseries returned ${response.status}`);
       }
@@ -114,6 +132,7 @@ export class AnalyticsService {
     try {
       const response = await fetch(`${this.ENGINE_URL}/sync?org_id=${organizationId}`, {
         method: 'POST',
+        headers: this.getAuthHeaders(),
       });
       if (!response.ok) {
         throw new Error(`Python Engine sync returned ${response.status}`);

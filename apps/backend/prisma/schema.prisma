@@ -152,6 +152,8 @@ model AuditLog {
   sessionId      String?       @map("session_id")
   details        Json?         @default("{}")
 
+  @@index([organizationId])
+  @@index([userId])
   @@map("audit_logs")
   @@schema("atlas_core")
 }
@@ -232,6 +234,7 @@ model Notification {
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
 
+  @@index([userId])
   @@map("notifications")
   @@schema("atlas_core")
 }
